@@ -1,71 +1,479 @@
+# train.py
+# -*- coding: utf-8 -*-
+import os
+import json
+import time
+import glob
+import logging
+import math
+from typing import Optional, Tuple, Dict, Any
+
 import torch
 import torch.nn as nn
 import torch.optim as optim
-import os
+import numpy as np
 
-def train(model, train_loader, val_loader, args):
-    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-    epochs = args.epochs
-    criterion_cls = nn.BCEWithLogitsLoss()
-    criterion_reg = nn.MSELoss()
-    learning_rate = args.learning_rate
-    optimizer = optim.Adam(model.parameters(), lr=learning_rate)
-    save_path = args.output_path
-    os.makedirs(os.path.dirname(save_path), exist_ok=True)  # 确保目录存在
+from run_epoch import run_epoch
+
+
+def _make_optimizer(model: nn.Module, args) -> optim.Optimizer:
+    base_lr = float(getattr(args, "learning_rate", 1e-5))
+    head_mul = float(getattr(args, "head_lr_mult", 1.0))
+    weight_decay = float(getattr(args, "weight_decay", 0.0))
     
-    model.to(device)
-    best_val_loss = float('inf')
+    params = []
+    trunk_ids = set()
 
-    print('Start training...')
+    # 若模型显式暴露 cls_head / reg_head，则 head 用更高 LR
+    if hasattr(model, "cls_head") or hasattr(model, "reg_head"):
+        if hasattr(model, "cls_head"):
+            params.append({
+                "params": model.cls_head.parameters(), 
+                "lr": base_lr * head_mul,
+                "weight_decay": weight_decay
+            })
+        if hasattr(model, "reg_head"):
+            params.append({
+                "params": model.reg_head.parameters(), 
+                "lr": base_lr * head_mul,
+                "weight_decay": weight_decay
+            })
+        for n, p in model.named_parameters():
+            is_head = n.startswith("cls_head") or n.startswith("reg_head")
+            if (not is_head) and p.requires_grad:
+                trunk_ids.add(id(p))
+        if trunk_ids:
+            trunk = [p for p in model.parameters() if id(p) in trunk_ids]
+            params.append({
+                "params": trunk, 
+                "lr": base_lr,
+                "weight_decay": weight_decay
+            })
+        logging.info(f"Optimizer: {len(params)} param groups, head_lr_mult={head_mul}")
+    else:
+        params = [{
+            "params": model.parameters(),
+            "lr": base_lr,
+            "weight_decay": weight_decay
+        }]
+        logging.info("Optimizer: single param group")
+
+    # 支持 AdamW
+    optimizer_type = str(getattr(args, "optimizer", "adam")).lower()
+    if optimizer_type == "adamw":
+        optimizer = optim.AdamW(params, lr=base_lr, weight_decay=weight_decay)
+    else:
+        optimizer = optim.Adam(params, lr=base_lr, weight_decay=weight_decay)
+    
+    return optimizer
+
+
+def _make_scheduler(optimizer: optim.Optimizer, args):
+    kind = str(getattr(args, "lr_scheduler", "step")).lower()
+    
+    if kind == "cosine":
+        t0 = int(getattr(args, "t0", 50))
+        eta_min_ratio = float(getattr(args, "eta_min_ratio", 0.01))
+        base_lrs = [g["lr"] for g in optimizer.param_groups]
+        eta_min = min(base_lrs) * eta_min_ratio if base_lrs else 0.0
+        scheduler = torch.optim.lr_scheduler.CosineAnnealingWarmRestarts(
+            optimizer, T_0=t0, T_mult=1, eta_min=eta_min
+        )
+        logging.info(f"Scheduler: CosineAnnealingWarmRestarts (T_0={t0})")
+    
+    elif kind == "plateau":
+        # 对于分类问题，使用宏平均F1作为监控指标
+        patience = int(getattr(args, "lr_patience", 5))
+        factor = float(getattr(args, "lr_factor", 0.5))
+        scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(
+            optimizer, mode='max', patience=patience, factor=factor, verbose=True
+        )
+        logging.info(f"Scheduler: ReduceLROnPlateau (patience={patience}, factor={factor})")
+    
+    else:  # step
+        step_size = int(getattr(args, "lr_step", 100))
+        gamma = float(getattr(args, "lr_gamma", 0.1))
+        scheduler = torch.optim.lr_scheduler.StepLR(
+            optimizer, step_size=step_size, gamma=gamma
+        )
+        logging.info(f"Scheduler: StepLR (step={step_size}, gamma={gamma})")
+    
+    return scheduler
+
+
+def _calc_main_score(args, val_pack: Tuple) -> float:
+    """
+    从 run_epoch 的返回元组中取指标，计算主指标分数。
+    run_epoch 返回：
+      (loss_total, bit_acc, avg_reg_loss, f1_macro, precision_macro, recall_macro,
+       auc_macro, mae_pos, mse_pos, placeholders..., stats_dict)
+    """
+    (val_loss, val_acc, _, val_f1, val_prec, val_rec, val_auc, val_mae, val_mse, *_tail) = val_pack
+
+    metric = str(getattr(args, "main_metric", "f1")).lower()
+    
+    if metric == "loss":
+        return -float(val_loss)  # 最小化 loss -> 取负数用于"最大化"比较
+    elif metric == "auc":
+        return float(val_auc)
+    elif metric == "acc":
+        return float(val_acc)
+    elif metric == "fbeta":
+        beta = float(getattr(args, "fbeta", 1.0))
+        # 用宏平均 P/R 计算 Fβ
+        denom = (beta ** 2) * val_prec + val_rec
+        if denom <= 0:
+            return 0.0
+        return (1 + beta ** 2) * (val_prec * val_rec) / denom
+    elif metric == "mae":
+        return -float(val_mae)  # MAE 越小越好，取负值
+    elif metric == "mse":
+        return -float(val_mse)  # MSE 越小越好，取负值
+    elif metric == "rmse":
+        return -math.sqrt(float(val_mse)) if val_mse > 0 else 0.0  # RMSE 越小越好
+    else:  # 默认 f1
+        return float(val_f1)
+
+
+def _analyze_regression_performance(val_pack: Tuple, args):
+    """分析回归性能，提供诊断信息"""
+    (val_loss, val_acc, val_reg_loss, val_f1, val_prec, val_rec, val_auc, val_mae, val_mse, *_tail) = val_pack
+    val_rmse = math.sqrt(val_mse) if val_mse > 0 else 0.0
+    
+    logging.info("=== Regression Performance Analysis ===")
+    logging.info(f"MAE: {val_mae:.4f}, MSE: {val_mse:.4f}, RMSE: {val_rmse:.4f}")
+    logging.info(f"Regression Loss: {val_reg_loss:.4f}")
+    
+    # 提供改进建议
+    if val_mse > 10000:
+        logging.warning("🚨 Very high MSE detected! Regression task might be too difficult.")
+        logging.info("💡 Since we've lowered regression weights, focus on classification metrics.")
+    elif val_mse > 1000:
+        logging.info("⚠️  High MSE detected, but regression is secondary to classification.")
+
+
+def _auto_find_latest_ckpt(output_path: str) -> Optional[str]:
+    cands = sorted(glob.glob(os.path.join(output_path, "*.pth")))
+    return cands[-1] if cands else None
+
+
+def _save_best_thresholds(stats: Dict[str, Any], out_dir: str):
+    try:
+        best_thr = stats.get("overall", {}).get("best_thresholds", None)
+        if best_thr is not None:
+            p = os.path.join(out_dir, "best_thresholds.json")
+            with open(p, "w", encoding="utf-8") as f:
+                json.dump(list(map(float, best_thr)), f, ensure_ascii=False, indent=2)
+            logging.info(f"[VAL] Saved best thresholds -> {p} | {best_thr}")
+    except Exception as e:
+        logging.warning(f"[VAL] Save thresholds failed: {e}")
+
+
+def _save_training_metadata(args, best_epoch: int, best_score: float, output_path: str):
+    """保存训练元数据"""
+    try:
+        metadata = {
+            "best_epoch": best_epoch,
+            "best_score": best_score,
+            "main_metric": getattr(args, "main_metric", "f1"),
+            "model": getattr(args, "model", ""),
+            "training_completed": time.strftime('%Y-%m-%d %H:%M:%S'),
+            "args": {k: str(v) for k, v in vars(args).items()}
+        }
+        
+        metadata_path = os.path.join(output_path, "training_metadata.json")
+        with open(metadata_path, "w", encoding="utf-8") as f:
+            json.dump(metadata, f, ensure_ascii=False, indent=2)
+    except Exception as e:
+        logging.warning(f"Failed to save training metadata: {e}")
+
+
+def train(model: nn.Module, train_loader, val_loader, args):
+    device = args.device
+    model = model.to(device)
+
+    # 明确设置损失权重，确保传递到 run_epoch
+    args.lambda_cls = float(getattr(args, "lambda_cls", 1.0))
+    args.lambda_reg = float(getattr(args, "lambda_reg", 0.3))  # 显著降低回归权重
+    args.lambda_cum = float(getattr(args, "lambda_cum", 0.01)) # 进一步降低累积量权重
+    
+    optimizer = _make_optimizer(model, args)
+    scheduler = _make_scheduler(optimizer, args)
+
+    best_score = float("-inf")
+    best_epoch = -1
+    best_ckpt_path = None
+    patience = int(getattr(args, "patience", 10))
+    no_improve = 0
+
+    epochs = int(getattr(args, "epochs", 100))
+    
+    # 训练历史记录
+    train_history = {
+        'epoch': [],
+        'train_loss': [],
+        'val_score': [],
+        'val_f1': [],
+        'val_mae': [],
+        'val_mse': [],
+        'learning_rate': []
+    }
+
+    logging.info(f"Start training for up to {epochs} epochs. main_metric={args.main_metric}")
+    logging.info(f"Loss weights - cls: {args.lambda_cls}, reg: {args.lambda_reg}, cum: {args.lambda_cum}")
+    if hasattr(args, 'fixed_thresholds'):
+        logging.info(f"Fixed thresholds: {args.fixed_thresholds}")
+
+    start_time = time.time()
+
     for epoch in range(epochs):
-        model.train()
-        total_loss = 0
-        for batch_idx, (data, label) in enumerate(train_loader):
-            data, label = data.to(device), label.to(device)
-            input = torch.cat([data[:, :-1, :], label[:, :-1, -2:]], dim=-1)
-            output_type = label[:, -1, 2:]  # 确保数据类型匹配 CrossEntropyLoss
-            output_flow = data[:, -1, -4:-1]
-            optimizer.zero_grad()
-            type_out, flow_out = model(input)
-            loss_cls = criterion_cls(type_out, output_type)  # 分类损失
-            loss_reg = criterion_reg(flow_out, output_flow)  # 回归损失
-            loss = loss_cls# + loss_reg*0.0001
+        epoch_start = time.time()
+        logging.info(f"Epoch {epoch+1}/{epochs} started at {time.strftime('%Y-%m-%d_%H-%M-%S', time.localtime())}")
+
+        # ---- Train ----
+        train_pack = run_epoch(
+            model, train_loader, optimizer=optimizer,
+            criterion_classification=None, criterion_regression=None,
+            device=device, args=args, is_train=True, epoch=epoch
+        )
+        train_loss = float(train_pack[0])
+
+        # ---- Val ----
+        val_pack = run_epoch(
+            model, val_loader, optimizer=None,
+            criterion_classification=None, criterion_regression=None,
+            device=device, args=args, is_train=False, epoch=epoch
+        )
+        val_stats = val_pack[-1] if isinstance(val_pack[-1], dict) else {}
+        main_score = _calc_main_score(args, val_pack)
+        
+        # 提取详细指标用于分析
+        (val_loss, val_acc, val_reg_loss, val_f1, val_prec, val_rec, val_auc, val_mae, val_mse, *_tail) = val_pack
+
+        # ---- 学习率调度 ----
+        current_lr = optimizer.param_groups[0]['lr']
+        try:
+            if isinstance(scheduler, torch.optim.lr_scheduler.ReduceLROnPlateau):
+                # 对于分类任务，使用F1分数作为监控指标
+                scheduler.step(main_score)
+            else:
+                scheduler.step()
+        except Exception as e:
+            logging.warning(f"Scheduler step failed: {e}")
+
+        # ---- 记录历史 ----
+        train_history['epoch'].append(epoch + 1)
+        train_history['train_loss'].append(train_loss)
+        train_history['val_score'].append(main_score)
+        train_history['val_f1'].append(val_f1)
+        train_history['val_mae'].append(val_mae)
+        train_history['val_mse'].append(val_mse)
+        train_history['learning_rate'].append(current_lr)
+
+        epoch_time = time.time() - epoch_start
+        
+        # 更详细的日志输出，重点关注分类指标
+        logging.info(f"[TRAIN] loss={train_loss:.6f}, "
+                    f"[VAL] {args.main_metric}={main_score:.4f}, "
+                    f"F1={val_f1:.4f}, Acc={val_acc:.4f}, "
+                    f"MAE={val_mae:.4f}, lr={current_lr:.2e}, time={epoch_time:.1f}s")
+
+        # 定期分析回归性能（频率降低，因为回归不是重点）
+        if epoch % 10 == 0:
+            _analyze_regression_performance(val_pack, args)
+
+        # ---- 保存最佳模型 ----
+        if not np.isfinite(main_score):  # NaN guard
+            logging.warning("[VAL] main_score is NaN, skip improvement check.")
+        elif main_score > best_score:
+            best_score = main_score
+            best_epoch = epoch
+            stamp = time.strftime('%Y%m%d_%H%M%S', time.localtime())
+            os.makedirs(args.output_path, exist_ok=True)
+            ckpt_path = os.path.join(
+                args.output_path, 
+                f"{args.model}_best_{args.main_metric}_{best_score:.4f}_e{epoch+1}_{stamp}.pth"
+            )
             
-            loss.backward()
-            optimizer.step()
-            total_loss += loss.item()
+            # 保存完整检查点（包括优化器状态等）
+            torch.save({
+                'epoch': epoch + 1,
+                'model_state_dict': model.state_dict(),
+                'optimizer_state_dict': optimizer.state_dict(),
+                'scheduler_state_dict': scheduler.state_dict() if scheduler else None,
+                'best_score': best_score,
+                'args': vars(args)
+            }, ckpt_path)
+            
+            best_ckpt_path = ckpt_path
+            _save_best_thresholds(val_stats, args.output_path)
+            logging.info(f"[VAL] New best ({args.main_metric}={best_score:.4f}) at epoch {epoch+1}, saved -> {ckpt_path}")
+            no_improve = 0
+        else:
+            no_improve += 1
+            logging.info(f"[VAL] No improvement for {no_improve} epoch(s). best={best_score:.4f} @e{best_epoch+1}")
 
-        avg_loss = total_loss / len(train_loader)
-        print(f'Epoch [{epoch+1}/{epochs}], Loss: {avg_loss:.4f}',
-              f'loss_cls:{loss_cls:.4f}',
-              f'loss_reg:{loss_reg:.4f}'
-              )
+        # ---- 保存训练历史 ----
+        if epoch % 10 == 0:  # 每10个epoch保存一次历史
+            try:
+                history_path = os.path.join(args.output_path, "training_history.json")
+                with open(history_path, "w", encoding="utf-8") as f:
+                    json.dump(train_history, f, ensure_ascii=False, indent=2)
+            except Exception as e:
+                logging.warning(f"Failed to save training history: {e}")
 
-        # Validation
-        model.eval()
-        val_loss = 0
-        with torch.no_grad():
-            for data, label in val_loader:
-                data, label = data.to(device), label.to(device)
-                input = torch.cat([data[:, :-1, :], label[:, :-1, -2:]], dim=-1)
-                output_type = label[:, -1, 2:]  # 确保数据类型匹配 CrossEntropyLoss
-                output_flow = data[:, -1, -4:-1]
+        # ---- Early stopping ----
+        if no_improve >= patience:
+            logging.info(f"Early stopping at epoch {epoch+1} (patience={patience}). Best {args.main_metric}={best_score:.4f} @epoch {best_epoch+1}")
+            break
 
-                type_out, flow_out = model(input)
-                loss_cls = criterion_cls(type_out, output_type)  # 分类损失
-                loss_reg = criterion_reg(flow_out, output_flow)  # 回归损失
-                val_loss += (loss_cls ).item() #+ loss_reg*0.0001
+    total_time = time.time() - start_time
+    logging.info(f"Training completed in {total_time:.1f}s ({total_time/60:.1f} minutes)")
 
-        avg_val_loss = val_loss / len(val_loader)
-        print(f'Validation Loss: {avg_val_loss:.4f}',
-              f'loss_cls:{loss_cls:.4f}',
-              f'loss_reg:{loss_reg:.4f}'
-              )
+    if best_ckpt_path is None:
+        # 若从未提升，也保存最后一次以备测试
+        stamp = time.strftime('%Y%m%d_%H%M%S', time.localtime())
+        best_ckpt_path = os.path.join(args.output_path, f"{args.model}_last_{stamp}.pth")
+        torch.save(model.state_dict(), best_ckpt_path)
+        logging.info(f"[WARN] No improvement observed; saved last weights -> {best_ckpt_path}")
 
-        # Save the best model
-        if avg_val_loss < best_val_loss:
-            best_val_loss = avg_val_loss
-            #设置名称，合并路径保存
-            save_path_name = os.path.join(os.path.dirname(save_path), f'best_model_epoch_{epoch+1}.pth')
-            torch.save(model.state_dict(), save_path_name)
-            print(f'Best model saved at {save_path_name} with validation loss: {best_val_loss:.4f}')
+    # 保存训练元数据
+    _save_training_metadata(args, best_epoch, best_score, args.output_path)
+
+    # 保存训练历史
+    try:
+        history_path = os.path.join(args.output_path, "training_history.json")
+        with open(history_path, "w", encoding="utf-8") as f:
+            json.dump(train_history, f, ensure_ascii=False, indent=2)
+    except Exception as e:
+        logging.warning(f"Failed to save final training history: {e}")
+
+    # 把最佳 ckpt 路径存个文件，方便 main/test 读取
+    try:
+        with open(os.path.join(args.output_path, "best_ckpt_path.txt"), "w", encoding="utf-8") as f:
+            f.write(best_ckpt_path)
+    except Exception:
+        pass
+
+    logging.info("Training complete.")
+    return best_ckpt_path, best_score, best_epoch
+
+
+def _load_ckpt_forgiving(model: nn.Module, ckpt_path: str, device):
+    state = torch.load(ckpt_path, map_location=device)
+    
+    # 处理不同的检查点格式
+    if isinstance(state, dict):
+        if 'model_state_dict' in state:
+            # 完整检查点格式
+            model_state = state['model_state_dict']
+            logging.info(f"Loaded checkpoint from epoch {state.get('epoch', 'unknown')}, "
+                        f"best_score: {state.get('best_score', 'unknown')}")
+        else:
+            # 只有模型权重的格式
+            model_state = state
+    else:
+        model_state = state
+
+    try:
+        model.load_state_dict(model_state, strict=False)
+        logging.info("Checkpoint loaded successfully with strict=False")
+    except Exception as e:
+        logging.warning(f"Non-strict loading failed: {e}, trying module prefix removal...")
+        # 移除可能的 'module.' 前缀 (DP/DDP)
+        from collections import OrderedDict
+        new_state = OrderedDict()
+        for k, v in model_state.items():
+            new_k = k.replace("module.", "") if k.startswith("module.") else k
+            new_state[new_k] = v
+        try:
+            model.load_state_dict(new_state, strict=False)
+            logging.info("Checkpoint loaded successfully after module prefix removal")
+        except Exception as e2:
+            logging.error(f"All loading attempts failed: {e2}")
+            raise
+
+
+def test(model: nn.Module, test_loader, args, ckpt_path: Optional[str] = None, thresholds_path: Optional[str] = None):
+    device = args.device
+    model = model.to(device)
+    model.eval()
+
+    # 选择 checkpoint
+    if ckpt_path is None:
+        txtp = os.path.join(args.output_path, "best_ckpt_path.txt")
+        if os.path.exists(txtp):
+            with open(txtp, "r", encoding="utf-8") as f:
+                ckpt_path = f.read().strip()
+    
+    if ckpt_path is None or (not os.path.exists(ckpt_path)):
+        ckpt_path = _auto_find_latest_ckpt(args.output_path)
+    
+    if ckpt_path and os.path.exists(ckpt_path):
+        _load_ckpt_forgiving(model, ckpt_path, device)
+        logging.info(f"[TEST] Loaded checkpoint: {ckpt_path}")
+    else:
+        logging.warning("[TEST] No checkpoint found; evaluating current weights.")
+
+    # 固定阈值（来自 VAL）
+    args.tune_thresholds = False
+    if thresholds_path is None:
+        thresholds_path = os.path.join(args.output_path, "best_thresholds.json")
+    
+    if os.path.exists(thresholds_path):
+        try:
+            with open(thresholds_path, "r", encoding="utf-8") as f:
+                best_thr = json.load(f)
+            args.fixed_thresholds = [float(x) for x in best_thr][:3]
+            logging.info(f"[TEST] Using fixed thresholds from VAL: {args.fixed_thresholds}")
+        except Exception as e:
+            logging.warning(f"[TEST] Failed to load thresholds; fallback to args.fixed_thresholds. Err={e}")
+    else:
+        logging.warning(f"[TEST] thresholds file not found: {thresholds_path}. "
+                        f"Fallback to args.fixed_thresholds={getattr(args,'fixed_thresholds', None)}")
+
+    # 评估
+    logging.info("[TEST] Starting evaluation...")
+    test_pack = run_epoch(
+        model, test_loader, optimizer=None,
+        criterion_classification=None, criterion_regression=None,
+        device=device, args=args, is_train=False, epoch=-1
+    )
+    stats = test_pack[-1] if isinstance(test_pack[-1], dict) else {}
+
+    # 分析测试结果
+    (test_loss, test_acc, test_reg_loss, test_f1, test_prec, test_rec, test_auc, test_mae, test_mse, *_tail) = test_pack
+    test_rmse = math.sqrt(test_mse) if test_mse > 0 else 0.0
+    
+    logging.info("=== Test Results ===")
+    logging.info(f"Loss: {test_loss:.4f}, Acc: {test_acc:.4f}, F1: {test_f1:.4f}, AUC: {test_auc:.4f}")
+    logging.info(f"Regression - MAE: {test_mae:.4f}, MSE: {test_mse:.4f}, RMSE: {test_rmse:.4f}")
+
+    # 持久化测试指标
+    try:
+        out_path = os.path.join(args.output_path, "test_metrics.json")
+        payload = {
+            "overall": stats.get("overall", {}),
+            "classification": stats.get("classification", {}),
+            "fixed_thresholds": getattr(args, "fixed_thresholds", None),
+            "checkpoint": ckpt_path,
+            "test_time": time.strftime('%Y-%m-%d %H:%M:%S'),
+            "detailed_metrics": {
+                "loss": float(test_loss),
+                "accuracy": float(test_acc),
+                "f1_score": float(test_f1),
+                "precision": float(test_prec),
+                "recall": float(test_rec),
+                "auc": float(test_auc),
+                "mae": float(test_mae),
+                "mse": float(test_mse),
+                "rmse": float(test_rmse)
+            }
+        }
+        with open(out_path, "w", encoding="utf-8") as f:
+            json.dump(payload, f, ensure_ascii=False, indent=2)
+        logging.info(f"[TEST] Saved metrics -> {out_path}")
+    except Exception as e:
+        logging.warning(f"[TEST] Failed to save test metrics: {e}")
+
+    return test_pack
