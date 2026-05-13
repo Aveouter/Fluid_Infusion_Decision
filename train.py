@@ -1,4 +1,3 @@
-# train.py
 # -*- coding: utf-8 -*-
 import os
 import json
@@ -6,6 +5,7 @@ import time
 import glob
 import logging
 import math
+import shutil
 from typing import Optional, Tuple, Dict, Any
 
 import torch
@@ -14,6 +14,25 @@ import torch.optim as optim
 import numpy as np
 
 from run_epoch import run_epoch
+
+
+# ------------------------------ 统计参数工具 ------------------------------ #
+def _count_params(model: nn.Module):
+    """返回(总参数, 可训练参数)，单位：个"""
+    total = sum(p.numel() for p in model.parameters())
+    trainable = sum(p.numel() for p in model.parameters() if p.requires_grad)
+    return total, trainable
+
+
+def _format_params(n: int) -> str:
+    """将参数量格式化为 K/M/B 显示"""
+    if n >= 1_000_000_000:
+        return f"{n/1_000_000_000:.2f}B"
+    if n >= 1_000_000:
+        return f"{n/1_000_000:.2f}M"
+    if n >= 1_000:
+        return f"{n/1_000:.2f}K"
+    return str(n)
 
 
 def _make_optimizer(model: nn.Module, args) -> optim.Optimizer:
@@ -168,7 +187,7 @@ def _save_training_metadata(args, best_epoch: int, best_score: float, output_pat
     try:
         metadata = {
             "best_epoch": best_epoch,
-            "best_score": best_score,           # 兼容 main_metric
+            "best_score": best_score,
             "best_f1": best_f1,
             "best_mae": best_mae,
             "best_ckpt_path": best_ckpt_path,
@@ -200,7 +219,7 @@ def train(model: nn.Module, train_loader, val_loader, args):
     best_epoch = -1
     best_ckpt_path = None
 
-    # 新增：双指标追踪（F1 大优、MAE 小优）
+    # 双指标追踪（F1 大优、MAE 小优）
     best_f1 = -float("inf")
     best_mae = float("inf")
     improve_eps = float(getattr(args, "improve_eps", 1e-8))
@@ -209,7 +228,7 @@ def train(model: nn.Module, train_loader, val_loader, args):
     no_improve = 0
     epochs = int(getattr(args, "epochs", 100))
 
-    # 历史记录
+    # 历史
     train_history = {
         'epoch': [],
         'train_loss': [],
@@ -296,7 +315,7 @@ def train(model: nn.Module, train_loader, val_loader, args):
                 best_mae = float(val_mae)
 
             best_epoch = epoch
-            best_score = float(main_score)  # 兼容 main_metric 记录
+            best_score = float(main_score)
             os.makedirs(args.output_path, exist_ok=True)
 
             ckpt_path = os.path.join(
@@ -318,7 +337,7 @@ def train(model: nn.Module, train_loader, val_loader, args):
             best_ckpt_path = ckpt_path
             _save_best_thresholds(val_stats, args.output_path)
 
-            # 同步写 best 路径（随时可被 test() 读取）
+            # 同步写 best 路径
             try:
                 with open(os.path.join(args.output_path, "best_ckpt_path.txt"), "w", encoding="utf-8") as f:
                     f.write(best_ckpt_path)
@@ -358,55 +377,38 @@ def train(model: nn.Module, train_loader, val_loader, args):
     total_time = time.time() - start_time
     logging.info(f"Training completed in {total_time:.1f}s ({total_time/60:.1f} minutes)")
 
-    # ---- 训练结束的兜底与“最终保存最好的” ----
+    # ---- 训练结束兜底 ----
     os.makedirs(args.output_path, exist_ok=True)
 
-    # 若整个过程从未产生 best，则至少保存最后一次权重
     if best_ckpt_path is None:
         stamp = time.strftime('%Y%m%d_%H%M%S', time.localtime())
         best_ckpt_path = os.path.join(args.output_path, f"{args.model}_last_{stamp}.pth")
         torch.save(model.state_dict(), best_ckpt_path)
         logging.info(f"[WARN] No improvement observed; saved last weights -> {best_ckpt_path}")
 
-    # 再次将“当前已知最优”的检查点写到一个稳定文件名，便于下游直接引用
+    # 统一导出 *_best.pth —— 直接复制，避免反序列化触发 PyTorch 2.6 安全限制
     final_best_path = os.path.join(args.output_path, f"{args.model}_best.pth")
     try:
-        # 读取 best_ckpt（无论是完整字典还是纯 state_dict），再以统一格式写到 *_best.pth
-        state = torch.load(best_ckpt_path, map_location="cpu")
-        if isinstance(state, dict) and 'model_state_dict' in state:
-            # 直接再保存一次为稳定文件名
-            torch.save(state, final_best_path)
+        if best_ckpt_path and os.path.exists(best_ckpt_path):
+            shutil.copyfile(best_ckpt_path, final_best_path)
+            best_ckpt_path = final_best_path
+            logging.info(f"[FINAL] Best checkpoint exported -> {final_best_path}")
         else:
-            # 仅有权重，则封装为标准字典
-            torch.save({
-                'epoch': None,
-                'model_state_dict': state if isinstance(state, dict) else state,
-                'optimizer_state_dict': None,
-                'scheduler_state_dict': None,
-                'best_score': best_score,
-                'best_f1': best_f1,
-                'best_mae': best_mae,
-                'args': vars(args)
-            }, final_best_path)
-        best_ckpt_path = final_best_path
-        logging.info(f"[FINAL] Best checkpoint exported -> {final_best_path}")
+            logging.warning(f"[FINAL] No best_ckpt_path to export: {best_ckpt_path}")
     except Exception as e:
         logging.warning(f"[FINAL] Export best checkpoint failed: {e}")
 
-    # 写 best 路径文本，供 test() 自动发现
     try:
         with open(os.path.join(args.output_path, "best_ckpt_path.txt"), "w", encoding="utf-8") as f:
             f.write(best_ckpt_path)
     except Exception:
         pass
 
-    # 保存训练元数据（包含 best_f1/mae 与路径）
     _save_training_metadata(
         args, best_epoch, best_score, args.output_path,
         best_f1=best_f1, best_mae=best_mae, best_ckpt_path=best_ckpt_path
     )
 
-    # 保存完整训练历史
     try:
         history_path = os.path.join(args.output_path, "training_history.json")
         with open(history_path, "w", encoding="utf-8") as f:
@@ -419,15 +421,47 @@ def train(model: nn.Module, train_loader, val_loader, args):
 
 
 def _load_ckpt_forgiving(model: nn.Module, ckpt_path: str, device):
-    state = torch.load(ckpt_path, map_location=device)
+    """
+    加强版加载：
+    1) 先尝试 weights_only=True（PyTorch 2.6 默认安全模式）
+    2) 尝试注册自定义安全全局（run_epoch.LossBalancer），再试一次 weights_only=True
+    3) 最后回退到 weights_only=False（仅在你确认 checkpoint 来源可信时）
+    """
+    def _try_load(weights_only_flag):
+        return torch.load(ckpt_path, map_location=device, weights_only=weights_only_flag)
 
-    if isinstance(state, dict):
-        if 'model_state_dict' in state:
-            model_state = state['model_state_dict']
-            logging.info(f"Loaded checkpoint from epoch {state.get('epoch', 'unknown')}, "
-                         f"best_score: {state.get('best_score', 'unknown')}")
-        else:
-            model_state = state
+    state = None
+
+    # 1) 安全模式
+    try:
+        state = _try_load(weights_only_flag=True)
+    except Exception as e1:
+        logging.debug(f"Safe load (weights_only=True) failed: {e1}")
+
+    # 2) 注册自定义全局再试
+    if state is None:
+        try:
+            try:
+                from run_epoch import LossBalancer  # 仅用于 allowlist
+                torch.serialization.add_safe_globals([LossBalancer])
+            except Exception:
+                pass
+            state = _try_load(weights_only_flag=True)
+        except Exception as e2:
+            logging.debug(f"Safe load with allowlist failed: {e2}")
+
+    # 3) 明确不安全模式
+    if state is None:
+        logging.warning(
+            "Safe load failed; falling back to weights_only=False. "
+            "Only do this if you trust the checkpoint source."
+        )
+        state = _try_load(weights_only_flag=False)
+
+    if isinstance(state, dict) and 'model_state_dict' in state:
+        model_state = state['model_state_dict']
+        logging.info(f"Loaded checkpoint from epoch {state.get('epoch', 'unknown')}, "
+                     f"best_score: {state.get('best_score', 'unknown')}")
     else:
         model_state = state
 
@@ -439,20 +473,48 @@ def _load_ckpt_forgiving(model: nn.Module, ckpt_path: str, device):
         from collections import OrderedDict
         new_state = OrderedDict()
         for k, v in model_state.items():
-            new_k = k.replace("module.", "") if k.startswith("module.") else k
+            new_k = k.replace("module.", "") if isinstance(k, str) and k.startswith("module.") else k
             new_state[new_k] = v
-        try:
-            model.load_state_dict(new_state, strict=False)
-            logging.info("Checkpoint loaded successfully after module prefix removal")
-        except Exception as e2:
-            logging.error(f"All loading attempts failed: {e2}")
-            raise
+        model.load_state_dict(new_state, strict=False)
+        logging.info("Checkpoint loaded successfully after module prefix removal")
+
+
+# ------------------------------ 更稳的 JSON 导出 ------------------------------ #
+def _to_py(obj):
+    if isinstance(obj, (np.floating, np.integer)):
+        return float(obj)
+    if isinstance(obj, (np.ndarray,)):
+        return obj.tolist()
+    if torch.is_tensor(obj):
+        return obj.detach().cpu().tolist()
+    if isinstance(obj, (list, tuple)):
+        return [_to_py(x) for x in obj]
+    if isinstance(obj, dict):
+        return {k: _to_py(v) for k, v in obj.items()}
+    if isinstance(obj, (float, int, str, bool)) or obj is None:
+        return obj
+    return str(obj)
 
 
 def test(model: nn.Module, test_loader, args, ckpt_path: Optional[str] = None, thresholds_path: Optional[str] = None):
     device = args.device
     model = model.to(device)
     model.eval()
+
+    # ========= 在这里计算模型的参数量等数值 =========
+    total_params = sum(p.numel() for p in model.parameters())
+    trainable_params = sum(p.numel() for p in model.parameters() if p.requires_grad)
+
+    # 简单估算模型大小（假设 float32 -> 4 字节）
+    param_size_bytes = total_params * 4
+    param_size_mb = param_size_bytes / (1024 ** 2)
+
+    logging.info(
+        f"[TEST] Model parameters: total={total_params:,}, "
+        f"trainable={trainable_params:,}, "
+        f"approx_size={param_size_mb:.2f} MB (fp32)"
+    )
+    # ========================================
 
     # 选择 checkpoint
     if ckpt_path is None:
@@ -462,7 +524,6 @@ def test(model: nn.Module, test_loader, args, ckpt_path: Optional[str] = None, t
                 ckpt_path = f.read().strip()
 
     if ckpt_path is None or (not os.path.exists(ckpt_path)):
-        # 尝试 *_best.pth 或最新 .pth
         candidate = os.path.join(args.output_path, f"{args.model}_best.pth")
         ckpt_path = candidate if os.path.exists(candidate) else _auto_find_latest_ckpt(args.output_path)
 
@@ -486,35 +547,115 @@ def test(model: nn.Module, test_loader, args, ckpt_path: Optional[str] = None, t
         except Exception as e:
             logging.warning(f"[TEST] Failed to load thresholds; fallback to args.fixed_thresholds. Err={e}")
     else:
-        logging.warning(f"[TEST] thresholds file not found: {thresholds_path}. "
-                        f"Fallback to args.fixed_thresholds={getattr(args,'fixed_thresholds', None)}")
+        logging.warning(
+            f"[TEST] thresholds file not found: {thresholds_path}. "
+            f"Fallback to args.fixed_thresholds={getattr(args, 'fixed_thresholds', None)}"
+        )
 
-    # 评估
+    # ---------- 评测计时开始 ----------
+    torch.cuda.synchronize(device) if torch.cuda.is_available() else None
+    eval_start = time.time()
+
     logging.info("[TEST] Starting evaluation...")
     test_pack = run_epoch(
         model, test_loader, optimizer=None,
         criterion_classification=None, criterion_regression=None,
         device=device, args=args, is_train=False, epoch=-1
     )
+
+    torch.cuda.synchronize(device) if torch.cuda.is_available() else None
+    eval_dur = time.time() - eval_start
+    # ---------- 评测计时结束 ----------
+
+    # 基本统计
     stats = test_pack[-1] if isinstance(test_pack[-1], dict) else {}
 
     (test_loss, test_acc, test_reg_loss, test_f1, test_prec, test_rec,
      test_auc, test_mae, test_mse, *_tail) = test_pack
     test_rmse = math.sqrt(test_mse) if test_mse > 0 else 0.0
 
+    overall = stats.get("overall", {})
+    r_pos   = float(overall.get("pearson_r_pos", 0.0))
+    r2_pos  = float(overall.get("r2_pos", 0.0))
+    ndtw_mean = float(overall.get("ndtw_mean", 0.0))
+    ndtw_p50  = float(overall.get("ndtw_p50", 0.0))
+    ndtw_p90  = float(overall.get("ndtw_p90", 0.0))
+    time_ind  = overall.get("time_indicator", {}) or {}
+    mae_per_h = time_ind.get("mae_per_h", [])
+    rmse_per_h = time_ind.get("rmse_per_h", [])
+
+    # 估计样本与吞吐
+    n_batches = None
+    bs_hint = None
+    n_samples = None
+    try:
+        n_batches = len(test_loader)
+    except Exception:
+        pass
+    try:
+        bs_hint = getattr(test_loader, "batch_size", None)
+    except Exception:
+        pass
+    # 优先从 stats 里拿（如果 run_epoch 里有写入）
+    n_samples = overall.get("n_samples") if isinstance(overall, dict) else None
+    if n_samples is None:
+        # 次优：dataset 长度
+        try:
+            n_samples = len(test_loader.dataset)
+        except Exception:
+            n_samples = None
+    # 仍拿不到就按 batch 粗估
+    if (n_samples is None) and (n_batches is not None) and (bs_hint is not None):
+        n_samples = n_batches * bs_hint
+
+    if eval_dur > 0:
+        if n_samples is not None:
+            throughput = n_samples / eval_dur
+            logging.info(
+                f"[TEST] Elapsed={eval_dur:.3f}s, Samples={n_samples}, "
+                f"Throughput={throughput:.2f} samples/s"
+            )
+        else:
+            throughput = None
+            logging.info(f"[TEST] Elapsed={eval_dur:.3f}s (Samples=unknown)")
+        if n_batches:
+            logging.info(
+                f"[TEST] Avg time per batch ≈ {eval_dur / n_batches:.4f}s "
+                f"over {n_batches} batches (batch_size≈{bs_hint})"
+            )
+    else:
+        logging.info("[TEST] Elapsed time too small to report throughput.")
+
+    # 结果日志
     logging.info("=== Test Results ===")
     logging.info(f"Loss: {test_loss:.4f}, Acc: {test_acc:.4f}, F1: {test_f1:.4f}, AUC: {test_auc:.4f}")
     logging.info(f"Regression - MAE: {test_mae:.4f}, MSE: {test_mse:.4f}, RMSE: {test_rmse:.4f}")
+    logging.info(
+        f"R(>0): {r_pos:.4f}, R2(>0): {r2_pos:.4f}, "
+        f"nDTW(mean): {ndtw_mean:.4f} (P50/P90: {ndtw_p50:.4f}/{ndtw_p90:.4f})"
+    )
 
     # 持久化测试指标
     try:
         out_path = os.path.join(args.output_path, "test_metrics.json")
         payload = {
-            "overall": stats.get("overall", {}),
-            "classification": stats.get("classification", {}),
-            "fixed_thresholds": getattr(args, "fixed_thresholds", None),
             "checkpoint": ckpt_path,
+            "fixed_thresholds": getattr(args, "fixed_thresholds", None),
             "test_time": time.strftime('%Y-%m-%d %H:%M:%S'),
+            "timing": {
+                "elapsed_sec": float(eval_dur),
+                "n_batches": int(n_batches) if n_batches is not None else None,
+                "batch_size_hint": int(bs_hint) if bs_hint is not None else None,
+                "n_samples": int(n_samples) if n_samples is not None else None,
+                "throughput_sps": float(n_samples / eval_dur) if (n_samples is not None and eval_dur > 0) else None,
+            },
+            "model_params": {
+                "total": int(total_params),
+                "trainable": int(trainable_params),
+                "total_fmt": f"{total_params:,}",
+                "trainable_fmt": f"{trainable_params:,}",
+                "approx_size_mb": float(param_size_mb),
+            },
             "detailed_metrics": {
                 "loss": float(test_loss),
                 "accuracy": float(test_acc),
@@ -524,8 +665,17 @@ def test(model: nn.Module, test_loader, args, ckpt_path: Optional[str] = None, t
                 "auc": float(test_auc),
                 "mae": float(test_mae),
                 "mse": float(test_mse),
-                "rmse": float(test_rmse)
-            }
+                "rmse": float(test_rmse),
+                "pearson_r_pos": r_pos,
+                "r2_pos": r2_pos,
+                "ndtw_mean": ndtw_mean,
+                "ndtw_p50": ndtw_p50,
+                "ndtw_p90": ndtw_p90,
+                "mae_per_h": _to_py(mae_per_h),
+                "rmse_per_h": _to_py(rmse_per_h),
+            },
+            "overall": _to_py(overall),
+            "classification": _to_py(stats.get("classification", {})),
         }
         with open(out_path, "w", encoding="utf-8") as f:
             json.dump(payload, f, ensure_ascii=False, indent=2)

@@ -21,10 +21,11 @@ class BaselineNetwork(nn.Module):
         encoded_y = encoded_y[:,-self.pred_length:,:].view(encoded_x.size(0), -1)  # Flatten the output  
         # 在特征维度相加
         encoded_x = torch.cat((encoded_x, encoded_y), dim=1)
-        return self.decoder(encoded_x)   
+
+        a,b = self.decoder(encoded_x)
+
+        return a.unsqueeze(1), b.unsqueeze(1)
     
-import torch
-import torch.nn as nn
 
 class BaselineNetwork_1(nn.Module):
     """
@@ -94,23 +95,16 @@ class BaselineNetwork_1(nn.Module):
         x: (B, input_dim_base)
         return: 与 decoder 对齐的输出（例如 (fspeed, ftype)）
         """
-        # 基线编码 (B, E)
         encoded_x = self.BaselineEncoder(x)  # -> (B, E)
 
-        # 时序编码 (B, T_y, E) ；注意这里假设 TemporalEncoder 是 batch_first=True
         encoded_y = self.TemporalEncoder(y, x)  # -> (B, T_y, E)
 
-        # 取最后 P 步 (B, P, E)
         encoded_y = encoded_y[:, -self.pred_length:, :]
 
-        # 将基线特征扩展到每个时间步 (B, P, E)
         encoded_x_rep = encoded_x.unsqueeze(1).expand(-1, self.pred_length, -1)
 
-        # 融合（拼接）得到 (B, P, 2E)
         dec_in = torch.cat([encoded_y, encoded_x_rep], dim=-1)
 
-        # 投影到 decoder 的 embed 维度 (B, P, hidden_dim)
         dec_in = self.to_decoder(dec_in)
 
-        # 交给解码器（内含注意力，期望 3D 输入）
         return self.decoder(dec_in)

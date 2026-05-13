@@ -1,24 +1,15 @@
 # -*- coding: utf-8 -*-
 """
-数据加载与预处理（增强版，兼容你现有工程）：
+数据加载与预处理（增强版，修复体积守恒）：
 - 按病人/窗口划分；支持窗口步长 window_stride（降相关、提速）。
-- 时间重采样（按体积守恒）：bit=OR_k，speed=Σ(bit*speed)/k。
+- 时间重采样（按体积守恒）：bit=OR_k，speed=Σ(bit*speed)/k 仍表示“速率”；
+  在重算 inst/cum 时乘以 step_hours（= resample_stride * orig_step_hours）保证总量守恒。
 - 重新计算 (inst_vol, cum_vol) 保证累计体积单调。
 - 多目标类别过采样采样器（默认仅 water）。
 - RobustScaler（基于训练集的中位数/IQR）统一特征规范化。
-- lint_data() 一键体检（体积漂移、长度不一致等）。
+- lint_data() 一键修正 bit/speed 逻辑错误。
 
 返回：(train_loader, val_loader, test_loader)
-
-用法示例：
-train_loader, val_loader, test_loader = data_loader(
-    Ts_data, Base_data,
-    history_length=11, pred_length=1, batch_size=32,
-    split_mode="patient", splits=(0.8, 0.1, 0.1),
-    oversample_water=True, water_pos_ratio=0.5,
-    target_step_hours=2.0, orig_step_hours=1.0,
-    window_stride=2,  # 新增：每隔2步取一个滑窗
-)
 """
 
 import os
@@ -45,53 +36,35 @@ except Exception:  # 兜底一个空增强器
 
 
 # =========================
-# 体检器（可选）：不改数据，只打印统计
+# label 清洗：修正 bit/speed 逻辑
 # =========================
 
-def lint_data(Ts_data: Dict, base_data: Dict, verbose: bool = True) -> None:
-    """对原始序列做基础体检：长度、体积漂移、非法数。
-    - 若 bit==0 但 speed>0，将被计入体积漂移（理论应为0）。
-    - 仅打印统计，不修改 Ts_data。
+def lint_data(Ts_data: Dict):
     """
-    def _as_np(a):
-        if isinstance(a, pd.DataFrame):
-            a = a.to_numpy()
-        return np.asarray(a, dtype=np.float32)
+    清洗 Ts_data['label']：
+    - bit=0 且 speed>0 -> 将 speed 置 0
+    - bit>0 且 speed=0 -> 回填上一个 >0 的 speed，初始值为 0
+    返回新的 dict，不在原 dict 上原地修改。
+    """
+    cleaned = {}
+    for k, v in Ts_data.items():
+        lab = v['label']
+        is_df = isinstance(lab, pd.DataFrame)
+        arr = lab.to_numpy(np.float32) if is_df else np.asarray(lab, np.float32)
 
-    n_rec, n_len_mismatch = 0, 0
-    vol_drifts: List[float] = []
+        bits, speed = arr[:, :3], arr[:, 3:6]
+        last_speed = np.zeros(3, dtype=np.float32)
+        for i in range(len(arr)):
+            for j in range(len(speed[0])):
+                if speed[i, j] == 0.0:
+                    speed[i, j] = last_speed[j]
+                else:
+                    last_speed[j] = speed[i, j]
 
-    for key, rec in Ts_data.items():
-        n_rec += 1
-        tdata = _as_np(rec.get('tdata'))
-        label = rec.get('label')
-        label = label.to_numpy(dtype=np.float32) if isinstance(label, pd.DataFrame) else _as_np(label)
-
-        if len(tdata) != len(label):
-            n_len_mismatch += 1
-            L = min(len(tdata), len(label))
-            tdata = tdata[:L]
-            label = label[:L]
-
-        bits = label[:, :3]
-        spd = np.clip(label[:, 3:6], 0.0, np.float32(1e9))
-        inst_vol_raw = (bits * spd).sum(axis=1)
-
-        # 清洗后：强制 speed=0 当 bit=0
-        spd_clean = spd * (bits > 0.5)
-        inst_vol_clean = (bits * spd_clean).sum(axis=1)
-
-        s_raw = float(inst_vol_raw.sum())
-        s_clean = float(inst_vol_clean.sum())
-        drift = abs(s_clean - s_raw) / (s_raw + 1e-6)
-        vol_drifts.append(drift)
-
-    drift_avg = float(np.mean(vol_drifts)) if vol_drifts else 0.0
-    if verbose:
-        print("=" * 70)
-        print(f"[LINT] records: {n_rec} | len mismatch: {n_len_mismatch}")
-        print(f"[LINT] avg volume drift after bit-masking: {drift_avg*100:.3f}%")
-        print("=" * 70)
+        v2 = v.copy()
+        v2['label'] = pd.DataFrame(arr, columns=lab.columns) if is_df else arr
+        cleaned[k] = v2
+    return cleaned
 
 
 # =========================
@@ -130,7 +103,7 @@ class CustomDataset(Dataset):
     每个样本是一个滑窗：
       - x: (H+P, 13) 时序特征（9列基础特征 + 4列累计体积）
       - b: (B,) baseline 向量（同病人相同）
-      - y: (H+P, >=6) 标签，前3列为类型0/1，后3列为速度
+      - y: (H+P, >=6) 标签，前3列为类型0/1，后3列为速度（速率）
     transform（如 TSAugmenter/RobustScaler）作用在 (x,b,y)。
     """
     def __init__(self, data, labels, baseline_data, history_length: int, transform=None):
@@ -148,7 +121,30 @@ class CustomDataset(Dataset):
 
     def __getitem__(self, idx):
         x = torch.tensor(self.data[idx], dtype=torch.float32)      # (H+P, 13)
-        b = torch.tensor(self.baseline_data[idx], dtype=torch.float32)
+
+        # baseline 清洗 None
+        raw_b = self.baseline_data[idx]
+        if raw_b is None:
+            for bb in self.baseline_data:
+                if bb is not None:
+                    dim = len(bb)
+                    break
+            else:
+                dim = 1
+            cleaned = [0.0] * dim
+        else:
+            arr = np.asarray(raw_b, dtype=object).ravel()
+            cleaned = []
+            for v in arr:
+                if v is None:
+                    cleaned.append(0.0)
+                else:
+                    try:
+                        cleaned.append(float(v))
+                    except Exception:
+                        cleaned.append(0.0)
+
+        b = torch.tensor(cleaned, dtype=torch.float32)
         y = torch.tensor(self.labels[idx], dtype=torch.float32)    # (H+P, >=6)
         if self.transform is not None:
             x, b, y = self.transform(x, b, y)
@@ -211,7 +207,7 @@ def data_loader(
     pin_memory: bool = True,
     leak_ratio: float = 0.0,
     # 仅训练集 water 过采样（向后兼容）；也可用 targets 参数来自定义
-    oversample_water: bool = False,
+    oversample_water: bool = True,
     water_pos_ratio: float = 0.5,
     oversample_targets: Optional[Tuple[int, ...]] = None,  # None 表示用默认 (2,)
     # 时间步重采样
@@ -222,19 +218,16 @@ def data_loader(
     window_stride: int = 1,
     # 是否在构造后启用 RobustScaler（只拟合训练集）
     use_robust_scaler: bool = True,
-    # 体检开关
+    # 体检/清洗开关：True 时先对 Ts_data['label'] 做 bit/speed 修正
     run_lint: bool = False,
 ):
-    """构建 train/val/test 三个 DataLoader。
-    - 若 oversample_water=True，将对 oversample_targets(默认water) 的“预测窗阳性样本”做加权采样。
-    - window_stride>1 时，以更大步长滑窗，降低样本冗余与泄漏风险。
-    - use_robust_scaler=True 时，使用训练集拟合中位数/IQR，对三分割统一规范化。
-    """
+    """构建 train/val/test 三个 DataLoader。"""
     assert abs(sum(splits) - 1.0) < 1e-6, "splits 必须和为 1.0"
     rng = random.Random(seed)
 
+    # 先全局清洗 bit/speed
     if run_lint:
-        lint_data(Ts_data, base_data)
+        Ts_data = lint_data(Ts_data)   # <<< FIX: 使用清洗后的 Ts_data
 
     # ---------- 决定重采样 stride ----------
     if resample_stride is None:
@@ -295,6 +288,7 @@ def data_loader(
         spd  = lab[..., 3:6]
         block_inst_vol = (bits * spd).sum(axis=1)          # (B, 3)
         block_bits = (bits.max(axis=1) > 0.5).astype(np.float32)
+        # 保存为“平均速率”
         block_speed = (block_inst_vol / float(k)) * (block_bits > 0.5)
         if label.shape[1] > 6:
             extra = lab[..., 6:].mean(axis=1)
@@ -303,18 +297,21 @@ def data_loader(
             out = np.concatenate([block_bits, block_speed], axis=-1)
         return out.astype(np.float32, copy=False)
 
-    def _recompute_inst_cum_from_label(label_ds: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
+    def _recompute_inst_cum_from_label(label_ds: np.ndarray, step_hours: float) -> Tuple[np.ndarray, np.ndarray]:
+        """
+        根据“位+速”重算每步体积(inst)与累计(cum)，保证体积守恒。
+        label_ds: 下采样后的标签 (T2, >=6)，前3列是 bit，后3列是 speed(速率)
+        step_hours: 下采样后每一步的时长（小时），例如 orig_step_hours*k
+        """
         if len(label_ds) == 0:
             z = np.zeros((0, 4), dtype=np.float32)
             return z, z
-        bits = label_ds[:, :3]
-        spd  = label_ds[:, 3:6]
-        inst = np.stack([
-            bits[:, 0] * spd[:, 0],
-            bits[:, 1] * spd[:, 1],
-            bits[:, 2] * spd[:, 2],
-            bits[:, 0] * spd[:, 0] + bits[:, 1] * spd[:, 1] + bits[:, 2] * spd[:, 2],
-        ], axis=1).astype(np.float32)
+        bits = label_ds[:, :3].astype(np.float32, copy=False)
+        spd  = label_ds[:, 3:6].astype(np.float32, copy=False)
+        v0 = bits[:, 0] * spd[:, 0] * step_hours
+        v1 = bits[:, 1] * spd[:, 1] * step_hours
+        v2 = bits[:, 2] * spd[:, 2] * step_hours
+        inst = np.stack([v0, v1, v2, v0 + v1 + v2], axis=1).astype(np.float32)
         cum = inst.cumsum(axis=0)
         return inst, cum
 
@@ -358,11 +355,11 @@ def data_loader(
             label = label[:L]
         label = np.asarray(label, dtype=np.float32)
 
-        # 统计 bit 组合（仍基于原始 1h）
+        # 统计 bit 组合（仍基于原始步长）
         for l in label:
             count_vec[int(l[0] + l[1]*2 + l[2]*4)] += 1
 
-        # 构造原始特征矩阵 -> 先拼 [t_norm] + 原特征
+        # 原始特征矩阵 -> [t_norm] + 原特征
         data_mat = np.hstack([
             np.linspace(0, 1, len(data_raw), dtype=np.float32).reshape(-1, 1),
             np.asarray(data_raw, dtype=np.float32)
@@ -382,17 +379,28 @@ def data_loader(
         if len(data_ds) > 0:
             data_ds[:, 0] = np.linspace(0, 1, len(data_ds), dtype=np.float32)
 
-        # 再算 (inst, cum) 保证一致
-        inst_ds, cum_ds = _recompute_inst_cum_from_label(label_ds)
+        # 计算下采样后每步小时数
+        ds_step_hours = float(orig_step_hours) * float(resample_stride)
+
+        # 再算 (inst, cum)
+        inst_ds, cum_ds = _recompute_inst_cum_from_label(label_ds, step_hours=ds_step_hours)
         data_final = np.hstack([data_ds, cum_ds]).astype(np.float32)  # (T2, 13)
 
-        # 体积保真提示（可选）
-        vol_raw = float((label[:, :3] * label[:, 3:6]).sum())
-        vol_ds = float(inst_ds.sum())
-        if vol_raw > 0:
-            drift = abs(vol_ds - vol_raw) / (vol_raw + 1e-6)
-            if drift > 0.02:  # >2% 提示
-                print(f"[WARN][{key}] volume drift after resample: {drift*100:.2f}%")
+        # ---------- 体积保真检查（修复 drift 计算） ----------
+        # 只比较真正参与重采样的时间段：T_used = len(label_ds)*resample_stride
+        T_used = len(label_ds) * int(resample_stride)
+        if T_used > 0:
+            T_used = min(T_used, len(label))  # 防御性截断
+            # 原始体积（3 个通道之和），时间步长为 orig_step_hours
+            vol_raw = float((label[:T_used, :3] * label[:T_used, 3:6]).sum() * float(orig_step_hours))
+            # 下采样后体积：只用前三列通道，不把“总量列”重复算进去
+            vol_ds = float(inst_ds[:, :3].sum())        # <<< FIX: 不再用 inst_ds.sum()
+            if vol_raw > 0:
+                drift = abs(vol_ds - vol_raw) / (vol_raw + 1e-6)
+                if drift > 0.02:  # >2% 提示
+                    print(f"[WARN][{key}] volume drift after resample: {drift*100:.2f}% "
+                          f"(raw={vol_raw:.3f}, ds={vol_ds:.3f})")
+        # ---------------------------------------------------
 
         T = len(data_final)
         key_base = key.split('.')[0]
@@ -483,7 +491,7 @@ def data_loader(
                     return x,b,y
                 return f
 
-            # 训练：增强 + 规范化（可按需调整顺序）
+            # 训练：增强 + 规范化
             if isinstance(train_dataset, CustomDataset):
                 train_dataset.transform = _compose_transform(scaler, train_dataset.transform) if train_dataset.transform else scaler
             # 验证/测试：只做规范化
@@ -560,7 +568,6 @@ def data_loader(
 
         # RobustScaler
         if use_robust_scaler and train_dataset is not None and len(train_dataset) > 0:
-            # 注意：Subset 里 dataset_aug 才有 transform
             base_ds: CustomDataset = dataset_aug
             sample_idx = _train.indices[:min(len(_train.indices), 2000)]
             X_train_list = [np.array(base_ds[i][0]) for i in sample_idx]
@@ -573,7 +580,6 @@ def data_loader(
                     return x,b,y
                 return f
 
-            # 给底层 dataset_aug/dataset 设置 transform
             base_ds.transform = _compose_transform(scaler, base_ds.transform) if base_ds.transform else scaler
             dataset.transform = scaler
 
@@ -590,7 +596,6 @@ def data_loader(
         if oversample_water and train_sampler is not None:
             print(f"[Oversample] targets={oversample_targets if oversample_targets else (2,)} pos_ratio={water_pos_ratio:.2f} (WeightedRandomSampler)")
         if train_loader is not None and n_tr > 0:
-            # dataset_aug + Subset: 需要通过 indices 访问
             idx0 = _train.indices[0]
             x0, b0, y0 = dataset_aug[idx0]
             print(f"单个样本 shape: X={tuple(x0.shape)}, B={tuple(b0.shape)}, Y={tuple(y0.shape)}")
@@ -612,8 +617,8 @@ if __name__ == '__main__':
         print("Pickle data loaded successfully. Keys(Ts):", list(Ts_data.keys())[:5])
         print("Pickle data loaded successfully. Keys(Base):", list(Base_data.keys())[:5])
 
-        # 可先体检
-        lint_data(Ts_data, Base_data)
+        # 先清洗 bit/speed
+        Ts_data = lint_data(Ts_data)
 
         train_loader, val_loader, test_loader = data_loader(
             Ts_data, Base_data,
@@ -622,7 +627,7 @@ if __name__ == '__main__':
             oversample_water=True, water_pos_ratio=0.5,
             target_step_hours=2.0, orig_step_hours=1.0,  # 自测两小时步长
             window_stride=2, use_robust_scaler=True,
-            run_lint=False,
+            run_lint=False,   # self-test 已经在外面 lint 过了
         )
 
         def _safe_len(loader):

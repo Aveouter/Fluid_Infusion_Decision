@@ -1,4 +1,3 @@
-# main.py
 # -*- coding: utf-8 -*-
 import os
 import time
@@ -19,8 +18,23 @@ from models.transformer import TransformerBaselineNetwork
 from models.Lstm import LSTMBaselineNetwork
 from models.Flim import build_model_film_ziln
 from models.mlp import SimpleMLP
-from models.tcn_film import build_model_tcn_film_ziln
+from models.traditional_ml_models import (
+    build_model_ml_lr_gbr,
+    build_model_ml_ridge,
+    build_model_ml_svr,
+)
 
+# ★★ 关键：改为从“消融实现文件”导入 ours 系列构建器 ★★
+# 确保你的文件存在：models/tcn_film_ablation_models.py
+from models.tcn_film import (
+    build_tcnfilm_wo_temporal,
+    build_tcnfilm_wo_baseline,
+    build_tcnfilm_wo_selfattn,
+    build_tcnfilm_wo_tcn,
+    build_tcnfilm_wo_film,
+    build_model_tcn_film_ziln,
+    build_tcnfilm_full,  # 兼容老入口：--model tcn_film
+)
 
 # ----------------------------
 # Args
@@ -33,10 +47,18 @@ def arg_parser():
     parser.add_argument('--pkl_base_path', type=str, default='data/baseline.pkl', help='基线特征 pkl 路径')
     parser.add_argument('-history_length', type=int, default=1)
     parser.add_argument('-pred_length', type=int, default=1)
-    parser.add_argument('--model', type=str, default='base_1',
-                        choices=['base', 'transformer', 'lstm', 'mlp', 'cnn', 'gru', 'base_1', 'flim', 'lstm_new', 'tcn_film'])
+    parser.add_argument('--model', type=str, default='tcn_film',
+                        choices=[
+                            # 原有
+                            'base', 'transformer', 'lstm', 'mlp', 'cnn', 'gru',
+                            'base_1', 'flim', 'lstm_new', 'tcn_film',
+                            'ml_lr_gbr', 'ml_rf', 'ml_ridge', 'ml_svr',
+                            # 新增：消融
+                            'ours', 'ours_wo_temporal', 'ours_wo_baseline',
+                            'ours_wo_selfattn', 'ours_wo_tcn', 'ours_wo_film'
+                        ])
     parser.add_argument('--batch_size', type=int, default=4)
-    parser.add_argument('--epochs', type=int, default=20)
+    parser.add_argument('--epochs', type=int, default=100)
     parser.add_argument('--learning_rate', type=float, default=1e-4)
     parser.add_argument('--head_lr_mult', type=float, default=1.0, help='分类/回归 head 的 LR 倍率（train.py 会用）')
     parser.add_argument('--embed_dim', type=int, default=256)
@@ -47,12 +69,12 @@ def arg_parser():
     parser.add_argument('--input_dim_temporal', type=int, default=19)
     parser.add_argument('--mode', type=str, choices=['train', 'eval'], default='train')
     parser.add_argument('--output_path', type=str, default='./ckpts')
-    parser.add_argument('--device', type=str, default='cuda:1')
+    parser.add_argument('--device', type=str, default='cuda:3')
     parser.add_argument('--args_name', type=str, default='default')
 
     # ===== 复现实验 =====
     parser.add_argument('--seed', type=int, default=42)
-    parser.addargument = parser.add_argument  # 小别名，方便你临时添加开关
+    parser.addargument = parser.add_argument  # 小别名，便于临时加开关
     parser.add_argument('--deterministic', action='store_true', help='启用确定性 cuDNN（可能牺牲速度）')
 
     # ===== 调试门控（逐类回归门）=====
@@ -60,7 +82,7 @@ def arg_parser():
                         help='开启逐类回归门控的调试日志（logging.DEBUG 级别）')
 
     # ===== 学习率 & 训练策略 =====
-    parser.add_argument('--lr_scheduler', type=str, default='step', choices=['step', 'cosine'])
+    parser.add_argument('--lr_scheduler', type=str, default='step', choices=['step', 'cosine', 'plateau'])
     parser.add_argument('--lr_step', type=int, default=100)
     parser.add_argument('--lr_gamma', type=float, default=0.1)
     parser.add_argument('--t0', type=int, default=50, help='CosineWarmRestarts 的 T0')
@@ -94,13 +116,10 @@ def arg_parser():
     parser.add_argument('--fixed_thresholds', type=float, nargs=3, default=[0.5, 0.5, 0.25],
                         help="关闭调阈时使用")
 
-    # ★★★ 保守化相关参数（与 run_epoch 协同）★★★
-    parser.add_argument('--prec_floor', type=float, nargs=3, default=[0.70, 0.70, 0.70],
-                        help="每类精度下限（用于 eval 时的受约束调阈）")
-    parser.add_argument('--min_thresholds', type=float, nargs=3, default=[0.40, 0.40, 0.40],
-                        help="每类阈值下界，避免过低阈值导致几乎全阳性")
-    parser.add_argument('--temp_scale', type=float, nargs=3, default=[1.0, 1.0, 1.0],
-                        help="eval-only 温度缩放 logits/T_c（>1 使概率更保守）")
+    # ★★★ 保守化相关（与 run_epoch 协同）★★★
+    parser.add_argument('--prec_floor', type=float, nargs=3, default=[0.70, 0.70, 0.70])
+    parser.add_argument('--min_thresholds', type=float, nargs=3, default=[0.40, 0.40, 0.40])
+    parser.add_argument('--temp_scale', type=float, nargs=3, default=[1.0, 1.0, 1.0])
 
     # ===== 回归 & 一致性 =====
     parser.add_argument('--lambda_reg', type=float, default=1.0)
@@ -124,7 +143,7 @@ def arg_parser():
 
     parser.add_argument('--tol_abs_ml', type=float, default=50.0)
     parser.add_argument('--tol_pct', type=float, default=0.10)
-    parser.add_argument('--patience', type=int, default=10)
+    parser.add_argument('--patience', type=int, default=5)
 
     # ===== 评估 & 恢复 =====
     parser.add_argument('--resume_ckpt', type=str, default=None, help='eval 模式：指定 ckpt；为空则自动找最新')
@@ -132,10 +151,18 @@ def arg_parser():
 
     # ===== 主指标（关键：以 F 为主导）=====
     parser.add_argument('--main_metric', type=str, default='f1',
-                        choices=['f1', 'fbeta', 'auc', 'acc', 'loss'],
-                        help='选择早停与最佳模型保存的主指标（默认 f1）')
-    parser.add_argument('--fbeta', type=float, default=1.0,
-                        help='当 main_metric=fbeta 时使用的 β 值；>1 偏 recall，<1 偏 precision')
+                        choices=['f1', 'fbeta', 'auc', 'acc', 'loss'])
+    parser.add_argument('--fbeta', type=float, default=1.0)
+
+    # ===== TCN/Transformer 超参（给消融用）=====
+    parser.add_argument('--dropout', type=float, default=0.1)
+    parser.add_argument('--tcn_k', type=int, default=3)
+    parser.add_argument('--tcn_layers_short', type=int, default=3)
+    parser.add_argument('--tcn_layers_long', type=int, default=5)
+    parser.add_argument('--num_layers', type=int, default=4, help='Transformer 层数（n_transformer_layers）')
+    parser.add_argument('--ff_mult', type=int, default=4)
+    parser.add_argument('--causal_temporal', action='store_true', help='Transformer 使用因果 mask')
+    parser.set_defaults(causal_temporal=True)
 
     return parser
 
@@ -176,25 +203,80 @@ def setup_run_logging(args, phase: str):
 # Build model
 # ----------------------------
 def build_model(args, device):
+    # 统一打包给消融构建器的公共参数
+    def _abl_kwargs():
+        return dict(
+            input_dim_base=args.input_dim_base,
+            input_dim_temporal=args.input_dim_temporal,
+            embed_dim=args.embed_dim,
+            num_classes=args.num_classes,
+            pred_length=args.pred_length,
+            tcn_k=getattr(args, "tcn_k", 3),
+            tcn_layers_short=getattr(args, "tcn_layers_short", 3),
+            tcn_layers_long=getattr(args, "tcn_layers_long", 5),
+            n_transformer_layers=getattr(args, "num_layers", 4),
+            n_heads=getattr(args, "num_heads", 8),
+            ff_mult=getattr(args, "ff_mult", 4),
+            causal=getattr(args, "causal_temporal", True),
+            dropout=getattr(args, "dropout", 0.1),
+        )
+
     if args.model == 'base':
         model = BaselineNetwork(args.input_dim_base, args.input_dim_temporal, args.embed_dim,
                                 args.num_heads, args.hidden_dim, args.num_classes,
                                 args.history_length, args.pred_length).to(device)
 
     elif args.model == 'tcn_film':
+        # 兼容老入口（全量 ours）
         model = build_model_tcn_film_ziln(
             input_dim_base=args.input_dim_base,
             input_dim_temporal=args.input_dim_temporal,
             embed_dim=args.embed_dim,
-            num_heads=args.num_heads,            # 兼容参数占位
-            hidden_dim=args.hidden_dim,          # 兼容参数占位
+            num_heads=args.num_heads,
+            hidden_dim=args.hidden_dim,
             num_classes=args.num_classes,
             pred_length=args.pred_length,
             dropout=getattr(args, "dropout", 0.1),
             tcn_k=getattr(args, "tcn_k", 3),
             tcn_layers_short=getattr(args, "tcn_layers_short", 3),
             tcn_layers_long=getattr(args, "tcn_layers_long", 5),
+            n_transformer_layers=getattr(args, "num_layers", 4),
+            ff_mult=getattr(args, "ff_mult", 4),
             causal=getattr(args, "causal_temporal", True),
+        ).to(device)
+
+    elif args.model == 'ml_lr_gbr':
+        model = build_model_ml_lr_gbr(
+            input_dim_base=args.input_dim_base,
+            input_dim_temporal=args.input_dim_temporal,
+            embed_dim=args.embed_dim,
+            num_heads=args.num_heads,
+            hidden_dim=args.hidden_dim,
+            num_classes=args.num_classes,
+            pred_length=args.pred_length,
+            dropout=getattr(args, "dropout", 0.0),
+        ).to(device)
+
+    elif args.model == 'ml_ridge':
+        model = build_model_ml_ridge(
+            input_dim_base=args.input_dim_base,
+            input_dim_temporal=args.input_dim_temporal,
+            embed_dim=args.embed_dim,
+            num_heads=args.num_heads,
+            hidden_dim=args.hidden_dim,
+            num_classes=args.num_classes,
+            pred_length=args.pred_length,
+        ).to(device)
+
+    elif args.model == 'ml_svr':
+        model = build_model_ml_svr(
+            input_dim_base=args.input_dim_base,
+            input_dim_temporal=args.input_dim_temporal,
+            embed_dim=args.embed_dim,
+            num_heads=args.num_heads,
+            hidden_dim=args.hidden_dim,
+            num_classes=args.num_classes,
+            pred_length=args.pred_length,
         ).to(device)
 
     elif args.model == 'transformer':
@@ -237,7 +319,7 @@ def build_model(args, device):
             step_hours=getattr(args, "step_hours", 0.1),
         ).to(device)
 
-    elif args.model == 'lstm_new' or args.model == 'lstm':
+    elif args.model in ('lstm_new', 'lstm'):
         model = LSTMBaselineNetwork(
             input_dim_base=args.input_dim_base,
             input_dim_temporal=args.input_dim_temporal,
@@ -262,11 +344,29 @@ def build_model(args, device):
                                    args.embed_dim, args.hidden_dim, args.num_classes,
                                    args.history_length, args.pred_length).to(device)
 
+    # ===== 新增：消融模型入口（按你要求的映射） =====
+    elif args.model in ('ours', 'tcn_film_transformer'):
+        model = build_tcnfilm_full(**_abl_kwargs()).to(device)
+
+    elif args.model == 'ours_wo_temporal':
+        model = build_tcnfilm_wo_temporal(**_abl_kwargs()).to(device)
+
+    elif args.model == 'ours_wo_baseline':
+        model = build_tcnfilm_wo_baseline(**_abl_kwargs()).to(device)
+
+    elif args.model == 'ours_wo_selfattn':
+        model = build_tcnfilm_wo_selfattn(**_abl_kwargs()).to(device)
+
+    elif args.model == 'ours_wo_tcn':
+        model = build_tcnfilm_wo_tcn(**_abl_kwargs()).to(device)
+
+    elif args.model == 'ours_wo_film':
+        model = build_tcnfilm_wo_film(**_abl_kwargs()).to(device)
+
     elif args.model == 'gru':
         raise NotImplementedError("GRU is not implemented here.")
     else:
         raise ValueError(f"Invalid model type: {args.model}")
-
     return model
 
 
@@ -286,7 +386,6 @@ def _set_seed(seed: int, deterministic: bool):
 def _pick_device(dev_str: str) -> torch.device:
     if torch.cuda.is_available() and dev_str.startswith("cuda"):
         return torch.device(dev_str)
-    # 自动回退
     if torch.cuda.is_available():
         logging.warning(f"请求的 device={dev_str} 不可用，回退到 cuda:0")
         return torch.device("cuda:0")
@@ -298,19 +397,14 @@ def _pick_device(dev_str: str) -> torch.device:
 # Main
 # ----------------------------
 def main():
-    # 解析参数
     parser = arg_parser()
     args = parser.parse_args()
 
-    # 设备
     device = _pick_device(str(args.device))
     args.device = device
     print(f"Using device {device}")
 
-    # 随机种子
     _set_seed(args.seed, args.deterministic)
-
-    # 目录
     os.makedirs(args.output_path, exist_ok=True)
 
     # 读取数据（PKL）
@@ -324,7 +418,7 @@ def main():
     with open(args.pkl_base_path, 'rb') as f:
         Base_data = pickle.load(f)
 
-    # DataLoader（明确按病人划分）
+    # DataLoader（按病人划分）
     train_loader, val_loader, test_loader = data_loader(
         Ts_data, Base_data,
         history_length=args.history_length,
@@ -341,22 +435,20 @@ def main():
 
     # 训练 / 评估
     if args.mode == 'train':
-        # 训练日志
         setup_run_logging(args, phase="training")
         logging.info("Training model...")
         logging.info(args)
         train(model, train_loader, val_loader, args)
 
-        # 训练后立即 TEST（固定使用 VAL 阈值 + 最近 best .pth）
         setup_run_logging(args, phase="test")
         logging.info("Training finished. Running TEST with VAL-fixed thresholds...")
         _ = test(model, test_loader, args, ckpt_path=None, thresholds_path=None)
 
     elif args.mode == 'eval':
-        # 仅测试（从 output_path 自动找最近的 .pth 和 best_thresholds.json，或使用命令行指定）
         setup_run_logging(args, phase="test")
         logging.info("Evaluating on TEST set with VAL-fixed thresholds...")
-        _ = test(model, test_loader, args, ckpt_path=args.resume_ckpt, thresholds_path=args.thresholds_path)
+        ckpt_path = f"ckpts/{args.model}_best.pth"
+        _ = test(model, test_loader, args, ckpt_path, thresholds_path=args.thresholds_path)
 
     else:
         raise ValueError(f"Unknown mode: {args.mode}")
