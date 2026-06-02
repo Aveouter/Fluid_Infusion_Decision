@@ -17,4 +17,10 @@ data/
 per_patient_outputs/
 results_plus/
 Fig/
-draw/ml_output_refined/
+draw/
+ml_output_refined/
+per_patient_outputs_pre/
+scripts/
+.vscode/
+android/
+.idea/
