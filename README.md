@@ -5,9 +5,11 @@
 > *Institute of Burn Research, Southwest Hospital, Third Military Medical University (Army Medical University)*
 > *Chongqing Institute of Green and Intelligent Technology, Chinese Academy of Sciences*
 
-Official implementation of BurnResu, a hierarchical temporal deep learning framework that jointly predicts fluid type and infusion rate for the first 72 hours after burn injury. The model integrates baseline characteristics, hourly vital signs, and fluid-administration histories in a rolling prediction paradigm.
+Official implementation of BurnResu, a hierarchical temporal deep learning framework that jointly predicts fluid type and infusion rate for the first 72 hours after burn injury.
 
-![BurnResu Framework](figs/BurnResu_FrameworkOverview.png)
+<p align="center">
+  <img src="figs/BurnResu_FrameworkOverview.png" width="85%" alt="BurnResu Framework Overview">
+</p>
 
 ## Overview
 
@@ -32,25 +34,11 @@ On a retrospective cohort of **364 patients** with severe burns (TBSA > 30%):
 | Regression R² | **0.820** |
 | Regression RMSE | **60.04 mL/h** |
 
-## Figures
-
-### Framework Overview
-
-![Patient Selection & Dataset Construction](figs/PatientSelection_DatasetConstruction_Flowchart.png)
-
-![Dataset Annotation, Integration & Generation](figs/DatasetAnnotation_Integration_Generation_Workflow.png)
-
-### Comparative Performance
-
-![ROC-AUC: ML vs DL Models](figs/ROCAUC_ML_vs_DL.png)
-
-### Clinical Effectiveness
-
-![Error Comparison: Rule-Based vs Proposed](figs/ErrorComp_RuleBased_vs_Proposed.png)
-
-![72h Fluid Trajectories on Test Set](figs/72hFluidTraj_TestSet.png)
-
 ## Comparative Performance
+
+<p align="center">
+  <img src="figs/ROCAUC_ML_vs_DL.png" width="70%" alt="ROC-AUC Comparison">
+</p>
 
 | Model | Acc | Recall | F1 | AUC | MAE | R² | RMSE |
 |-------|-----|--------|-----|-----|-----|-----|------|
@@ -93,7 +81,11 @@ On a retrospective cohort of **364 patients** with severe burns (TBSA > 30%):
 
 **Key finding:** Removing the temporal encoder causes the largest degradation, confirming that sequential physiological dynamics are the dominant information source. Excluding baseline features, self-attention, TCN, or FiLM each reduces performance meaningfully.
 
-## Clinical Formula Comparison
+## Clinical Effectiveness
+
+<p align="center">
+  <img src="figs/ErrorComp_RuleBased_vs_Proposed.png" width="80%" alt="Error Comparison: Rule-Based vs BurnResu">
+</p>
 
 ### Common Burn Resuscitation Formulas
 
