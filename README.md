@@ -1,3 +1,5 @@
+<!--
+
 # BurnResu: A Multi-Task Temporal Prediction Framework for Early Burn Resuscitation
 
 > **Xinyu Liu, Jingyuan Lang, Xiaoguang Lin, Haisheng Li, Ranran Sun, Xueliang Zhao, Qihan Wu, Zhiqiang Yuan, Ning Li, Gaoxing Luo**
