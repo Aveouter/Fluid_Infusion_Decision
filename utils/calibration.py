@@ -125,3 +125,24 @@ def describe_interval_kind(kind: str) -> str:
     if kind not in kinds:
         raise ValueError(f"kind 必须是 {sorted(kinds)} 之一，实际 {kind}")
     return kinds[kind]
+
+
+def ece_macro(y_true: np.ndarray, y_prob: np.ndarray,
+              n_bins: int = 10) -> Dict[str, float]:
+    """逐类 ECE 及其均值（v2，issue #81 的校准终点）。
+
+    多标签任务下"整体 ECE"会被类别不平衡主导，因此逐类给出后再取均值；
+    某类若只有一个标签值，ECE 仍可计算（分箱内频率恒为 0 或 1），
+    故不设 NA 规则——与 AUC 不同，这一点在协议中已说明。
+    """
+    y = np.asarray(y_true, dtype=float)
+    q = np.asarray(y_prob, dtype=float)
+    if y.shape != q.shape:
+        raise ValueError(f"形状不一致：{y.shape} vs {q.shape}")
+    per_class = [float(expected_calibration_error(y[:, k][:, None],
+                                                  q[:, k][:, None],
+                                                  n_bins=n_bins)["ece"])
+                 for k in range(y.shape[1])]
+    return {"per_class": per_class, "ece_macro": float(np.mean(per_class)),
+            "n_bins": n_bins, "aggregation": "macro",
+            "note": "逐类 ECE 等权平均；类别不平衡时不得只看整体值。"}

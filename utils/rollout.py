@@ -33,6 +33,25 @@ from utils import label_protocol as lp
 #: 评测模式。
 MODES = ("teacher_forced", "open_loop")
 
+#: 本模块的模式名 → 评估协议 v2 的 ``eval_mode``（issue #81 §3）。
+#:
+#: 两种模式**绝不混排为同一个 estimand**：
+#:
+#: - ``teacher_forced`` → ``one_step_observed_history``：逐小时累计出的总量
+#:   只能叫 **conditional cumulative volume**，不得称自主轨迹。
+#: - ``open_loop`` → ``action_autoregressive_rollout``：本模块以**真实**初始
+#:   标签与真实初始累计量起步（见 :func:`rollout` 的 ``cur_label`` / ``cur_cum``），
+#:   因此准确的名字是 **action autoregressive rollout under true initial state**，
+#:   不是 fully closed-loop。若同时使用未来真实生理特征，应升格为
+#:   ``observed_physiology_conditioned_rollout``（见 eval_protocol.ESTIMANDS）。
+EVAL_MODE_OF = {
+    "teacher_forced": "one_step_observed_history",
+    "open_loop": "action_autoregressive_rollout",
+}
+
+#: 本模块的 rollout 起步状态。写进结果与文档，避免被读成闭环仿真。
+STARTS_FROM_TRUE_INITIAL_STATE = True
+
 #: 每步体积列的顺序：三类各自体积 + 总量（与 data_loader 一致）。
 INST_COLS = (0, 1, 2, 3)
 

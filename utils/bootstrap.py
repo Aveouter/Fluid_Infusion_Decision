@@ -134,6 +134,105 @@ def summarize_seeds(per_seed_values: Dict[int, float]) -> Dict[str, float]:
     }
 
 
+# ==========================================================================
+# v2（issue #81）：重采样后**重算**的非线性指标路径
+# ==========================================================================
+#
+# 为什么不能沿用上面那个接口
+# --------------------------
+# ``patient_clustered_bootstrap`` 把逐窗口的数值拼起来求一个均值。这对 MAE 之类
+# 的**线性**统计量是等价的，但对 Macro-F1 / AUC 这类**非线性**指标不是：
+# "先算每位患者的 F1 再取平均"（患者等权）与"把重采样后的患者标签与预测拼起来
+# 重算 F1"（窗口等权）是**两个不同的估计量**，点估计与区间都会不同。
+# 二者都可能有意义，但必须知道报的是哪一个；#81 要求的是后者。
+#
+# 因此 v2 提供一条按**载荷**（每位患者的原始标签与预测）重采样的路径，
+# 每次抽样都重建数据再算指标。
+
+
+def clustered_bootstrap_of_payloads(metric_fn: Callable[[list], float],
+                                    payloads: Dict[str, object], *,
+                                    n_boot: int = N_BOOTSTRAP, seed: int = 42,
+                                    ci_level: float = CI_LEVEL) -> Dict[str, float]:
+    """按患者重采样**载荷**，每次重建数据后重新计算 ``metric_fn``。
+
+    ``payloads`` 形如 ``{patient_id: 该患者的原始数据}``；``metric_fn`` 接收
+    "被抽中患者载荷的列表"，返回一个标量。它**必须**从原始数据重算指标，
+    而不是对每位患者预先算好的值取平均——那正是本函数要避免的做法。
+    """
+    if n_boot < 1:
+        raise ValueError(f"n_boot 必须 >= 1，实际 {n_boot}")
+    keys = sorted(payloads)
+    if not keys:
+        raise ValueError("没有可用的患者分组")
+
+    point = float(metric_fn([payloads[k] for k in keys]))
+    rng = np.random.default_rng(seed)
+    draws = np.empty(n_boot, dtype=float)
+    for b in range(n_boot):
+        pick = rng.choice(len(keys), size=len(keys), replace=True)
+        draws[b] = float(metric_fn([payloads[keys[i]] for i in pick]))
+
+    lo = float(np.percentile(draws, 100 * (1 - ci_level) / 2))
+    hi = float(np.percentile(draws, 100 * (1 + ci_level) / 2))
+    return {"point": point, "ci_low": lo, "ci_high": hi,
+            "n_patients": len(keys), "n_boot": n_boot, "seed": seed,
+            "ci_level": ci_level, "stat": getattr(metric_fn, "__name__", "custom"),
+            "note": "每次重采样都重建数据重算指标（非线性指标必须如此）"}
+
+
+def patient_bootstrap_of_patient_values(values: np.ndarray,
+                                        patient_ids: Sequence[str], *,
+                                        n_boot: int = N_BOOTSTRAP, seed: int = 42,
+                                        ci_level: float = CI_LEVEL) -> Dict[str, float]:
+    """**一位患者一个值**的 bootstrap（P1 的累计误差、P2 的达标指示等）。
+
+    与 :func:`patient_clustered_bootstrap` 的区别：那个接口接受逐窗口的值并按
+    患者分组；这里要求调用方已经聚合成患者级值。传入重复的患者编号会报错——
+    否则"把窗口级值当患者级传进来"这种错误会静默压窄区间。
+    """
+    values = np.asarray(values, dtype=float)
+    ids = [str(p) for p in patient_ids]
+    if len(values) != len(ids):
+        raise ValueError(f"values 与 patient_ids 长度不一致：{len(values)} vs {len(ids)}")
+    if len(set(ids)) != len(ids):
+        dup = sorted({p for p in ids if ids.count(p) > 1})[:5]
+        raise ValueError(
+            f"patient_ids 有重复（{dup}）：这里要求一位患者一个值；"
+            "窗口级的值请改用 patient_clustered_bootstrap")
+    keep = np.isfinite(values)
+    vals, keys = values[keep], [p for p, k in zip(ids, keep) if k]
+    if vals.size == 0:
+        raise ValueError("没有可用的患者值")
+
+    rng = np.random.default_rng(seed)
+    draws = np.empty(n_boot, dtype=float)
+    for b in range(n_boot):
+        pick = rng.integers(0, vals.size, size=vals.size)
+        draws[b] = float(vals[pick].mean())
+    return {
+        "point": float(vals.mean()),
+        "ci_low": float(np.percentile(draws, 100 * (1 - ci_level) / 2)),
+        "ci_high": float(np.percentile(draws, 100 * (1 + ci_level) / 2)),
+        "n_patients": int(vals.size), "n_dropped_non_finite": int((~keep).sum()),
+        "n_boot": n_boot, "seed": seed, "ci_level": ci_level,
+        "unit_of_resampling": "patient",
+    }
+
+
+def ci_fields(result: Dict[str, float], value: float = None) -> Dict[str, float]:
+    """把 bootstrap 结果整理成结果行的 ``value`` / ``ci_low`` / ``ci_high``。
+
+    区间必须包含点估计，否则行校验会报错——这里顺手断言，避免把
+    不同来源的点估计与区间拼在一起。
+    """
+    v = float(result["point"]) if value is None else float(value)
+    lo, hi = float(result["ci_low"]), float(result["ci_high"])
+    if not (lo <= v <= hi):
+        raise ValueError(f"区间 [{lo}, {hi}] 不包含点估计 {v}，来源不一致")
+    return {"value": v, "ci_low": lo, "ci_high": hi}
+
+
 def assert_paired_indexing_shared(values_a, values_b, patient_ids,
                                   n_boot: int = 50, seed: int = 0) -> None:
     """自检：配对实现确实对两个方法使用了同一组患者索引。

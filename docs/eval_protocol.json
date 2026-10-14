@@ -1,0 +1,136 @@
+{
+  "protocol_version": "2.0",
+  "protocol_hash": "849a59c17baf8815",
+  "frozen": {
+    "protocol_version": "2.0",
+    "tolerances": {
+      "tol_abs_ml": 200.0,
+      "tol_pct": 0.1
+    },
+    "change_point": {
+      "change_abs_ml": 50.0,
+      "change_rel": 0.25,
+      "rel_base_ml": 50.0
+    },
+    "positive_flow_epsilon_ml_per_h": 0.0,
+    "event_matching": {
+      "primary_tolerance_hours": 1,
+      "sensitivity_tolerance_hours": 2,
+      "rule": "maximum_cardinality_then_min_total_offset"
+    },
+    "horizons": [
+      24,
+      48,
+      72
+    ],
+    "predicted_hours_by_horizon": {
+      "24": 23,
+      "48": 47,
+      "72": 71
+    },
+    "statistics": {
+      "n_outer_folds": 5,
+      "n_seeds_min": 3,
+      "n_bootstrap": 2000,
+      "ci_level": 0.95,
+      "independence_unit": "patient"
+    },
+    "vocabularies": {
+      "eval_modes": [
+        "one_step_observed_history",
+        "action_autoregressive_rollout",
+        "na"
+      ],
+      "rate_definitions": [
+        "pos_mean",
+        "flow_pred",
+        "speed",
+        "rate",
+        "action_rate_uncond",
+        "action_rate_cond",
+        "deterministic",
+        "na"
+      ],
+      "estimands": [
+        "conditional_cumulative_volume",
+        "action_autoregressive_rollout_under_true_initial_state",
+        "observed_physiology_conditioned_rollout",
+        "pure_prediction_window_volume",
+        "na"
+      ],
+      "horizon_origins": [
+        "hour_0_anchored",
+        "first_predicted_hour",
+        "na"
+      ],
+      "masks": [
+        "all",
+        "positive_flow",
+        "zero_flow",
+        "missing",
+        "incomplete",
+        "true_change_hour",
+        "no_change_hour",
+        "zero_dose_patient",
+        "eligible_patient",
+        "matched_events",
+        "na"
+      ],
+      "fluid_classes": [
+        "total",
+        "crystal",
+        "colloid",
+        "water",
+        "na"
+      ],
+      "quality_tracks": [
+        "main",
+        "adjudicated_mask",
+        "na"
+      ],
+      "evidence_tiers": [
+        "measured",
+        "derived",
+        "proposed_exploratory",
+        "guidance_only",
+        "not_assessable",
+        "na"
+      ],
+      "observation_sources": [
+        "observed",
+        "imputed",
+        "unavailable",
+        "na"
+      ],
+      "units": [
+        "probability",
+        "count",
+        "ratio",
+        "hours",
+        "mL/h",
+        "mL",
+        "mL/kg",
+        "mL/kg/%TBSA"
+      ],
+      "aggregations": [
+        "per_class",
+        "macro",
+        "micro",
+        "weighted",
+        "samples",
+        "patient_mean",
+        "patient_median",
+        "patient_share",
+        "target_mean",
+        "target_pooled",
+        "event_macro",
+        "event_micro"
+      ],
+      "aggregation_levels": [
+        "window",
+        "patient"
+      ]
+    }
+  },
+  "note": "本文件由 freeze_eval_protocol.py 生成；不含任何患者数据。冻结后修改任何定义必须递增 PROTOCOL_VERSION 并保留变更记录。"
+}

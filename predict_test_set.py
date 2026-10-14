@@ -72,14 +72,24 @@ def load_ckpt(model, path, device):
 
 
 def resolve_thresholds(path):
+    """解析分类阈值；**不做静默回退**。
+
+    旧实现在阈值文件缺失时打印一行然后返回 ``[0.5, 0.5, 0.5]``，于是产出一份
+    **没有验证集来源**的阈值，而下游的指标看起来完全正常。阈值来源属于评估
+    契约（issue #81 §2），拿不到就必须失败，让调用方显式决定：
+
+    - 想用 0.5，就显式传 ``--thresholds`` 指向一份记录了来源的文件；
+    - 否则补齐 ``ckpts/best_thresholds.json`` 再跑。
+    """
     if path is None:
         p = Path("ckpts/best_thresholds.json")
-        if p.exists():
-            thr = json.load(open(p, encoding="utf-8"))
-            print(f"[thresholds] 取自 {p}: {[round(float(x), 3) for x in thr]}")
-            return [float(x) for x in thr]
-        print("[thresholds] 未找到，回退 0.5")
-        return [0.5, 0.5, 0.5]
+        if not p.exists():
+            raise SystemExit(
+                f"未找到分类阈值文件 {p}。阈值必须来自验证集，"
+                "不得回退到 0.5——显式传入 --thresholds 或先生成该文件。")
+        thr = json.load(open(p, encoding="utf-8"))
+        print(f"[thresholds] 取自 {p}: {[round(float(x), 3) for x in thr]}")
+        return [float(x) for x in thr]
     return [float(x) for x in path]
 
 

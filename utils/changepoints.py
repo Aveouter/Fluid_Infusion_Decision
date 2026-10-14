@@ -27,12 +27,15 @@ from typing import Dict, Tuple
 
 import numpy as np
 
-#: 绝对变化阈值（mL/h）。低于此值的变化不视为临床意义上的变更。
-CHANGE_ABS_ML = 50.0
-
-#: 相对变化阈值。仅在基数 >= REL_BASE_ML 时适用。
-CHANGE_REL = 0.25
-REL_BASE_ML = 50.0
+#: 绝对变化阈值（mL/h）、相对变化阈值与基数下限。
+#:
+#: v2 起**唯一来源**是 :mod:`utils.eval_protocol`——此处只做 re-export，
+#: 使"冻结阈值"与"冻结 hash"必然一致。
+from utils.eval_protocol import (  # noqa: E402  (re-export)
+    CHANGE_ABS_ML,
+    CHANGE_REL,
+    REL_BASE_ML,
+)
 
 #: 变更类型。
 CHANGE_TYPES = ("off_to_on", "on_to_off", "rate_up", "rate_down")
@@ -249,3 +252,186 @@ def patient_level_stratification(pred_rates: np.ndarray, true_rates: np.ndarray,
                 per_row.append(float(np.abs(pred[i][mask[i]] - true[i][mask[i]]).mean()))
         out[name] = patient_then_average(np.array(per_row, dtype=float), ids)
     return out
+
+
+# ==========================================================================
+# v2（issue #81）：最大基数一对一匹配与变点分类指标
+# ==========================================================================
+#
+# ``change_timing_error``（上方）用的是**最近邻**：同一个预测变点可以同时
+# "命中"±tolerance 内的多个真实变点，因此它的 ``match_rate`` 是**上界**，
+# 不是精确率/召回率。v2 用一对一匹配取代它。
+#
+# 为什么不是简单贪心
+# ------------------
+# "先取距离最小的" 不是最大基数匹配。反例（±1h）：真实变点在 {10, 11}，
+# 预测变点在 {9, 10}。贪心先配 10→10（距离 0），剩下的 11 无处可配 → 1 个 TP；
+# 最大基数是 2（10→9, 11→10）。
+#
+# 为什么可以用线性贪心
+# --------------------
+# 同一通道内的真实/预测变点都落在一条直线上，相容关系是 |Δt| <= tolerance，
+# 构成**凸二部图**。对这类图，"按真实变点递增处理、每次配给窗口内**最早**
+# 的可用预测变点"即可得到最大基数。该结论由
+# ``tests/test_secondary_endpoints.py`` 用穷举最大匹配在随机小实例上交叉验证，
+# 不是靠断言。
+
+
+def match_events(true_cp: np.ndarray, pred_cp: np.ndarray, *,
+                 tolerance: int = 1) -> Dict[str, object]:
+    """同通道内的一对一变点匹配，返回匹配明细与基数。
+
+    ``true_cp`` / ``pred_cp`` 为 ``(T, C)`` 布尔矩阵（``detect_changes`` 的输出）。
+    每个真实变点至多命中一个预测变点，反之亦然——``max_multiplicity``
+    恒为 1，用于断言"没有重复命中"。
+    """
+    true_cp = np.asarray(true_cp, dtype=bool)
+    pred_cp = np.asarray(pred_cp, dtype=bool)
+    if true_cp.shape != pred_cp.shape:
+        raise ValueError(f"形状不一致：{true_cp.shape} vs {pred_cp.shape}")
+    if tolerance < 0:
+        raise ValueError(f"tolerance 必须 >= 0，实际 {tolerance}")
+
+    T, C = true_cp.shape
+    per_channel: Dict[int, dict] = {}
+    matches = []
+    n_true = n_pred = 0
+
+    for c in range(C):
+        true_ts = list(np.where(true_cp[:, c])[0])
+        pred_ts = list(np.where(pred_cp[:, c])[0])
+        n_true += len(true_ts)
+        n_pred += len(pred_ts)
+
+        used = set()
+        ch_matches = []
+        for t in true_ts:                       # 递增处理真实变点
+            lo, hi = t - tolerance, t + tolerance
+            pick = None
+            for u in pred_ts:                   # 窗口内**最早**的可用预测变点
+                if u < lo:
+                    continue
+                if u > hi:
+                    break
+                if u not in used:
+                    pick = u
+                    break
+            if pick is not None:
+                used.add(pick)
+                ch_matches.append((int(t), int(pick), int(pick - t)))
+
+        per_channel[c] = {
+            "n_true": len(true_ts), "n_pred": len(pred_ts),
+            "n_matched": len(ch_matches),
+            "matches": ch_matches,
+        }
+        matches.extend((c, a, b, d) for a, b, d in ch_matches)
+
+    # 每个真实/预测变点至多被用到一次
+    true_used = [(m[0], m[1]) for m in matches]
+    pred_used = [(m[0], m[2]) for m in matches]
+    multiplicity = 0
+    if true_used:
+        multiplicity = max(max(true_used.count(x) for x in set(true_used)),
+                           max(pred_used.count(x) for x in set(pred_used)))
+
+    return {
+        "n_true": int(n_true), "n_pred": int(n_pred), "n_matched": int(len(matches)),
+        "n_unmatched_true": int(n_true - len(matches)),
+        "n_unused_pred": int(n_pred - len(matches)),
+        "max_multiplicity": int(multiplicity),
+        "tolerance": int(tolerance),
+        "matches": matches,
+        "per_channel": per_channel,
+    }
+
+
+def event_prf(true_cp: np.ndarray, pred_cp: np.ndarray, *,
+              tolerance: int = 1) -> Dict[str, object]:
+    """变点的 precision / recall / F1（一对一匹配口径）。
+
+    精确率的分母是**预测**变点数，召回率的分母是**真实**变点数；两者都用
+    匹配上的数量作分子。逐通道给出，另给 macro（通道等权）与 micro（事件合并）。
+    """
+    m = match_events(true_cp, pred_cp, tolerance=tolerance)
+    C = np.asarray(true_cp).shape[1]
+
+    def _prf(n_true, n_pred, n_match):
+        prec = (n_match / n_pred) if n_pred else float("nan")
+        rec = (n_match / n_true) if n_true else float("nan")
+        f1 = (2 * prec * rec / (prec + rec)
+              if np.isfinite(prec) and np.isfinite(rec) and (prec + rec) > 0
+              else float("nan"))
+        return {"precision": prec, "recall": rec, "f1": f1,
+                "n_true": n_true, "n_pred": n_pred, "n_matched": n_match}
+
+    per_channel = {c: _prf(d["n_true"], d["n_pred"], d["n_matched"])
+                   for c, d in m["per_channel"].items()}
+    micro = _prf(m["n_true"], m["n_pred"], m["n_matched"])
+    finite = [per_channel[c]["f1"] for c in per_channel
+              if np.isfinite(per_channel[c]["f1"])]
+    macro = {
+        "precision": float(np.mean([per_channel[c]["precision"] for c in per_channel
+                                    if np.isfinite(per_channel[c]["precision"])]))
+        if any(np.isfinite(per_channel[c]["precision"]) for c in per_channel) else float("nan"),
+        "recall": float(np.mean([per_channel[c]["recall"] for c in per_channel
+                                 if np.isfinite(per_channel[c]["recall"])]))
+        if any(np.isfinite(per_channel[c]["recall"]) for c in per_channel) else float("nan"),
+        "f1": float(np.mean(finite)) if finite else float("nan"),
+        "n_channels": len(finite),
+    }
+    return {"micro": micro, "macro": macro, "per_channel": per_channel,
+            "tolerance": int(tolerance), "n_matched": m["n_matched"],
+            "max_multiplicity": m["max_multiplicity"], "unit": "ratio"}
+
+
+def change_timing_v2(true_cp: np.ndarray, pred_cp: np.ndarray, *,
+                     tolerance: int = 1) -> Dict[str, float]:
+    """匹配上的变点的提前/滞后分布（正数 = 预测**滞后**）。
+
+    只统计**一对一匹配上**的事件。未匹配的真实变点记入 ``n_unmatched_true``，
+    **不按 0 计入均值**——把漏检当作"准时"会系统性高估时点精度。
+    """
+    m = match_events(true_cp, pred_cp, tolerance=tolerance)
+    deltas = np.array([d for _, _, _, d in m["matches"]], dtype=float)
+    if deltas.size == 0:
+        return {"n_matched": 0, "n_unmatched_true": int(m["n_unmatched_true"]),
+                "mean_lag_hours": float("nan"), "median_lag_hours": float("nan"),
+                "mean_abs_lag_hours": float("nan"), "tolerance": int(tolerance)}
+    return {
+        "n_matched": int(deltas.size),
+        "n_unmatched_true": int(m["n_unmatched_true"]),
+        "mean_lag_hours": float(deltas.mean()),
+        "median_lag_hours": float(np.median(deltas)),
+        "mean_abs_lag_hours": float(np.abs(deltas).mean()),
+        "tolerance": int(tolerance),
+    }
+
+
+def false_change_rate(true_cp: np.ndarray, pred_cp: np.ndarray, *,
+                      tolerance: int = 1, patient_hours: float = None) -> Dict[str, float]:
+    """非变点小时上误报的变化率。
+
+    与 change-point recall **配对报告**：一个"到处都在变"的预测器可以拿到很高
+    的召回，只有同时看误报率才能识别它。
+    """
+    true_cp = np.asarray(true_cp, dtype=bool)
+    pred_cp = np.asarray(pred_cp, dtype=bool)
+    if true_cp.shape != pred_cp.shape:
+        raise ValueError(f"形状不一致：{true_cp.shape} vs {pred_cp.shape}")
+
+    m = match_events(true_cp, pred_cp, tolerance=tolerance)
+    n_pred = m["n_pred"]
+    n_false = m["n_unused_pred"]
+
+    # 非变点的"机会数"：真值不是变点的单元数（首行恒非变点，一并计入）
+    n_opportunity = int((~true_cp).sum())
+    return {
+        "false_change_rate": (n_false / n_opportunity) if n_opportunity else float("nan"),
+        "n_false_changes": int(n_false),
+        "n_pred_changes": int(n_pred),
+        "n_opportunities": n_opportunity,
+        "per_100_patient_hours": (100.0 * n_false / patient_hours
+                                  if patient_hours else float("nan")),
+        "unit": "events_per_100_patient_hours",
+    }
