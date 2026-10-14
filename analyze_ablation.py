@@ -154,7 +154,10 @@ def main(argv=None):
 
     # ---- 配对：各变体 vs 完整模型 ----
     print()
-    print(f"{'对比 (变体 − full)':<26}{'ΔMAE':>9}{'95% CI':>20}{'跨0?':>8}")
+    # 符号约定：paired_bootstrap_diff(A, B) 返回 A − B，此处 A = full、B = 变体。
+    # 因此值恒为 **full − 变体**：负值表示 full 的 MAE 更低（更好）。
+    # 标签必须与这个方向一致——早期版本的表头写作"变体 − full"，与实际符号相反。
+    print(f"{'对比 (full − 变体)':<26}{'ΔMAE':>9}{'95% CI':>20}{'跨0?':>8}")
     print("-" * 64)
     ref = out.get("full")
     paired = {}
@@ -172,7 +175,7 @@ def main(argv=None):
                                          n_boot=args.n_boot, seed=args.seed)
             paired[name] = r
             ci = f"[{r['ci_low']:.2f}, {r['ci_high']:.2f}]"
-            print(f"{name + ' − full':<26}{r['delta']:>9.2f}{ci:>20}"
+            print(f"{'full − ' + name:<26}{r['delta']:>9.2f}{ci:>20}"
                   f"{('跨 0' if r['crosses_zero'] else '显著'):>8}")
 
     if args.out:
