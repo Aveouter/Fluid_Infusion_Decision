@@ -339,12 +339,18 @@ def data_loader(
         )
 
     # ---------- 时序增强器 ----------
+    # 窗口语义是「前 H 步预测后 P 步」，而 TSAugmenter 只扰动 x、原样返回 y。
+    # 因此**时间轴变换对本任务是无效的**（issue #5）：
+    #   - permute_blocks 会把含目标小时的段搬进输入区；
+    #   - x 中的累计体积列 cum 由 label 派生，cum[目标小时] 就含待预测的体积，
+    #     于是模型输入里直接出现了答案。
+    # 只保留逐点变换（jitter / scaling / magnitude_warp），它们不移动行位置。
     augmenter = TSAugmenter(
-        p_timewarp=0.2, max_stretch=0.15,
-        p_scale=0.2,   scale_sigma=0.05,
-        p_jitter=0.2,  jitter_sigma=0.01,
-        p_perm=0.2,    n_perm_segs=3,
-        p_magwarp=0.2, magwarp_sigma=0.15,
+        p_timewarp=0.0, max_stretch=0.0,
+        p_perm=0.0,     n_perm_segs=1,
+        p_scale=0.2,    scale_sigma=0.05,
+        p_jitter=0.2,   jitter_sigma=0.01,
+        p_magwarp=0.2,  magwarp_sigma=0.15,
     )
 
     # ---------- 样本构建 ----------
