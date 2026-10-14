@@ -109,7 +109,8 @@ class CustomDataset(Dataset):
       - y: (H+P, >=6) 标签，前3列为类型0/1，后3列为速度（速率）
     transform（如 TSAugmenter/RobustScaler）作用在 (x,b,y)。
     """
-    def __init__(self, data, labels, baseline_data, history_length: int, transform=None):
+    def __init__(self, data, labels, baseline_data, history_length: int,
+                 transform=None, patient_ids=None):
         self.history_length = int(history_length)
         self.data = data
         self.labels = labels
@@ -118,6 +119,10 @@ class CustomDataset(Dataset):
         else:
             self.baseline_data = baseline_data
         self.transform = transform
+        # 每个窗口所属的 patient_id。患者是独立性单位：划分、bootstrap、
+        # 逐患者指标都必须按它聚合，而不是按窗口（见 issue #6）。若未提供则
+        # 保持 None，下游需显式处理而不是默默当作独立样本。
+        self.patient_ids = list(patient_ids) if patient_ids is not None else None
 
     def __len__(self):
         return len(self.data)
@@ -417,7 +422,8 @@ def data_loader(
             print(f"[WARN] Skip {key_base}: baseline missing/NaN")
             return
 
-        datas_lst, labels_lst, base_lst = bucket_lists
+        datas_lst, labels_lst, base_lst, pid_lst = bucket_lists
+        window_pid = extract_patient_id(key, rec)
         step = max(1, int(window_stride))
         for i in range(0, T - history_length - pred_length + 1, step):
             x_win = data_final[i:i + history_length + pred_length]
@@ -430,6 +436,7 @@ def data_loader(
             datas_lst.append(x_win)
             labels_lst.append(y_win)
             base_lst.append(base_data[key_base])
+            pid_lst.append(window_pid)
 
     # =============================================================================
     # A) 按“病人”划分（推荐）
@@ -450,9 +457,9 @@ def data_loader(
         val_p   = set(patients[n_train:n_train+n_val])
         test_p  = set(patients[n_train+n_val:])
 
-        datas_train, labels_train, base_train = [], [], []
-        datas_val,   labels_val,   base_val   = [], [], []
-        datas_test,  labels_test,  base_test  = [], [], []
+        datas_train, labels_train, base_train, pids_train = [], [], [], []
+        datas_val,   labels_val,   base_val,   pids_val   = [], [], [], []
+        datas_test,  labels_test,  base_test,  pids_test  = [], [], [], []
         count_total = [0]*8
         count_train = [0]*8
         count_val   = [0]*8
@@ -462,20 +469,23 @@ def data_loader(
             keys = patient_to_keys[pid]
             if pid in train_p:
                 for key in keys:
-                    make_one_series_windows(key, Ts_data[key], count_train, (datas_train, labels_train, base_train))
+                    make_one_series_windows(key, Ts_data[key], count_train, (datas_train, labels_train, base_train, pids_train))
             elif pid in val_p:
                 for key in keys:
-                    make_one_series_windows(key, Ts_data[key], count_val, (datas_val, labels_val, base_val))
+                    make_one_series_windows(key, Ts_data[key], count_val, (datas_val, labels_val, base_val, pids_val))
             else:
                 for key in keys:
-                    make_one_series_windows(key, Ts_data[key], count_test, (datas_test, labels_test, base_test))
+                    make_one_series_windows(key, Ts_data[key], count_test, (datas_test, labels_test, base_test, pids_test))
 
         for i in range(8):
             count_total[i] = count_train[i] + count_val[i] + count_test[i]
 
-        train_dataset = CustomDataset(datas_train, labels_train, base_train, history_length, transform=augmenter)
-        val_dataset   = CustomDataset(datas_val,   labels_val,   base_val,   history_length, transform=None)
-        test_dataset  = CustomDataset(datas_test,  labels_test,  base_test,  history_length, transform=None)
+        train_dataset = CustomDataset(datas_train, labels_train, base_train, history_length,
+                                      transform=augmenter, patient_ids=pids_train)
+        val_dataset   = CustomDataset(datas_val,   labels_val,   base_val,   history_length,
+                                      transform=None,      patient_ids=pids_val)
+        test_dataset  = CustomDataset(datas_test,  labels_test,  base_test,  history_length,
+                                      transform=None,      patient_ids=pids_test)
 
         # 过采样（默认 targets=None -> (2,)）
         train_sampler = None
@@ -489,8 +499,14 @@ def data_loader(
 
         # RobustScaler（只拟合训练集）
         if use_robust_scaler and train_dataset is not None and len(train_dataset) > 0:
-            sample_n = min(len(train_dataset), 2000)
-            X_train_list = [np.array(train_dataset[i][0]) for i in range(sample_n)]
+            # 必须用**未增强**的训练窗口拟合：train_dataset 挂着 TSAugmenter，
+            # 在其上取样本会让统计量随增强随机漂移，同一份数据两次运行得到
+            # 不同的 scaler（见 issue #6 的红灯用例）。
+            # 采样用等间隔跨越而非取前 N 个：窗口是按患者顺序追加的，取前
+            # 2000 个只会覆盖最前面的少数患者，造成患者层面的偏倚。
+            _n = len(datas_train)
+            _stride = max(1, _n // 2000)
+            X_train_list = [np.asarray(datas_train[i]) for i in range(0, _n, _stride)]
             scaler = RobustScaler(); scaler.fit(X_train_list)
 
             def _compose_transform(*fns):
@@ -534,14 +550,16 @@ def data_loader(
     # B) 按“窗口”划分
     # =============================================================================
     else:
-        datas, labels, baseline = [], [], []
+        datas, labels, baseline, pids = [], [], [], []
         count = [0]*8
 
         for key in Ts_data.keys():
-            make_one_series_windows(key, Ts_data[key], count, (datas, labels, baseline))
+            make_one_series_windows(key, Ts_data[key], count, (datas, labels, baseline, pids))
 
-        dataset     = CustomDataset(datas, labels, baseline, history_length, transform=None)
-        dataset_aug = CustomDataset(datas, labels, baseline, history_length, transform=augmenter)
+        dataset     = CustomDataset(datas, labels, baseline, history_length,
+                                    transform=None,      patient_ids=pids)
+        dataset_aug = CustomDataset(datas, labels, baseline, history_length,
+                                    transform=augmenter, patient_ids=pids)
 
         total_size = len(dataset)
         n_train = int(splits[0] * total_size)
@@ -577,9 +595,11 @@ def data_loader(
 
         # RobustScaler
         if use_robust_scaler and train_dataset is not None and len(train_dataset) > 0:
-            base_ds: CustomDataset = dataset_aug
-            sample_idx = _train.indices[:min(len(_train.indices), 2000)]
-            X_train_list = [np.array(base_ds[i][0]) for i in sample_idx]
+            # 用**未增强**的 dataset，而不是 dataset_aug：原因同患者分支。
+            base_ds: CustomDataset = dataset
+            _idx = list(_train.indices)
+            _stride = max(1, len(_idx) // 2000)
+            X_train_list = [np.array(base_ds[i][0]) for i in _idx[::_stride]]
             scaler = RobustScaler(); scaler.fit(X_train_list)
 
             def _compose_transform(*fns):

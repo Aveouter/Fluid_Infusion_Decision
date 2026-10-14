@@ -230,6 +230,9 @@ def run_epoch(
     tune_thr        = bool(getattr(args, "tune_thresholds", True))
     fixed_thr       = list(getattr(args, "fixed_thresholds", [0.5]*C))
     fbeta_list      = list(getattr(args, "fbeta_per_class", [1.0]*C))
+    # 阈值调优的约束（此前在 main.py 声明但从未生效，见 issue #6）
+    min_thr_floor   = getattr(args, "min_thresholds", None)
+    prec_floor      = getattr(args, "prec_floor", None)
 
     # AE/RE 归一化用：体重、TSBA 所在列（在 base_data 中）
     weight_col = getattr(args, "weight_col", 3)
@@ -485,7 +488,10 @@ def run_epoch(
         prob_smooth_np = prob_smooth_t.numpy().reshape(-1, C)
 
         if tune_thr:
-            best_thr = fbeta_opt_thresh_per_class(y_true, prob_smooth_np, betas=fbeta_list)
+            best_thr = fbeta_opt_thresh_per_class(
+                y_true, prob_smooth_np, betas=fbeta_list,
+                min_thresholds=min_thr_floor, prec_floor=prec_floor,
+            )
         thr_arr = np.array(best_thr).reshape(1, -1)
         y_pred = (prob_smooth_np > thr_arr).astype(int)
 

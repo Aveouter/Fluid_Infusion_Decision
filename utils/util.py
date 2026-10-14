@@ -90,21 +90,51 @@ def register_activation_saturation_hooks(model, sat_eps=1e-3, pct_warn=0.8):
 def _safe_div(a, b, default=0.0):
     return float(a) / float(b) if b and b > 0 else default
 
-def fbeta_opt_thresh_per_class(y_true_bin, y_prob, betas=None, grid=None):
-    """Return per-class best thresholds by maximizing F-beta on validation set."""
+def fbeta_opt_thresh_per_class(y_true_bin, y_prob, betas=None, grid=None,
+                               min_thresholds=None, prec_floor=None):
+    """Return per-class best thresholds by maximizing F-beta on validation set.
+
+    参数
+    ----
+    min_thresholds : 每类的阈值**下限**。低于该值的候选阈值被排除。
+        对应 CLI 的 ``--min_thresholds``（默认 0.40）。
+    prec_floor : 每类的**精确率下限**。精确率低于该值的候选阈值被排除。
+        对应 CLI 的 ``--prec_floor``（默认 0.70）。
+
+    这两个约束此前在 ``main.py`` 中声明却从未被使用，导致实际选出的阈值
+    可以低于声明下限（实测 colloid 为 0.30 < 0.40），方法学描述与实现不符。
+    若某类在约束下没有任何可行阈值，则退回该类的下限（无下限时退回 0.5），
+    并保证不会返回超出 ``[0, 1]`` 的值。
+    """
     K = y_true_bin.shape[1]
     if betas is None: betas = [1.0]*K
     if grid is None:  grid = np.linspace(0.05, 0.95, 19)
-    from sklearn.metrics import fbeta_score
+    from sklearn.metrics import fbeta_score, precision_score
+
+    def _get(seq, k, default):
+        if seq is None:
+            return default
+        return float(seq[k])
+
     best = []
     for k in range(K):
-        t_best, f_best = 0.5, -1.0
+        lo = _get(min_thresholds, k, 0.0)
+        pf = _get(prec_floor, k, 0.0)
+        fallback = min(max(lo, 0.0), 1.0)
+
+        t_best, f_best = None, -1.0
         for t in grid:
+            if t < lo:
+                continue
             pred = (y_prob[:, k] >= t).astype(int)
+            if pf > 0.0:
+                prec = precision_score(y_true_bin[:, k], pred, zero_division=0)
+                if prec < pf:
+                    continue
             f = fbeta_score(y_true_bin[:, k], pred, beta=betas[k], zero_division=0)
             if f > f_best:
-                t_best, f_best = t, f
-        best.append(t_best)
+                t_best, f_best = float(t), f
+        best.append(fallback if t_best is None else t_best)
     return best
 
 def smooth_probs_over_time(prob, win=5, only_idx=None):

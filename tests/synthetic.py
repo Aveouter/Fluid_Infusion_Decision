@@ -59,7 +59,10 @@ def make_timeseries(
         speeds = (rng.random(size=(length, num_classes)) * 200.0).astype(np.float32)
         speeds = speeds * bits
         label = np.concatenate([bits, speeds], axis=1).astype(np.float32)
-        out[pid] = {"tdata": tdata, "label": label}
+        # 显式携带 patient_id：加载器优先读取该字段（见 utils/data_loader.py
+        # 的 extract_patient_id）。否则它会退化为按 key 前缀推断，
+        # 而 "SYNTH_0000" 这类含下划线的 key 会被错误折叠成同一位患者。
+        out[pid] = {"tdata": tdata, "label": label, "patient_id": pid}
     return out
 
 
