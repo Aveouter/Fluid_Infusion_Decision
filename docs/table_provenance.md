@@ -194,3 +194,90 @@ and the (Acc − F1) gap becomes 0.046 — in line with the other deep-learning
 rows rather than an order of magnitude smaller. Whether that margin is
 significant is exactly what #13 must establish; the corrected value must not be
 presented as superiority without it.
+
+### C2 — Table 1: respiratory rate repeated the heart-rate row
+
+**Where.** Table 1 (`tab:demographics`), Vital Signs block.
+
+**What was wrong.** The respiratory rate row read `103, (89,120)` — identical
+to the heart-rate row above it. Recomputed from
+`data/data_speed/vital_signs` over all 26136 planned hour positions, the
+respiratory rate is **median 20, IQR (19, 21.5)**. A respiratory rate of 103
+per minute is not physiologically survivable; the row had been copied.
+
+**Corrected to.** `20, (19,21.5)` with missing rate 48.38%.
+
+### C3 — Table 1: age IQR was truncated
+
+**Where.** Table 1, Demographics block.
+
+**What was wrong.** `45, (28,6)` — the upper quartile read as a single digit.
+Recomputed from `data/baseline_processed.csv` (n=363), the age IQR is
+**(28, 55)**; the `6` was the first digit of `55` with the second lost.
+
+**Corrected to.** `45, (28,55)`.
+
+### C4 — Table 1: the missing-rate column did not match the data
+
+**Where.** Table 1, Vital Signs block.
+
+**What was wrong.** The column is headed `Missing rate(%)` and held values
+between 0.55 and 0.97. Neither reading fits: as a percentage it means under 1%
+missing, as a fraction it means 55–97%, and the measured rates are 48.55% to
+97.37%. Only CVP reconciled under either reading, which is why the error
+survived — one row looked right.
+
+**Corrected to.** Measured values over 26136 planned hour positions, with the
+header spaced as `Missing rate (%)`:
+
+| Variable | Was | Now |
+|---|---:|---:|
+| Heart Rate | 0.56 | 48.55 |
+| SBP | 0.59 | 50.05 |
+| DBP | 0.59 | 50.05 |
+| Oxygen Saturation | 0.56 | 49.93 |
+| CVP | 0.97 | 97.37 |
+| Respiratory Rate | 0.55 | 48.38 |
+| Temperature | 0.73 | 63.25 |
+
+Urine output and oral intake still carry `--` in that column although both are
+17.90% missing; filling them needs the denominator convention settled first.
+
+### C5 — Table 1: fluid-type counts were wrong and mislabelled
+
+**Where.** Table 1, Fluid Management block.
+
+**What was wrong.** The three fluid rows read glucose 4742 (18.7%),
+crystalloid 8942 (35.4%) and colloid 8190 (32.4%) — sums to 86.5%, which is the
+total the reviewers questioned. Recomputed over the 25267 labelled hours, and
+consistent with the multilabel protocol in `docs/label_protocol.md`:
+
+| Class | Was | Now |
+|---|---:|---:|
+| Crystalloid | 8942 (35.4%) | **13236 (52.4%)** |
+| Colloid | 8190 (32.4%) | **10275 (40.7%)** |
+| Glucose | 4742 (18.7%) | **7235 (28.6%)** |
+
+The three now sum to 121.7%, which is correct for a multilabel task — the three
+types are independent and all three are absent in 6464 hours (25.6%). The old
+figures summed to 86.5%, and the manuscript's reading of the remaining 13.5% as
+"no fluid" does not follow (see `docs/label_protocol.md` §4).
+
+### C6 — Table 1: header spacing
+
+`Missing rate(\%)` → `Missing rate (\%)`.
+
+### Corrections not yet made
+
+The following were reported by reviewers and are **not** fixed here, because
+each needs source material or a decision this ticket cannot supply:
+
+- `Colloid Volume [mL]` carries a volume unit while its neighbours carry rates
+  (R3-9). The source column has to be identified first.
+- `Oral Intake [mL·kg⁻¹·h⁻¹] & 150, (80,260)` is implausible as a per-kg-per-hour
+  rate; the unit is likely wrong but the raw field must be checked.
+- The `Effect` and `p-value` columns are still undefined (R2-3e, R4-15); no test
+  in the repository computes them.
+- Figure 1 and Figure 2 typos ("Gerenation", "Vitals sign data", "Embeddig")
+  live inside the PNG files, not the LaTeX; they need the figure sources, which
+  are not in the working tree.
