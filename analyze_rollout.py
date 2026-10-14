@@ -24,6 +24,9 @@ import torch
 from utils import label_protocol as lp
 from utils import rollout as RO
 
+#: 速率上限，与 run_epoch / predict_test_set 保持一致
+MAX_SPEED = 1200.0
+
 # 与 data_loader 一致的特征列选择（data_mat = [t_norm] + tdata）
 DATA_SEL = [0, 1, 2, 3, 4, 5, 7, 8, 9]
 
@@ -49,6 +52,31 @@ def build_patient_arrays(rec):
     t_norm = np.linspace(0, 1, L, dtype=np.float32).reshape(-1, 1)
     data_mat = np.hstack([t_norm, tdata]).astype(np.float32)
     return data_mat[:, DATA_SEL].astype(np.float32), label
+
+
+def make_predictor_factory(model, device, med, iqr, thr):
+    """返回 ``bvec -> predict(inp)``，供 rollout 与终点分析复用。
+
+    inp = [feat(9) | cum(4) | label(6)]，均为原始量纲；
+    模型输入 = [缩放后的 13 列 ts | 原始 6 列标签]，与 run_epoch 一致。
+    """
+    def factory(bvec):
+        def predict(inp):
+            raw13 = np.concatenate([inp[:9], inp[9:13]]).astype(np.float32)
+            scaled13 = (raw13 - med) / iqr
+            model_in = np.concatenate([scaled13, inp[13:]]).astype(np.float32)
+            xT = torch.tensor(model_in, dtype=torch.float32,
+                              device=device).reshape(1, 1, 19)
+            xB = torch.tensor(bvec, dtype=torch.float32, device=device).reshape(1, 10)
+            with torch.no_grad():
+                out = model(xT, xB)
+            prob = torch.sigmoid(out["class_logits"])[0, 0]
+            speed = torch.nn.functional.softplus(out["flow_pred"])[0, 0].clamp(0, MAX_SPEED)
+            rate = (prob * speed).cpu().numpy()
+            bits = (prob.cpu().numpy() >= thr).astype(np.float32)
+            return np.concatenate([bits, rate])
+        return predict
+    return factory
 
 
 def main(argv=None):

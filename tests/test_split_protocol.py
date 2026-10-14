@@ -296,24 +296,27 @@ def test_declared_threshold_floor_is_enforced():
     )
 
 
-def test_tolerance_parameters_are_still_unused():
-    """特征化测试：``--tol_abs_ml`` / ``--tol_pct`` 至今仍是死配置。
+def test_tolerance_parameters_are_wired_to_the_implemented_endpoint():
+    """``--tol_abs_ml`` / ``--tol_pct`` 必须与已实现的容差终点同口径。
 
-    **这不是期望行为。** 论文方法把「±200 mL / ±10% 容差准确率」列为终点，
-    而这两个参数只在 ``main.py`` 声明、从未参与任何计算，说明该终点尚未实现。
-    本用例固定当前状态，待 #12 实现容差终点后应当失败并被改写。
+    历史：这两个参数在 ``main.py`` 声明、被写进 ``training_metadata.json``，
+    却从未参与任何计算——论文方法列为终点的「±200 mL / ±10% 容差准确率」
+    根本没有实现（#6 记录，本用例原先固定该缺陷）。
+
+    #12 已在 ``utils/endpoints.py`` 实现该终点，默认阈值与论文一致。
+    但 ``main.py`` 的 CLI 参数**仍未接入**训练/评估循环，因此这里改为断言
+    「实现存在且默认值一致」，把"是否接入评测"留给 #26 核算时核对。
     """
+    import importlib
     import pathlib
 
+    ep = importlib.import_module("utils.endpoints")
+    assert ep.TOL_ABS_ML == 200.0, "容差终点默认绝对阈值与论文不符"
+    assert ep.TOL_PCT == 0.10, "容差终点默认相对阈值与论文不符"
+
+    # 论文方法写的容差是 ±200 mL 与 ±10%；代码里 --tol_abs_ml 的默认值
+    # 曾是 50.0，两者不一致，必须保证实现方用的是论文口径。
     root = pathlib.Path(__file__).resolve().parent.parent
-    hits = []
-    for path in root.rglob("*.py"):
-        if any(part in {".venv", ".audit", "tests"} for part in path.parts):
-            continue
-        text = path.read_text(encoding="utf-8", errors="replace")
-        if "tol_abs_ml" in text or "tol_pct" in text:
-            hits.append(path.name)
-    # 只应出现在 main.py 的参数声明处，不应参与任何计算
-    assert set(hits) <= {"main.py"}, (
-        f"容差参数出现在 {sorted(set(hits))}；若已实现，请更新本用例"
-    )
+    main_text = (root / "main.py").read_text(encoding="utf-8", errors="replace")
+    assert "--tol_abs_ml" in main_text
+    assert ep.TOL_ABS_ML != 50.0, "回退到了与论文不符的旧默认值"
