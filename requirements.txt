@@ -1,0 +1,16 @@
+# BurnResu 运行时依赖
+# 版本于 2026-10-14 在 Windows 11 + Python 3.12.10 + RTX 4070 上验证通过。
+
+# torch 走 PyTorch 官方 CUDA 索引。版本号带 +cu126 本地标签，
+# 而 PyPI 上只有不带标签的 CPU 轮子，因此 pip 不可能回落到 CPU 构建。
+--extra-index-url https://download.pytorch.org/whl/cu126
+torch==2.14.1+cu126
+
+numpy==2.5.4
+pandas==3.0.6
+scikit-learn==1.9.1
+scipy==1.18.1
+matplotlib==3.11.2
+openpyxl==3.1.5
+tqdm==4.70.1
+requests==2.34.2

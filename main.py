@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import os
+import sys
 import time
 import json
 import glob
@@ -7,6 +8,16 @@ import pickle
 import logging
 import argparse
 import random
+
+# 帮助与日志文本含中文。Windows 控制台默认使用本地代码页（如 cp1252），
+# 在输出被重定向或管道时无法编码中文，会使 `--help` 直接抛 UnicodeEncodeError。
+# 这里统一为标准输出/错误的编码，保证 CLI 在 CI 与管道下可用。
+for _stream in (sys.stdout, sys.stderr):
+    try:
+        _stream.reconfigure(encoding="utf-8")
+    except (AttributeError, ValueError):
+        pass
+
 import numpy as np
 import torch
 

@@ -214,11 +214,51 @@ Loss weights: $\lambda_{\mathrm{cls}}=1.0$, $\lambda_{\mathrm{cum}}=0.5$, $\lamb
 git clone https://github.com/Aveouter/BurnResu.git
 cd BurnResu
 
-pip install torch numpy pandas scikit-learn matplotlib tqdm
+# Runtime dependencies (versions verified on Python 3.12)
+pip install -r requirements.txt
+
+# Development / test dependencies
+pip install -r requirements-dev.txt
 
 # Optional: ONNX export for mobile deployment
 pip install onnx onnxruntime
 ```
+
+`requirements.txt` pins the CUDA build of `torch` (`2.14.1+cu126`, ~2.6 GB),
+resolved from the official PyTorch index. The `+cu126` local version tag does not
+exist on PyPI, so pip cannot silently fall back to a CPU wheel.
+
+```bash
+pip install -r requirements.txt
+python -c "import torch; print(torch.cuda.is_available())"
+```
+
+Verified on an RTX 4070 (Ada, sm_89) with driver 595.79. On older hardware or
+drivers, switch the index URL to `cu118` / `cu124` and match the version tag
+accordingly.
+
+## Testing
+
+Every test uses synthetic fixtures only. The suite does **not** read any clinical
+record under `data/`, so it is safe to run on public CI.
+
+```bash
+pip install -r requirements-dev.txt
+pytest -q
+```
+
+- `tests/test_smoke.py` — all six builders (full model plus the five ablation
+  variants) complete a CPU forward/backward pass; output shapes and the ZILN
+  parameter/flow consistency invariant are checked.
+- `tests/test_cli.py` — `--help` works, and an invalid `--model` is rejected.
+- `tests/test_data_privacy.py` — fixtures use fictional patient IDs only, and no
+  test source reads a real data path.
+
+Markers: `gpu` (skipped without CUDA), `realdata` (skipped without `data/`), `slow`.
+
+Verified with Python 3.12.10 and torch 2.14.1+cu126 on Windows. CUDA-specific
+cases carry the `gpu` marker and skip automatically where no GPU is present, so
+the same suite runs unchanged on CPU-only `ubuntu-latest` CI.
 
 ## Quick Start
 

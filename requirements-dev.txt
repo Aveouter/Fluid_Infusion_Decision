@@ -1,0 +1,3 @@
+# 开发与测试依赖（见 issue #3）
+-r requirements.txt
+pytest==9.1.1

@@ -24,3 +24,17 @@ scripts/
 .vscode/
 android/
 .idea/
+
+# 本地虚拟环境与测试缓存
+.venv/
+venv/
+env/
+.pytest_cache/
+.coverage
+htmlcov/
+*.egg-info/
+
+# 保密：审稿材料与在审稿件，勿提交公开仓库
+EAAI_review_letter_original.txt
+*.tex
+.audit/
