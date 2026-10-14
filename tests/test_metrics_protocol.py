@@ -277,34 +277,131 @@ def test_all_zero_input_does_not_crash_metrics():
 # ----------------------------------------------------------- 导出 schema
 
 def test_metric_record_validates_fields():
+    """v2 起 `mL` 是合法单位——词表封闭由"伪单位仍被拒"保全，而非禁止 mL。
+
+    P1（72h 累计剂量）的单位就是 mL；v1 允许的 ``cumulative_ml`` 把量纲与
+    口径混在一个名字里，v2 拆成 ``unit="mL"`` + 独立的聚合/掩码字段。
+    """
     ok = M.MetricRecord(metric_name="f1", value=0.7, aggregation="macro",
                         unit="probability", level="patient", split="test")
     ok.validate()
 
     with pytest.raises(ValueError, match="未知的 aggregation"):
         M.MetricRecord("f1", 0.7, "median", "probability", "window", "test").validate()
+    # v2：mL 合法
+    M.MetricRecord("mae", 1.0, "none", "mL", "window", "test").validate()
+    # 词表仍然封闭：伪单位必须被拒
     with pytest.raises(ValueError, match="未知的 unit"):
-        M.MetricRecord("mae", 1.0, "none", "mL", "window", "test").validate()
+        M.MetricRecord("mae", 1.0, "none", "quarts", "window", "test").validate()
     with pytest.raises(ValueError, match="未知的 level"):
-        M.MetricRecord("mae", 1.0, "none", "cumulative_ml", "hour", "test").validate()
+        M.MetricRecord("mae", 1.0, "none", "mL", "hour", "test").validate()
+
+
+def test_na_discipline_is_enforced():
+    """不可估计必须写成 value=None + na_reason；不得用 nan 冒充。
+
+    裸 ``NaN`` 不是合法 JSON，且会被下游读成 0 或静默跳过——两者都会让
+    "分母变了"这件事消失在结果里。
+    """
+    with pytest.raises(ValueError, match="na_reason"):
+        M.MetricRecord("mae", None, "none", "mL", "window", "test").validate()
+    M.MetricRecord("mae", None, "none", "mL", "window", "test",
+                   na_reason="insufficient_horizon").validate()
+
+    with pytest.raises(ValueError, match="互斥"):
+        M.MetricRecord("mae", 1.0, "none", "mL", "window", "test",
+                       na_reason="有值却又声明 NA").validate()
+    with pytest.raises(ValueError, match="非有限值"):
+        M.MetricRecord("mae", float("nan"), "none", "mL", "window", "test").validate()
+
+
+def test_exporter_json_contains_no_bare_nan():
+    """导出必须是合法 JSON：nan/inf 一律不允许出现。"""
+    ex = M.MetricsExporter(split="test")
+    for bad in (float("nan"), float("inf"), float("-inf")):
+        with pytest.raises(ValueError, match="非有限值"):
+            ex.add("mae", bad, aggregation="patient_mean", unit="mL/h", level="patient")
+
+    ex.add("mae", 1.0, aggregation="patient_mean", unit="mL/h", level="patient")
+    blob = ex.to_json()
+    assert "NaN" not in blob and "Infinity" not in blob
+    json.loads(blob)                      # 必须能被标准 JSON 解析器读回
 
 
 def test_exporter_keys_do_not_collide():
     """同名指标的不同口径必须在展平后仍然可区分。"""
-    ex = M.MetricsExporter(split="test", seed=42)
-    ex.add("f1", 0.69, aggregation="macro", unit="probability", level="patient")
-    ex.add("f1", 0.74, aggregation="micro", unit="probability", level="window")
+    ex = M.MetricsExporter(split="test", seed=42, model_id="m", run_id="r1")
+    a = ex.add("f1", 0.69, aggregation="macro", unit="probability", level="patient")
+    b = ex.add("f1", 0.74, aggregation="micro", unit="probability", level="window")
     flat = ex.as_dict()
 
     assert len(flat) == 2, f"口径不同的同名指标被覆盖：{flat}"
-    assert flat["f1|macro|probability|patient"] == pytest.approx(0.69)
-    assert flat["f1|micro|probability|window"] == pytest.approx(0.74)
+    assert flat[a.identity_key()] == pytest.approx(0.69)
+    assert flat[b.identity_key()] == pytest.approx(0.74)
+
+
+#: 一个身份齐备的基准行，用于逐维度检验规范键。
+_BASE_ROW = dict(
+    metric_name="mae_step", value=1.0, aggregation="patient_mean", unit="mL/h",
+    level="patient", split="test", seed=42, model_id="BurnResu", run_id="run1",
+    horizon_hours=72, horizon_origin="hour_0_anchored",
+    estimand="conditional_cumulative_volume", fluid_class="total",
+    mask="eligible_patient", eval_mode="one_step_observed_history",
+    rate_definition="action_rate_uncond", threshold=0.45, quality_track="main",
+)
+
+
+@pytest.mark.parametrize("field_name,other", [
+    ("metric_name", "mae_all"),
+    ("model_id", "persistence"),
+    ("run_id", "run2"),
+    ("level", "window"),
+    ("aggregation", "target_pooled"),
+    ("unit", "mL"),
+    ("horizon_hours", 24),
+    ("horizon_origin", "first_predicted_hour"),
+    ("estimand", "pure_prediction_window_volume"),
+    ("fluid_class", "crystal"),
+    ("mask", "positive_flow"),
+    ("eval_mode", "action_autoregressive_rollout"),
+    ("rate_definition", "speed"),
+    ("split", "val"),
+    ("seed", 7),
+    ("threshold", 0.30),
+    ("quality_track", "adjudicated_mask"),
+    ("protocol_hash", "deadbeef"),
+])
+def test_every_identity_dimension_changes_the_key(field_name, other):
+    """逐个身份维度改动后键必须互异。
+
+    这是 v1 键（``name|aggregation|unit|level``）缺的东西：时域、掩码、
+    模型、评估模式都不在键里，于是两个不同的数字会挤成一行。
+    """
+    from dataclasses import replace
+
+    base = M.MetricRecord(**_BASE_ROW)
+    variant = replace(base, **{field_name: other})
+    assert base.identity_key() != variant.identity_key(), \
+        f"{field_name} 不在规范键里：两个不同的行共享了同一个键"
+
+
+def test_exporter_refuses_colliding_keys():
+    """完全相同的身份 + 不同的数值 = 冲突，必须报错而不是静默覆盖。"""
+    ex = M.MetricsExporter(split="test", seed=1)
+    for value in (1.0, 2.0):
+        ex.add("mae_step", value, aggregation="patient_mean", unit="mL/h",
+               level="patient", eval_mode="one_step_observed_history",
+               rate_definition="speed")
+    with pytest.raises(ValueError, match="键冲突"):
+        ex.as_dict()
 
 
 def test_exporter_roundtrip_and_provenance():
-    ex = M.MetricsExporter(split="test", seed=7)
-    ex.add("mae", 27.5, aggregation="none", unit="step_ml_per_h",
-           level="patient", n_patients=72, n_windows=3622, mask="positive_flow")
+    ex = M.MetricsExporter(split="test", seed=7, model_id="BurnResu", run_id="r1")
+    ex.add("mae_positive_flow", 27.5, aggregation="patient_mean", unit="mL/h",
+           level="patient", mask="positive_flow", rate_definition="speed",
+           eval_mode="one_step_observed_history",
+           n_patients=72, n_windows=3622)
 
     with tempfile.TemporaryDirectory() as d:
         path = Path(d) / "metrics.json"
@@ -313,11 +410,19 @@ def test_exporter_roundtrip_and_provenance():
 
     assert len(rows) == 1
     r = rows[0]
-    for key in ("metric_name", "value", "aggregation", "unit", "level", "split",
-                "seed", "n_patients", "n_windows", "mask", "protocol_version"):
+    for key in ("metric_name", "value", "aggregation", "unit", "level",
+                "split_or_outer_fold", "train_seed", "split", "seed",
+                "n_patients", "n_windows", "mask", "protocol_version",
+                "horizon_hours", "horizon_origin", "estimand", "fluid_class",
+                "eval_mode", "rate_definition", "threshold", "quality_track",
+                "protocol_hash", "data_fingerprint", "na_reason", "identity_key"):
         assert key in r, f"导出记录缺少字段 {key}"
     assert r["n_patients"] == 72
     assert r["protocol_version"] == M.PROTOCOL_VERSION
+    assert r["quality_track"] == "main" and r["model_id"] == "BurnResu"
+    # #81 的字段名与 v1 别名必须同时存在，且**取值一致**
+    assert r["split_or_outer_fold"] == r["split"] == "test"
+    assert r["train_seed"] == r["seed"] == 7
 
 
 def test_run_epoch_exports_metric_schema():

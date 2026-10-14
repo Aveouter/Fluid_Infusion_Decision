@@ -31,8 +31,11 @@ from utils import label_protocol as lp
 
 #: 容差终点的默认参数。论文方法写的是 ±200 mL 与 ±10%；
 #: 代码里 ``--tol_abs_ml`` 的默认值 50.0 从未被使用（见 #6）。
-TOL_ABS_ML = 200.0
-TOL_PCT = 0.10
+#:
+#: v2 起**唯一来源**是 :mod:`utils.eval_protocol`——此处只做 re-export，
+#: 不再各自定义，避免"三组容差参数"的历史问题重现。
+from utils import eval_protocol as EP  # noqa: E402
+from utils.eval_protocol import TOL_ABS_ML, TOL_PCT  # noqa: E402  (re-export)
 
 #: 可选的速率口径。
 RATE_DEFINITIONS = ("flow_pred", "speed", "rate")
@@ -243,3 +246,518 @@ def evaluate_all(true_labels: np.ndarray, pred_labels: np.ndarray,
     for v in out.values():
         v["rate_definition"] = rate_definition
     return out
+
+
+# ==========================================================================
+# v2（issue #81）：患者优先的终点实现
+# ==========================================================================
+#
+# 原则：**独立单位是患者**。每个终点都先对每位患者求值，再对患者等权平均；
+# 目标加权（target_pooled）只作辅助，且必须显式标注。
+#
+# 本层返回**普通结果字典**（数值 + 分母 + 排除原因），不构造结果行——
+# 行的 schema 由 utils/metrics.py 负责，装配由 utils/eval_engine.py 负责。
+# 这样指标算术可以脱离 schema 单独手算校验。
+
+
+def _by_class(x: np.ndarray, fluid_class: str) -> float:
+    """按液体类别求和；``total`` 为三类之和。"""
+    if fluid_class == "total":
+        return float(np.sum(x))
+    if fluid_class not in lp.LIQUID_TYPES:
+        raise ValueError(f"未知的 fluid_class：{fluid_class}")
+    return float(np.sum(x[lp.LIQUID_TYPES.index(fluid_class)]))
+
+
+def patient_cumulative(traj, rate_definition: str, *, horizon: int,
+                       origin: str = "hour_0_anchored", dt: float = 1.0
+                       ) -> Dict[str, object]:
+    """一位患者的逐类累计体积（mL），按冻结的估计对象计算。
+
+    - ``hour_0_anchored``（E1）：第 0 小时用**已观测**的值补齐——它在决策
+      时刻已知，对真值与预测是同一个数，因此不计入误差，也不是泄漏。
+      于是真值与预测的差只来自**被预测的那部分**。
+    - ``first_predicted_hour``（E3）：不锚定，只用轨迹里的小时求和。
+    """
+    if origin not in ("hour_0_anchored", "first_predicted_hour"):
+        raise ValueError(
+            f"origin 必须是 hour_0_anchored / first_predicted_hour，实际 {origin}")
+
+    pred = traj.rates_for(rate_definition)
+    sel = traj.select_hours(horizon)          # 实际存在、且小时序号 < horizon
+    n_pred_hours = int(len(sel))
+
+    true_class = (np.sum(traj.true_rates[sel], axis=0) * dt
+                  if n_pred_hours else np.zeros(lp.NUM_TYPES))
+    pred_class = (np.sum(pred[sel], axis=0) * dt
+                  if n_pred_hours else np.zeros(lp.NUM_TYPES))
+
+    anchored = False
+    if origin == "hour_0_anchored" and 0 not in set(int(h) for h in traj.hours):
+        if traj.observed_first is None:
+            return {"available": False,
+                    "na_reason": "hour_0_not_observed_for_anchored_estimand",
+                    "n_predicted_hours": n_pred_hours}
+        obs = np.asarray(traj.observed_first, dtype=float)[lp.RATE_SLICE] * dt
+        true_class = true_class + obs          # 观测值同样是这一小时的真值
+        pred_class = pred_class + obs
+        anchored = True
+
+    true_ml = float(np.sum(true_class))
+    pred_ml = float(np.sum(pred_class))
+    abs_err_class = np.abs(pred_class - true_class)
+    return {
+        "available": True,
+        "true_ml": true_ml,
+        "pred_ml": pred_ml,
+        # 总量口径：|总量差|。**不是**逐类绝对误差之和——后者会把
+        # "晶体少 500、胶体多 500" 也算成 1000 的误差，见 component_abs_err_ml。
+        "abs_err_ml": abs(pred_ml - true_ml),
+        "true_class_ml": true_class,
+        "pred_class_ml": pred_class,
+        "abs_err_class_ml": abs_err_class,
+        # 分量口径：Σ_c |Δ_c|。只有它能为正于总量误差，从而暴露通道间抵消。
+        "component_abs_err_ml": float(np.sum(abs_err_class)),
+        "n_predicted_hours": n_pred_hours,
+        "hour0_anchored": anchored,
+    }
+
+
+def horizon_eligible(traj, horizon: int, *, require_complete: bool = True,
+                     rule: str = "all_hours_present") -> Dict[str, object]:
+    """该患者在某时域下是否可用；不可用时给出原因。
+
+    ``require_complete=True``（默认）要求轨迹**完整覆盖**该时域。这是
+    防止"30 小时的部分轨迹被当作 48h/72h 求和"的闸门——缺的小时是缺的，
+    不能靠"有多少算多少"补齐。
+
+    ``rule`` 决定"完整"的含义：
+
+    - ``all_hours_present``：该时域的小时都在（主轨）。
+    - ``all_hours_eligible``：而且这些小时**全部通过质量掩码**（敏感性轨）。
+
+    两轨必须用**不同的规则**，否则敏感性分析只是把同一批数字换个标题——
+    那正是双轨设计要防的假象。
+    """
+    if not require_complete:
+        return {"eligible": True, "na_reason": ""}
+    qm = getattr(traj, "_quality_mask", None)
+    c = traj.completeness(horizon, rule=rule, quality_mask=qm)
+    if c["complete"]:
+        return {"eligible": True, "na_reason": "", "rule": rule,
+                "hour0_anchored": c["hour0_anchored"]}
+    reason = ("insufficient_horizon" if rule == "all_hours_present"
+              else "not_estimable_under_quality_mask")
+    return {"eligible": False, "na_reason": reason, "rule": rule,
+            "hours_present": c["hours_present"],
+            "hours_required": c["hours_required"]}
+
+
+def cumulative_summary(trajs, rate_definition: str, *, horizon: int,
+                       origin: str = "hour_0_anchored", dt: float = 1.0,
+                       require_complete: bool = True,
+                       rule: str = "all_hours_present"
+                       ) -> Dict[str, object]:
+    """P1：累计剂量 MAE（mL），**先患者后平均**，并分液体并列报告。
+
+    分液体报告是必须的：总量误差允许三个通道的正负误差互相抵消，
+    而"总量对、液体种类错"是临床上不同的失败模式（见 component_sum_error）。
+    """
+    eligible, excluded = [], []
+    for t in trajs:
+        gate = horizon_eligible(t, horizon, require_complete=require_complete,
+                                    rule=rule)
+        if not gate["eligible"]:
+            excluded.append((t.patient_id, {"na_reason": gate["na_reason"]}))
+            continue
+        r = patient_cumulative(t, rate_definition, horizon=horizon,
+                               origin=origin, dt=dt)
+        (eligible if r["available"] else excluded).append((t.patient_id, r))
+
+    n_pred_hours = [r["n_predicted_hours"] for _, r in eligible]
+    out = {
+        "available": bool(eligible),
+        "n_patients_eligible": len(eligible),
+        "n_patients_excluded": len(excluded),
+        "exclusion_reasons": sorted({r["na_reason"] for _, r in excluded}),
+        "n_predicted_hours_total": int(np.sum(n_pred_hours)) if n_pred_hours else 0,
+        "horizon_hours": int(horizon),
+        "origin": origin,
+        "estimand": ("conditional_cumulative_volume"
+                     if origin == "hour_0_anchored"
+                     else "pure_prediction_window_volume"),
+        "per_class": {},
+    }
+    if not eligible:
+        return out
+
+    for fluid in ("total",) + tuple(lp.LIQUID_TYPES):
+        k = None if fluid == "total" else lp.LIQUID_TYPES.index(fluid)
+        errs = np.array([(r["abs_err_ml"] if k is None else r["abs_err_class_ml"][k])
+                         for _, r in eligible], dtype=float)
+        signed = np.array([(r["pred_ml"] - r["true_ml"]) if k is None
+                           else (r["pred_class_ml"][k] - r["true_class_ml"][k])
+                           for _, r in eligible], dtype=float)
+        out["per_class"][fluid] = {
+            "mae_ml": float(errs.mean()),
+            "bias_ml": float(signed.mean()),
+            "n_patients": int(errs.size),
+            "n_targets": int(np.sum(n_pred_hours)),
+        }
+    return out
+
+
+def tolerance_summary(trajs, rate_definition: str, *, horizon: int,
+                       origin: str = "hour_0_anchored", dt: float = 1.0,
+                      tol_abs_ml: float = TOL_ABS_ML,
+                      tol_pct: float = TOL_PCT,
+                      require_complete: bool = True,
+                      rule: str = "all_hours_present") -> Dict[str, object]:
+    """P2：容差准确率——**绝对与相对是两个独立主终点**，各自报分母。
+
+    冻结规则：
+
+    - 合格患者 = 该时域完整；
+    - ``abs`` 在**全部**合格患者上算：零剂量患者也有"少输了多少"的绝对误差；
+    - ``rel`` **排除真实累计总量为 0 的患者**——除以零不是"通过"；
+    - ``joint`` 另行报告，**不得**替代上面两个；
+    - 零剂量单列一个桶：人数 + 只判绝对容差的准确率。
+    """
+    rows = []
+    for t in trajs:
+        if not horizon_eligible(t, horizon, require_complete=require_complete,
+                                    rule=rule)["eligible"]:
+            continue
+        r = patient_cumulative(t, rate_definition, horizon=horizon,
+                               origin=origin, dt=dt)
+        if r["available"]:
+            rows.append((t.patient_id, r))
+    if not rows:
+        return {"available": False, "n_patients_eligible": 0,
+                "exclusion_reasons": ["no_eligible_patient"]}
+
+    true_v = np.array([r["true_ml"] for _, r in rows], dtype=float)
+    pred_v = np.array([r["pred_ml"] for _, r in rows], dtype=float)
+    abs_err = np.abs(pred_v - true_v)
+    is_zero = true_v <= 0.0
+
+    abs_ok = abs_err <= float(tol_abs_ml)
+    safe = np.where(is_zero, 1.0, true_v)
+    rel_err = abs_err / safe
+    rel_ok = rel_err <= float(tol_pct)
+    nonzero = ~is_zero
+
+    return {
+        "available": True,
+        "tol_abs_ml": float(tol_abs_ml), "tol_pct": float(tol_pct),
+        "horizon_hours": int(horizon), "origin": origin,
+        "n_patients_eligible": int(true_v.size),
+        "abs": {"value": float(abs_ok.mean()), "n_patients": int(abs_ok.size),
+                "n_hits": int(abs_ok.sum())},
+        "rel": {"value": (float(rel_ok[nonzero].mean()) if nonzero.any()
+                          else float("nan")),
+                "n_patients": int(nonzero.sum()),
+                "n_hits": int(rel_ok[nonzero].sum()),
+                "n_excluded_zero_dose": int(is_zero.sum())},
+        "joint": {"value": (float((abs_ok[nonzero] & rel_ok[nonzero]).mean())
+                            if nonzero.any() else float("nan")),
+                  "n_patients": int(nonzero.sum())},
+        "zero_dose": {
+            "n_patients": int(is_zero.sum()),
+            "accuracy_abs": (float(abs_ok[is_zero].mean()) if is_zero.any()
+                             else float("nan")),
+            "pred_total_ml": pred_v[is_zero].tolist(),
+            "note": "真实累计总量为 0 的患者不进相对容差的分母；除零不是达标。",
+        },
+    }
+
+
+def component_sum_error(trajs, rate_definition: str, *, horizon: int,
+                           origin: str = "hour_0_anchored", dt: float = 1.0,
+                        require_complete: bool = True,
+                      rule: str = "all_hours_present") -> Dict[str, object]:
+    """C2 的核心量：分量误差和 ``Σ_c |V̂_c − V_c|``（mL）。
+
+    它与 ``|Σ_c V̂_c − Σ_c V_c|`` 不同：后者允许三个通道的正负误差互相抵消，
+    于是"晶体少输 500 mL、胶体多输 500 mL"会显示为总量完全正确。
+    两者一起看才能识别这种失败。
+    """
+    comp, tot = [], []
+    for t in trajs:
+        if not horizon_eligible(t, horizon, require_complete=require_complete,
+                                    rule=rule)["eligible"]:
+            continue
+        r = patient_cumulative(t, rate_definition, horizon=horizon,
+                               origin=origin, dt=dt)
+        if not r["available"]:
+            continue
+        comp.append(float(r["component_abs_err_ml"]))
+        tot.append(float(r["abs_err_ml"]))
+    if not comp:
+        return {"available": False}
+    comp_a, tot_a = np.array(comp), np.array(tot)
+    return {
+        "available": True,
+        "component_sum_mae_ml": float(comp_a.mean()),
+        "total_abs_mae_ml": float(tot_a.mean()),
+        "cancellation_gap_ml": float(comp_a.mean() - tot_a.mean()),
+        "n_patients": int(comp_a.size),
+        "unit": "mL",
+        "note": "cancellation_gap = 分量误差和 − 总量误差；"
+                ">0 说明存在通道间正负抵消。",
+    }
+
+
+# --------------------------------------------------------------- 速率误差
+
+def rate_error_summary(trajs, rate_definition: str, *, mask: str = "all",
+                       eps: float = None, fluid_class: str = "total"
+                       ) -> Dict[str, object]:
+    """逐小时速率误差（mL/h），**先患者后平均**。
+
+    ``mask`` 必须是 ``all`` / ``positive_flow`` / ``zero_flow`` 之一：
+
+    - ``all``：包含真实零流小时（含真实零输注）。这是"全时段"口径。
+    - ``positive_flow``：只算真实速率 > ε 的单元。**它不是 all**——
+      零流小时会把 all 的均值拉低，两者数值不同、问题不同。
+    - ``zero_flow``：只算真值为零的单元，用于单独看"该停没停"。
+
+    ``target_pooled`` 一并给出，但只作辅助：它把同一患者的多个小时当作独立
+    样本，患者小时数不等时会偏向小时多的患者。
+
+    ``fluid_class`` 取 ``total``（三类合并）或某一类，用于按液体分别报告——
+    总量误差会掩盖"某一类系统性偏高、另一类偏低"。
+    """
+    if mask not in ("all", "positive_flow", "zero_flow"):
+        raise ValueError(f"mask 必须是 all / positive_flow / zero_flow，实际 {mask}")
+    if fluid_class != "total" and fluid_class not in lp.LIQUID_TYPES:
+        raise ValueError(f"未知的 fluid_class：{fluid_class}")
+    thr = EP.EPS_RATE_ML_PER_H if eps is None else float(eps)
+    cols = (list(range(lp.NUM_TYPES)) if fluid_class == "total"
+            else [lp.LIQUID_TYPES.index(fluid_class)])
+
+    per_patient_mae, per_patient_rmse = [], []
+    pooled_err, n_targets, n_patient_hours = [], 0, 0
+    for t in trajs:
+        pred = t.rates_for(rate_definition)
+        if pred is None:
+            continue
+        true = t.true_rates[:, cols]
+        pred = pred[:, cols]
+        if mask == "positive_flow":
+            sel = true > thr
+        elif mask == "zero_flow":
+            sel = true <= thr
+        else:
+            sel = np.ones_like(true, dtype=bool)
+        if not sel.any():
+            continue
+        err = np.abs(pred[sel] - true[sel])
+        per_patient_mae.append(float(np.mean(err)))
+        per_patient_rmse.append(float(np.sqrt(np.mean(err ** 2))))
+        pooled_err.append(err)
+        n_targets += int(sel.sum())
+        n_patient_hours += int(np.any(sel, axis=1).sum())
+
+    if not per_patient_mae:
+        return {"available": False, "mask": mask, "n_patients": 0,
+                "na_reason": "no_target_matches_mask"}
+    pooled = np.concatenate(pooled_err)
+    return {
+        "available": True,
+        "mask": mask, "epsilon_ml_per_h": float(thr),
+        "fluid_class": fluid_class,
+        "unit": "mL/h",
+        "mae_ml_per_h": float(np.mean(per_patient_mae)),
+        "rmse_ml_per_h": float(np.mean(per_patient_rmse)),
+        "n_patients": len(per_patient_mae),
+        "n_patient_hours": n_patient_hours,
+        "n_targets": n_targets,
+        # 辅助口径：把 (小时, 类别) 当独立单元
+        "target_pooled": {"mae_ml_per_h": float(pooled.mean()),
+                          "rmse_ml_per_h": float(np.sqrt(np.mean(pooled ** 2))),
+                          "n_targets": int(pooled.size)},
+        "aggregation": "patient_mean",
+        "note": "patient_mean：先按患者对有效小时/类别平均，再对患者平均。"
+                "target_pooled 仅作辅助。",
+    }
+
+
+def smape_summary(trajs, rate_definition: str, *, mask: str = "positive_flow",
+                  eps: float = None) -> Dict[str, object]:
+    """SMAPE（%），分母为 ``|ŷ| + |y|``；分母为 0 的单元跳过**并计数**。
+
+    按 0 计入会人为压低误差，所以跳过时必须报出 ``n_skipped``。
+    """
+    thr = EP.EPS_RATE_ML_PER_H if eps is None else float(eps)
+    per_patient, n_skipped, n_used = [], 0, 0
+    for t in trajs:
+        pred = t.rates_for(rate_definition)
+        if pred is None:
+            continue
+        true = t.true_rates
+        sel = (true > thr) if mask == "positive_flow" else np.ones_like(true, bool)
+        if not sel.any():
+            continue
+        a, b = true[sel], pred[sel]
+        denom = np.abs(a) + np.abs(b)
+        keep = denom > 0
+        n_skipped += int((~keep).sum())
+        if not keep.any():
+            continue
+        per_patient.append(float(np.mean(200.0 * np.abs(b[keep] - a[keep]) / denom[keep])))
+        n_used += int(keep.sum())
+
+    if not per_patient:
+        return {"available": False, "mask": mask, "n_patients": 0,
+                "n_skipped": n_skipped}
+    return {
+        "available": True, "mask": mask, "unit": "ratio",
+        "smape_percent": float(np.mean(per_patient)),
+        "n_patients": len(per_patient), "n_targets": n_used,
+        "n_skipped": n_skipped,
+        "aggregation": "patient_mean",
+    }
+
+
+# ------------------------------------------------------------- 分类（P3）
+
+def multilabel_prf(y_true_bits: np.ndarray, y_pred_bits: np.ndarray,
+                   *, class_names=None) -> Dict[str, object]:
+    """P3：多标签逐类 P/R/F1 + macro/micro，含**无正例类**的冻结规则。
+
+    冻结规则：主指标是**固定三个类别**的 Macro-F1，``zero_division=0``——
+    与稿件已报的口径可比。某一类在真值里没有正例时该类的 F1 记 0 并进入
+    均值，**不改变指标定义**；另给 ``present_class_macro_f1`` 作为敏感性
+    （只在有正例的类上取均值），两者数值不同、不得互换。
+
+    例：三类 F1 = 0.6 / 0.8 / 无正例 → 主指标 0.4667，敏感性 0.7000。
+    """
+    from sklearn.metrics import (f1_score, precision_score, recall_score)
+
+    y = np.asarray(y_true_bits).astype(int)
+    p = np.asarray(y_pred_bits).astype(int)
+    if y.shape != p.shape:
+        raise ValueError(f"形状不一致：{y.shape} vs {p.shape}")
+    K = y.shape[1]
+    if class_names:
+        names = list(class_names)
+    elif K == lp.NUM_TYPES:
+        names = list(lp.LIQUID_TYPES)          # 本项目的液体口径
+    else:
+        names = [f"class_{k}" for k in range(K)]
+
+    per_class, supports, f1s = {}, [], []
+    for k in range(K):
+        f1 = float(f1_score(y[:, k], p[:, k], zero_division=0))
+        per_class[names[k]] = {
+            "precision": float(precision_score(y[:, k], p[:, k], zero_division=0)),
+            "recall": float(recall_score(y[:, k], p[:, k], zero_division=0)),
+            "f1": f1,
+            "support": int(y[:, k].sum()),
+        }
+        supports.append(per_class[names[k]]["support"])
+        f1s.append(f1)
+
+    present = [f for f, s in zip(f1s, supports) if s > 0]
+    return {
+        "available": True,
+        "per_class": per_class,
+        # 主指标：固定 K 类，zero_division=0
+        "macro_f1": float(np.mean(f1s)),
+        "macro_precision": float(precision_score(y, p, average="macro", zero_division=0)),
+        "macro_recall": float(recall_score(y, p, average="macro", zero_division=0)),
+        "micro_f1": float(f1_score(y, p, average="micro", zero_division=0)),
+        "weighted_f1": float(f1_score(y, p, average="weighted", zero_division=0)),
+        "bit_accuracy": float((y == p).mean()),
+        "n_targets": int(y.size), "n_patients_note": "调用方按患者聚合后填 n_patients",
+        # 敏感性：只在有正例的类上取均值
+        "present_class_macro_f1": (float(np.mean(present)) if present else float("nan")),
+        "n_classes_in_main_macro": K,
+        "n_classes_in_present_macro": len(present),
+        "n_classes_without_positives": K - len(present),
+        "macro_rule": "fixed_classes_zero_division_0",
+    }
+
+
+def multilabel_ranking(y_true_bits: np.ndarray, y_prob: np.ndarray,
+                       *, n_bins: int = 10) -> Dict[str, object]:
+    """逐类 ROC-AUC、Brier 与 ECE（macro）。
+
+    某类在真值里只有单一标签时 AUC **无法计算**，记 ``None`` 并给出原因——
+    不补造 0.5，也不把它算进 macro（那会把"不可算"变成"随机水平"）。
+    """
+    from sklearn.metrics import brier_score_loss, roc_auc_score
+
+    from utils import calibration as CAL
+
+    y = np.asarray(y_true_bits).astype(int)
+    q = np.asarray(y_prob, dtype=float)
+    if y.shape != q.shape:
+        raise ValueError(f"形状不一致：{y.shape} vs {q.shape}")
+
+    aucs, briers, eces = [], [], []
+    for k in range(y.shape[1]):
+        if len(np.unique(y[:, k])) < 2:
+            aucs.append(None)
+        else:
+            aucs.append(float(roc_auc_score(y[:, k], q[:, k])))
+        briers.append(float(brier_score_loss(y[:, k], q[:, k])))
+        eces.append(float(CAL.expected_calibration_error(
+            y[:, k][:, None], q[:, k][:, None], n_bins=n_bins)["ece"]))
+
+    finite = [a for a in aucs if a is not None]
+    return {
+        "available": True,
+        "auc_per_class": aucs,
+        "auc_macro": float(np.mean(finite)) if finite else float("nan"),
+        "auc_macro_n_classes": len(finite),
+        "auc_na_reason": ("single_class_labels_in_split" if len(finite) < len(aucs) else ""),
+        "brier_per_class": briers,
+        "brier_mean": float(np.mean(briers)),
+        "ece_per_class": eces,
+        "ece_macro": float(np.mean(eces)),
+        "n_bins": int(n_bins),
+    }
+
+
+# --------------------------------------------------------------- 时间稳定性
+
+def total_variation_summary(trajs, rate_definition: str, *,
+                            dt: float = 1.0) -> Dict[str, object]:
+    """总变差差异：``|TV(ŷ) − TV(y)|``，逐患者再平均（mL）。
+
+    ``TV(r) = Σ_t |r_t − r_{t−1}|``。一个恒定预测的总变差是 0——它很"稳定"，
+    但完全不做调整。因此本指标**必须与 change-point recall 配对展示**，
+    否则"稳定"会被误读为优点。
+    """
+    diffs, ratios, tvs_t, tvs_p = [], [], [], []
+    for t in trajs:
+        pred = t.rates_for(rate_definition)
+        if pred is None or t.n_hours < 2:
+            continue
+        true = t.true_rates
+
+        def _tv(a):
+            return float(np.sum(np.abs(np.diff(a, axis=0))) * dt)
+
+        tv_t, tv_p = _tv(true), _tv(pred)
+        tvs_t.append(tv_t)
+        tvs_p.append(tv_p)
+        diffs.append(abs(tv_p - tv_t))
+        if tv_t > 0:
+            ratios.append(tv_p / tv_t)
+
+    if not diffs:
+        return {"available": False, "n_patients": 0}
+    return {
+        "available": True, "unit": "mL",
+        "tv_abs_diff_ml": float(np.mean(diffs)),
+        "tv_true_ml": float(np.mean(tvs_t)),
+        "tv_pred_ml": float(np.mean(tvs_p)),
+        "tv_ratio": float(np.mean(ratios)) if ratios else float("nan"),
+        "n_patients": len(diffs),
+        "n_patients_with_ratio": len(ratios),
+        "note": "ratio > 1 表示预测比真实更抖；ratio < 1 可能是「不敢调整」，"
+                "两种读法都必须与 change-point recall 一起看。",
+    }

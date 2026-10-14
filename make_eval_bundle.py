@@ -28,6 +28,7 @@ from pathlib import Path
 import numpy as np
 
 from utils import baselines as B
+from utils import eval_protocol as PROTO
 
 
 def parse_args(argv=None):
@@ -37,6 +38,7 @@ def parse_args(argv=None):
     p.add_argument("--data_pkl", default="data/output_data.pkl")
     p.add_argument("--base_pkl", default="data/baseline.pkl")
     p.add_argument("--k", type=int, default=3, help="移动平均窗口")
+    p.add_argument("--seed", type=int, default=42)
     p.add_argument("--out", default="preds/bundle.npz")
     return p.parse_args(argv)
 
@@ -88,11 +90,41 @@ def main(argv=None):
     ma = np.stack([B.moving_average_next(lab[:t + 1], k=args.k, index=t)
                    for t, lab in series], axis=0)
 
+    # ---- v2（issue #81）：补回决策时刻即可见的第 0 小时与逐行小时序号 ----
+    #
+    # 窗口表存的是**目标**（label[1..T-1]），第 0 小时只以历史出现。若不给出来，
+    # "72 小时累计剂量"就永远缺一小时，只能退而求和 71 小时——那正是协议禁止的
+    # "把部分轨迹当时域"。这里把 label[0] 作为 observed_* 落盘：它在两种评估模式
+    # 下都是**已观测**值，不是泄漏。
+    step_hour = np.array([t + 1 for t, _ in series], dtype=int)
+    obs_bits, obs_rates = [], []
+    for _, lab in series:
+        row0 = np.asarray(lab[0], dtype=np.float32)
+        obs_bits.append(row0[:3])
+        obs_rates.append(row0[3:])
+
+    # 自检：每位患者的行拼起来必须等于 label[1:T]，且第 0 小时等于 label[0]
+    for pid in dict.fromkeys(order):
+        idxs = [i for i, p in enumerate(order) if p == pid]
+        _, lab = series[idxs[0]]
+        lab = np.asarray(lab, dtype=np.float32)
+        stacked = np.concatenate(
+            [np.concatenate([pred["target_bits"][i, 0, :][None, :],
+                             pred["target_rates"][i, 0, :][None, :]], axis=1)
+             for i in idxs], axis=0)
+        if not np.allclose(stacked, lab[1:1 + len(idxs)]):
+            raise SystemExit(f"自检失败：患者 {pid} 的行拼起来与 label[1:T] 不一致")
+        if not np.allclose(np.concatenate([obs_bits[idxs[0]], obs_rates[idxs[0]]]),
+                           lab[0]):
+            raise SystemExit(f"自检失败：患者 {pid} 的 observed_* 不是 label[0]")
+
     out = Path(args.out)
     out.parent.mkdir(parents=True, exist_ok=True)
     np.savez_compressed(
         out,
         patient_id=np.array(order),
+        step_hour=step_hour,
+        observed_bits=np.stack(obs_bits), observed_rates=np.stack(obs_rates),
         target_bits=pred["target_bits"][:, 0, :],
         target_rates=pred["target_rates"][:, 0, :],
         prob=pred["prob"][:, 0, :],
@@ -101,10 +133,14 @@ def main(argv=None):
         pers_bits=pers[:, :3], pers_rates=pers[:, 3:],
         ma_bits=ma[:, :3], ma_rates=ma[:, 3:],
         thresholds=pred["thresholds"], ma_k=np.array([args.k]),
+        split_or_outer_fold=np.array(["test"]),
+        split_seed=np.array([int(pred["seed"]) if "seed" in pred else args.seed]),
+        protocol_hash=np.array([PROTO.PROTOCOL_HASH]),
     )
     n_pos = int((pred["target_rates"][:, 0, :] > 0).sum())
     print(f"[bundle] {out}  windows={len(order)} patients={len(set(order))} "
-          f"positive_cells={n_pos}  ma_k={args.k}")
+          f"positive_cells={n_pos}  ma_k={args.k}  hours={step_hour.min()}..{step_hour.max()}")
+    print(f"[bundle] 已补回第 0 小时（observed_*），协议哈希 {PROTO.PROTOCOL_HASH}")
     return 0
 
 

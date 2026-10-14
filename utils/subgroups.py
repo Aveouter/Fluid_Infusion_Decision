@@ -195,3 +195,66 @@ def failure_patients(pred_rates: np.ndarray, true_rates: np.ndarray,
              "n_cells": len(v)}
             for pid, v in out.items() if float(np.mean(v)) > float(threshold)]
     return sorted(rows, key=lambda r: (-r["mean_abs_error"], r["patient_id"]))
+
+
+# ==========================================================================
+# v2（issue #81）：亚组结果的结构化输出
+# ==========================================================================
+
+def per_patient_error_values(pred_rates: np.ndarray, true_rates: np.ndarray,
+                             patient_ids: Sequence[str],
+                             mask: np.ndarray = None
+                             ) -> Tuple[np.ndarray, List[str]]:
+    """逐患者一个误差值（患者内先平均），返回 ``(values, patient_ids)``。
+
+    亚组统计需要"一位患者一个值"这一形式；把逐单元误差直接交给分组函数会
+    让小时多的患者主导组内均值。``mask`` 默认取真实速率 > 0。
+    """
+    pred = np.asarray(pred_rates, dtype=float)
+    true = np.asarray(true_rates, dtype=float)
+    if pred.shape != true.shape:
+        raise ValueError(f"形状不一致：{pred.shape} vs {true.shape}")
+    ids = [str(p) for p in patient_ids]
+    if len(ids) != len(pred):
+        raise ValueError(f"patient_ids 长度 {len(ids)} 与数据 {len(pred)} 不一致")
+    if mask is None:
+        mask = true > 0
+    mask = np.asarray(mask, dtype=bool)
+
+    per_patient: Dict[str, List[float]] = {}
+    for i, pid in enumerate(ids):
+        m = mask[i]
+        if not m.any():
+            continue
+        per_patient.setdefault(pid, []).extend(np.abs(pred[i][m] - true[i][m]).tolist())
+
+    keys = sorted(per_patient)
+    values = np.array([float(np.mean(per_patient[k])) for k in keys], dtype=float)
+    return values, keys
+
+
+def subgroup_rows(values: np.ndarray, patient_ids: Sequence[str],
+                  labels: Sequence[str], *, metric_name: str,
+                  unit: str, mask: str) -> List[Dict[str, object]]:
+    """把亚组统计整理成结果行的**取值部分**（不含 schema 字段）。
+
+    每条都带 ``n_patients`` 与 ``unstable``：样本过小的亚组只作描述，
+    **不作显著优越主张**。这一点必须随行输出，否则亚组表会被读成结论。
+    """
+    grouped = group_metrics(values, patient_ids, labels)
+    rows: List[Dict[str, object]] = []
+    for lab, stat in sorted(grouped.items()):
+        rows.append({
+            "metric_name": metric_name,
+            "subgroup": lab,
+            "value": stat["mean"],
+            "unit": unit,
+            "mask": mask,
+            "aggregation": "patient_mean",
+            "n_patients": stat["n_patients"],
+            "p50": stat["p50"], "p90": stat["p90"], "max": stat["max"],
+            "unstable": stat["unstable"],
+            "note": ("样本量低于 %d，仅作描述，不作优越性主张" % MIN_GROUP_N
+                     if stat["unstable"] else ""),
+        })
+    return rows

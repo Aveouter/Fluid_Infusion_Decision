@@ -31,7 +31,7 @@ from dataclasses import asdict, dataclass, field
 from pathlib import Path
 from typing import Dict, List, Optional
 
-from utils import label_protocol, metrics as metrics_protocol
+from utils import eval_protocol, label_protocol, metrics as metrics_protocol
 
 MANIFEST_VERSION = "1.0"
 
@@ -68,6 +68,19 @@ def fingerprint(path) -> Optional[dict]:
         for chunk in iter(lambda: f.read(1 << 20), b""):
             h.update(chunk)
     return {"name": p.name, "bytes": p.stat().st_size, "sha256_16": h.hexdigest()[:16]}
+
+
+def data_fingerprint(path) -> str:
+    """数据指纹的**短串**形式：``"bundle.npz:1a2b3c4d5e6f7788"``。
+
+    结果行的 ``data_fingerprint`` 字段用它——逐行塞一整个字典会让导出难以
+    阅读，而这个短串足以回答"这一行的数字是读哪份文件算出来的"。
+    文件不存在时返回空串（调用方据此写 NA + 原因，而不是编一个指纹）。
+    """
+    fp = fingerprint(path)
+    if fp is None:
+        return ""
+    return f"{fp['name']}:{fp['sha256_16']}"
 
 
 def count_parameters(model) -> int:
@@ -132,6 +145,9 @@ class RunManifest:
     early_stopping: Dict = field(default_factory=dict)
     n_params: Optional[int] = None
     n_params_incl_buffers: Optional[int] = None
+    #: 评估协议 v2 的冻结哈希。定义一旦改动，hash 随之改变，
+    #: 于是"这份结果用的是哪版协议"是可核对的，而不是靠记忆。
+    protocol_hash: str = field(default_factory=lambda: eval_protocol.PROTOCOL_HASH)
     checkpoint: Optional[dict] = None       # fingerprint(...)
     data: List[dict] = field(default_factory=list)   # [fingerprint(...), ...]
     metrics_file: Optional[str] = None
