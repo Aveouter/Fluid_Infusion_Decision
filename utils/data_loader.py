@@ -7,7 +7,9 @@
 - 重新计算 (inst_vol, cum_vol) 保证累计体积单调。
 - 多目标类别过采样采样器（默认仅 water）。
 - RobustScaler（基于训练集的中位数/IQR）统一特征规范化。
-- lint_data() 一键修正 bit/speed 逻辑错误。
+- lint_data() 按标签协议 v1（utils/label_protocol.py）规范化 bit/speed。
+  注意：协议以**速率为权威字段**（bit = 1 ⟺ rate > 0），且不对零流量小时
+  回填速率——回填会摧毁「无输注」语义。
 
 返回：(train_loader, val_loader, test_loader)
 """
@@ -23,6 +25,8 @@ import pandas as pd
 import torch
 import torch.nn.functional as F  # noqa
 from torch.utils.data import Dataset, DataLoader, Subset, WeightedRandomSampler
+
+from utils import label_protocol
 
 # 仅在你项目存在时可用；没有也不报错
 try:
@@ -41,25 +45,24 @@ except Exception:  # 兜底一个空增强器
 
 def lint_data(Ts_data: Dict):
     """
-    清洗 Ts_data['label']：
-    - bit=0 且 speed>0 -> 将 speed 置 0
-    - bit>0 且 speed=0 -> 回填上一个 >0 的 speed，初始值为 0
-    返回新的 dict，不在原 dict 上原地修改。
+    按标签协议 v1（``utils/label_protocol.py``）规范化 Ts_data['label']。
+
+    - 哨兵 -1（未记录）→ 0
+    - 状态位由速率推导：``bit = 1 ⟺ rate > 0``，与 ``data2pkl.py`` 的口径一致
+    - **速率不再向前回填**。旧实现把任意 0 速率填成上一小时的值，会把
+      「中断／无输注」小时变成持续输注，摧毁零膨胀语义并使 bit 与 rate
+      自相矛盾（详见 issue #4 的红灯用例）。
+    - 返回新的 dict 与新的数组，**不修改调用方传入的对象**。
+
+    若将来需要表达「医嘱仍开但泵已暂停」这类状态，应在标签协议里新增字段，
+    而不是在这里静默回填。
     """
     cleaned = {}
     for k, v in Ts_data.items():
         lab = v['label']
         is_df = isinstance(lab, pd.DataFrame)
         arr = lab.to_numpy(np.float32) if is_df else np.asarray(lab, np.float32)
-
-        bits, speed = arr[:, :3], arr[:, 3:6]
-        last_speed = np.zeros(3, dtype=np.float32)
-        for i in range(len(arr)):
-            for j in range(len(speed[0])):
-                if speed[i, j] == 0.0:
-                    speed[i, j] = last_speed[j]
-                else:
-                    last_speed[j] = speed[i, j]
+        arr = label_protocol.normalize(arr)  # 总是返回新数组
 
         v2 = v.copy()
         v2['label'] = pd.DataFrame(arr, columns=lab.columns) if is_df else arr
