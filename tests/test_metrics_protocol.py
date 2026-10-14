@@ -105,52 +105,56 @@ def test_paper_table2_f1_is_inconsistent_with_its_own_row():
 
     assert t4_macro_f1 == pytest.approx(0.696, abs=0.001), "表 4 自身不自洽"
 
-    t2 = {"acc": 0.742, "recall": 0.813, "f1": 0.743, "auc": 0.816}
+    # 更正后的表 2 BurnResu (Full) 行（见 docs/table_provenance.md §8 的 C1）
+    t2 = {"acc": 0.742, "recall": 0.813, "f1": 0.696, "auc": 0.816}
 
-    # AUC 与 Recall 与表 4 的 macro 一致
     assert t2["auc"] == pytest.approx(t4_macro_auc, abs=0.001)
     assert t2["recall"] == pytest.approx(t4_macro_recall, abs=0.002)
-
-    # 但 F1 对不上 macro
-    assert t2["f1"] != pytest.approx(t4_macro_f1, abs=0.005), (
-        "表 2 的 F1 与表 4 macro F1 意外一致，本用例的前提已变"
+    # 更正后 F1 必须与表 4 的 macro 一致
+    assert t2["f1"] == pytest.approx(t4_macro_f1, abs=0.001), (
+        "表 2 的 F1 与表 4 macro F1 不一致；口径又漂移了"
     )
-    # 也不是任何单一类别
-    assert t2["f1"] not in [pytest.approx(v, abs=0.005) for v in t4_per_class_f1]
 
 
-def test_paper_table2_f1_has_a_different_aggregation_signature():
-    """表 2 中 BurnResu 的 (Acc - F1) 差值与同行其它模型相差一个量级。
+def test_tables_2_3_4_report_the_same_f1_for_the_full_model():
+    """同一模型在表 2、表 3、表 4 中的 F1 必须一致（更正 C1 的守卫）。
 
-    多标签下 macro F1 通常明显低于逐位准确率（少数类把宏平均拉低）。
-    表 2 各行的差值：
+    历史上这三处中的前两处写作 0.743，与表 4 的 macro 0.696 及代码的
+    macro-only 口径都不符，后被确认为誊抄错误并更正为 0.696。
+    本用例防止该值再次漂移。
+    """
+    table2_full_f1 = 0.696          # tab:comparison, BurnResu (Full)
+    table3_full_f1 = 0.696          # tab:ablation,   BurnResu (Full)
+    table4_macro_f1 = float(np.mean([0.752, 0.727, 0.609]))   # tab:per_class
 
-        LSTM        Acc 0.736, F1 0.687  -> 差 0.049
-        CNN         Acc 0.747, F1 0.688  -> 差 0.059
-        Transformer Acc 0.744, F1 0.690  -> 差 0.054
-        BurnResu    Acc 0.742, F1 0.743  -> 差 0.001   <-- 相差约 50 倍
+    assert table2_full_f1 == pytest.approx(table3_full_f1), "表 2 与表 3 不一致"
+    assert table2_full_f1 == pytest.approx(table4_macro_f1, abs=0.001), \
+        "表 2 与表 4 的 macro F1 不一致"
 
-    BurnResu 的 F1 与自身准确率几乎相等，而与同类模型及表 4 的 macro F1
-    都对不上。这与「表 2 该行的 F1 采用了全局（micro 类）聚合」一致，
-    也说明该行与其它行**不可直接比较**。
 
-    随包代码只计算 macro，无法产出 0.743，故该值属历史不一致；
-    #26 修表时必须解释或更正，且不得在未说明口径的情况下继续比较。
+def test_corrected_f1_no_longer_stands_out_from_its_peers():
+    """更正后，BurnResu 的 (Acc - F1) 差值应与同类模型同量级。
+
+    誊抄错误时期该差值为 0.001，而 LSTM/CNN/Transformer 为 0.049–0.059
+    （相差约 50 倍）——那个量级差异本身就是错误值的指纹。
+    更正为 0.696 后差值变为 0.046，回到同类区间。
     """
     dl_rows = {
         "LSTM": (0.736, 0.687),
         "CNN": (0.747, 0.688),
         "Transformer": (0.744, 0.690),
+        "BurnResu (corrected)": (0.742, 0.696),
     }
-    burnresu = (0.742, 0.743)          # (Acc, F1)
+    gaps = {k: acc - f1 for k, (acc, f1) in dl_rows.items()}
 
-    peer_gaps = [acc - f1 for acc, f1 in dl_rows.values()]
-    own_gap = burnresu[0] - burnresu[1]
+    for name, gap in gaps.items():
+        assert 0.03 < gap < 0.08, f"{name} 的 Acc-F1 差值 {gap:.3f} 不在同类区间"
 
-    assert min(peer_gaps) > 0.04, f"同类模型的 Acc-F1 差值异常：{peer_gaps}"
-    assert abs(own_gap) < 0.005, f"BurnResu 的 Acc-F1 差值异常：{own_gap}"
-    assert min(peer_gaps) / max(abs(own_gap), 1e-6) > 10, \
-        "BurnResu 与同类模型的差值未拉开量级，本用例的前提已变"
+    spread = max(gaps.values()) - min(gaps.values())
+    assert spread < 0.02, f"各模型差值离散过大：{gaps}"
+
+    # 提醒：0.001 是错误值的特征，不得再出现
+    assert gaps["BurnResu (corrected)"] > 0.01
 
 
 def test_shipped_code_produces_macro_only():

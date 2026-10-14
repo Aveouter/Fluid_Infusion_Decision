@@ -15,6 +15,7 @@ non-significant results must be reported honestly.
 | `val-only` | Only the validation metric survives in the artefact name; the test metric is not available |
 | `inconsistent` | Shipped artefact exists but its value **cannot** be reconciled with the manuscript |
 | `no-artefact` | No shipped checkpoint or record corresponds to this row |
+| `corrected` | The manuscript value was wrong and has been corrected; see the corrections log (§8) |
 
 ## 1. Checkpoint naming convention
 
@@ -52,11 +53,12 @@ artefacts alone and must be settled when the tables are regenerated (#26).
 | R² | 0.820 | 0.8129 | `reconciled` |
 | RMSE | 60.04 | 61.268 | `reconciled` |
 | Recall | 0.813 | 0.7758 (macro) | `val-only` |
-| **F1** | **0.743** | **0.6902 (macro)** | **`inconsistent`** |
+| **F1** | ~~0.743~~ → **0.696** | **0.6902 (macro)** | **`corrected`** |
 
-The F1 cannot be produced by the shipped code, which computes `macro` only, and
-it contradicts the same row's own recall and AUC (both macro) and Table 4's
-macro F1 (0.696). See `tests/test_metrics_protocol.py`.
+The F1 was a transcription error, corrected in the manuscript (see §8). It
+contradicted the same row's own recall and AUC (both macro) and Table 4's macro
+F1 (0.696); the shipped code computes `macro` only, so 0.743 could not be
+produced by it. See `tests/test_metrics_protocol.py`.
 
 ## 3. Table 2 — comparative performance
 
@@ -73,7 +75,7 @@ macro F1 (0.696). See `tests/test_metrics_protocol.py`.
 | Transformer | 0.744 / 0.747 / 0.690 / 0.804 / 30.90 / 0.795 / 63.98 | `transformer_best_f1_0.7206_mae_25.0423.pth` (val) | `val-only` |
 | BurnResu w/o Baseline Enc. | 0.499 / 0.921 / 0.652 / 0.735 / 74.32 / 0.272 / 120.8 | `ours_wo_baseline_best_...mae_27.9457.pth` (val) | **`inconsistent`** |
 | BurnResu w/o Temporal Enc. | 0.633 / 0.908 / 0.629 / 0.703 / 72.42 / 0.392 / 110.5 | `ours_wo_temporal_best_...mae_55.1046.pth` (val) | `val-only` |
-| BurnResu (Full) | 0.742 / 0.813 / 0.743 / 0.816 / 27.44 / 0.820 / 60.04 | see §2 | **`inconsistent`** (F1) |
+| BurnResu (Full) | 0.742 / 0.813 / **0.696** / 0.816 / 27.44 / 0.820 / 60.04 | see §2 | **`corrected`** (F1, §8) |
 
 Note on the ML rows: `train_for_ml.py` reports **micro** F1 while `run_epoch.py`
 (used for every deep-learning row) reports **macro** F1. Unless the manuscript
@@ -90,7 +92,7 @@ is recorded in `tests/test_metrics_protocol.py`.
 | w/o self-attention | 0.814 / 0.633 / **74.67** / 112.7 | f1 0.7217, mae **22.2084** | **`inconsistent`** |
 | w/o TCN | 0.810 / 0.693 / 27.63 / 60.59 | f1 0.7207, mae 22.2542 | `val-only` |
 | w/o FiLM | 0.806 / 0.683 / 28.88 / 64.12 | f1 0.7155, mae 22.5010 | `val-only` |
-| Full | 0.816 / 0.743 / 27.44 / 60.04 | see §2 | **`inconsistent`** (F1) |
+| Full | 0.816 / **0.696** / 27.44 / 60.04 | see §2 | **`corrected`** (F1, §8) |
 
 **The two `inconsistent` rows are the collapse that reviewer 3 queried.** For the
 full model the manuscript's test MAE is 1.29× the checkpoint's validation MAE.
@@ -150,3 +152,45 @@ seeds, split, hyper-parameters and parameter count so that the resulting numbers
 can be traced back. `training_metadata.json` as shipped lacks git SHA, data
 fingerprints and split information, so it does not satisfy the manifest schema
 on its own.
+
+## 8. Corrections log
+
+Every change made to a value that appeared in the submitted manuscript. Nothing
+is altered silently; each entry states what was wrong, what it was changed to,
+and why that is the correct value.
+
+### C1 — BurnResu F1 in Tables 2 and 3: 0.743 → 0.696
+
+**Where.** Table 2 (`tab:comparison`), BurnResu (Full) row, F1 column; and
+Table 3 (`tab:ablation`), BurnResu (Full) row, F1 column. Both carried the same
+value, so the error propagated to two tables.
+
+**What was wrong.** 0.743 is not a macro F1. The manuscript's own Table 4
+reports per-class F1 of 0.752 / 0.727 / 0.609, whose macro average is 0.696 —
+and Table 4 states that macro average explicitly. The same Table 2 row already
+reports macro values for its other classification columns (AUC 0.816 and recall
+0.813 both match Table 4's macro row), so the F1 column was the only cell in the
+row computed on a different basis. The shipped code computes `macro` only, so it
+cannot produce 0.743 at all. 0.743 does, however, appear twice elsewhere in the
+same table as a *recall* value (Regression and SVM rows), which is consistent
+with a transcription slip.
+
+**Corrected to.** **0.696**, the macro average of the manuscript's own Table 4,
+which keeps Tables 2, 3 and 4 mutually consistent.
+
+**Why not 0.690.** `ckpts/test_metrics.json` records a macro F1 of 0.6902, but
+for a *different run*: its per-class figures (crystalloid P 0.705 / R 0.772,
+glucose P 0.539 / R 0.719) do not match the manuscript's Table 4 (0.685 / 0.836
+and 0.492 / 0.801). Adopting 0.6902 would replace one inconsistency with
+another, between Table 2 and Table 4.
+
+**Nature of the change.** The value decreases. It is recorded here rather than
+absorbed silently, and it is the kind of correction the response letter must
+state explicitly.
+
+**Affected claims.** The qualitative claim that BurnResu leads the comparison
+weakens: at 0.696 its F1 sits just above Transformer (0.690) and CNN (0.688),
+and the (Acc − F1) gap becomes 0.046 — in line with the other deep-learning
+rows rather than an order of magnitude smaller. Whether that margin is
+significant is exactly what #13 must establish; the corrected value must not be
+presented as superiority without it.
