@@ -170,13 +170,18 @@ def test_imitation_note_is_explicit():
     assert "结局证据" in note
 
 
-def test_manuscript_section_title_claims_efficacy():
-    """特征化：论文小节标题仍作「Clinical Effectiveness」。
+def test_manuscript_section_title_no_longer_claims_efficacy():
+    """#27 已把「Clinical Effectiveness Evaluation」改为「Agreement with
+    Recorded Clinical Practice」。
 
-    与实际证据（只比较与医生行为的接近程度）不符，应由 #27 改写。
+    原标题与实际证据不符——比较的只是与医生行为的接近程度，不是疗效。
+    本用例守住这一改动，防止标题（及随之而来的主张）回退。
     """
     tex = ROOT / "BurnResu .tex"
     if not tex.exists():
         pytest.skip("本地无稿件")
     text = tex.read_text(encoding="utf-8", errors="replace")
-    assert "Clinical Effectiveness" in text, "标题已改，请更新 #27 的清单"
+    assert "Clinical Effectiveness" not in text, "标题回退了，请复核 #27 的修订"
+    assert "Agreement with Recorded Clinical Practice" in text
+    # 开篇句也不得再声称"验证临床有效性"
+    assert "validate the clinical effectiveness" not in text
