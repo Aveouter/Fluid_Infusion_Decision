@@ -13,6 +13,8 @@ from sklearn.metrics import (
 )
 import matplotlib.pyplot as plt
 
+from utils import metrics as metrics_protocol
+
 # ---------------- 分布式标识（可选） ----------------
 try:
     from dist_utils import is_main_process
@@ -197,6 +199,22 @@ def _zero_penalty(pred: torch.Tensor, target: torch.Tensor, zero_eps: float = 1e
 
 
 # ============================== 主循环 ==============================
+def _loader_patient_ids(loader):
+    """取出该 DataLoader 中每个窗口的 patient_id；取不到时返回 None。
+
+    患者是独立性单位，任何患者级聚合都必须能拿到这个键（见 issue #6/#13）。
+    """
+    from torch.utils.data import Subset
+
+    ds = getattr(loader, "dataset", None)
+    if ds is None:
+        return None
+    if isinstance(ds, Subset):
+        pids = getattr(ds.dataset, "patient_ids", None)
+        return [pids[i] for i in ds.indices] if pids is not None else None
+    return getattr(ds, "patient_ids", None)
+
+
 def run_epoch(
     model,
     data_loader,
@@ -895,6 +913,14 @@ def run_epoch(
         except Exception:
             pass
 
+    # 样本规模与患者数（issue #7：每个指标都要能报出 n_patients / n_windows）
+    _pids = _loader_patient_ids(data_loader)
+    _n_patients = len(set(_pids)) if _pids else None
+    try:
+        _n_windows = len(data_loader.dataset)
+    except Exception:
+        _n_windows = None
+
     # 汇总结构
     per_class_stats = {
         "classification": per_class,
@@ -909,6 +935,28 @@ def run_epoch(
             "recall_macro": float(rec_macro),
             "f1_macro": float(f1_macro),
             "auc_macro": float(auc_macro),
+            # ---- 指标口径声明（issue #7）----
+            # 每个数字都必须能读出「聚合方式 / 单位 / 分层」。随包代码只产出
+            # macro，因此论文表 2 中 BurnResu 的 F1=0.743 无法由此路径复现
+            # （详见 tests/test_metrics_protocol.py 的口径核对用例）。
+            "metric_schema": {
+                "protocol_version": metrics_protocol.PROTOCOL_VERSION,
+                "precision_macro": {"aggregation": "macro", "unit": "probability", "level": "window"},
+                "recall_macro":    {"aggregation": "macro", "unit": "probability", "level": "window"},
+                "f1_macro":        {"aggregation": "macro", "unit": "probability", "level": "window"},
+                "auc_macro":       {"aggregation": "macro", "unit": "probability", "level": "window"},
+                "bit_acc":         {"aggregation": "micro", "unit": "probability", "level": "window"},
+                "mae_all_pos":     {"aggregation": "none", "unit": "step_ml_per_h",
+                                    "level": "window", "mask": "positive_flow"},
+                "rmse_all_pos":    {"aggregation": "none", "unit": "step_ml_per_h",
+                                    "level": "window", "mask": "positive_flow"},
+                "r2_pos":          {"aggregation": "none", "unit": "probability",
+                                    "level": "window", "mask": "positive_flow"},
+                "n_patients": _n_patients,
+                "n_windows": _n_windows,
+                "note": "分类指标统一为 macro；无 micro/weighted/samples 导出路径。"
+                        "回归指标均为逐小时速率（mL/h）且仅统计真实正流点。",
+            },
             # 回归整体（y_true>0）
             "mae_all_pos": float(mae_all),
             "rmse_all_pos": float(rmse_all),
