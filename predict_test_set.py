@@ -115,7 +115,7 @@ def main(argv=None):
     thr = resolve_thresholds(args.thresholds)
 
     P = args.pred_length
-    probs, rates, speeds, targets = [], [], [], []
+    probs, rates, speeds, flows, targets = [], [], [], [], []
     for ts_b, base_b, lab_b in test_loader:
         ts_b = torch.nan_to_num(ts_b.to(device), nan=0., posinf=0., neginf=0.)
         lab_b = torch.nan_to_num(lab_b.to(device), nan=0., posinf=0., neginf=0.)
@@ -128,18 +128,20 @@ def main(argv=None):
         probs.append(prob[:, -P:, :].float().cpu().numpy())
         rates.append(rate[:, -P:, :].float().cpu().numpy())
         speeds.append(speed[:, -P:, :].float().cpu().numpy())
+        flows.append(out['flow_pred'][:, -P:, :].float().cpu().numpy())
         targets.append(lab_b[:, -P:, :].float().cpu().numpy())
 
     prob = np.concatenate(probs, axis=0).reshape(len(ds), P, 3)
     rate = np.concatenate(rates, axis=0).reshape(len(ds), P, 3)
     speed = np.concatenate(speeds, axis=0).reshape(len(ds), P, 3)
+    flow = np.concatenate(flows, axis=0).reshape(len(ds), P, 3)
     tgt = np.concatenate(targets, axis=0).reshape(len(ds), P, 6)
 
     out_path = Path(args.out)
     out_path.parent.mkdir(parents=True, exist_ok=True)
     np.savez_compressed(
         out_path,
-        patient_id=pids, prob=prob, rate=rate, speed=speed,
+        patient_id=pids, prob=prob, rate=rate, speed=speed, flow=flow,
         target_bits=tgt[:, :, :3], target_rates=tgt[:, :, 3:],
         thresholds=np.array(thr), history_length=args.history_length,
         pred_length=P, seed=args.seed,
