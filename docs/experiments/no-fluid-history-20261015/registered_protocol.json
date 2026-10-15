@@ -1,0 +1,72 @@
+{
+  "version": "no_fluid_history_20261015",
+  "registered_before_this_experiment_results": true,
+  "question": "Can next-hour reconstructed fluid volume and documented setting be predicted across patients without any previous fluid data?",
+  "reference": "Unchanged independent-reference V4 labels and eligibility; no reconstruction changes",
+  "split": "Unchanged development five patient-grouped folds, seed 20261017; no new historical holdout evaluation",
+  "clock": "At origin h, all histories use k<h; static baseline obeys existing admission availability proxy",
+  "history_hours": 24,
+  "forbidden_inputs": [
+    "previous fluid volumes",
+    "recorded additions",
+    "inventory",
+    "source integrated flow",
+    "previous settings",
+    "time since addition",
+    "remaining-stock proxy",
+    "fluid observation masks",
+    "fluid anchors",
+    "previous target values",
+    "nursing fluid text",
+    "previous model predictions"
+  ],
+  "allowed_inputs": [
+    "ten physiology and recorded-urine variables",
+    "their past observation masks and ages",
+    "available static baseline",
+    "hour since injury"
+  ],
+  "models": {
+    "training_patient_weighted_median": "Constant per output; fitted on training patients only",
+    "static_time_hgb": "Static baseline plus injury time; no physiology or infusion history",
+    "observation_only_hgb": "Static/time plus physiology observation ages and counts, without numerical physiology",
+    "physiology_only_hgb": "Static/time plus six summary statistics of ten physiology fields; absolute regression, no residual anchor",
+    "full_history_hgb": "Matched absolute-regression HGB with all original source summaries; explicit comparator allowed to see fluid history",
+    "physiology_only_nm": "Same NM-v1 training and architecture budget; all 18 infusion columns forced missing and all six anchors unknown before preprocessing, summaries and inference; no anchor guard; three fixed seeds, numerical outputs averaged"
+  },
+  "hgb": {
+    "iterations": 200,
+    "leaves": 15,
+    "min_leaf": 35,
+    "l2": 10,
+    "learning_rate": 0.07,
+    "seed": 20261015,
+    "preprocessing": "training-only 63 quantile cuts, median bins and missing indicators",
+    "threads": 2
+  },
+  "nm": {
+    "hidden": 64,
+    "epochs": 60,
+    "batch_size": 512,
+    "learning_rate": 0.002,
+    "seeds": [
+      20261015,
+      20261016,
+      20261017
+    ],
+    "augmentation": "none",
+    "anchor": "unknown for every output; computational fill 0 learned from entirely missing anchor columns, with known flags false; no patient-fluid state"
+  },
+  "selection": "Fixed models and budgets, no outer early stopping or parameter selection; all variants reported, not an oracle best selection",
+  "endpoints": [
+    "patient-macro volume MAE",
+    "patient-macro setting MAE",
+    "per-liquid MAE/RMSE/bias",
+    "volume activity F1 from numerical predictions",
+    "exact-hour changes derived from the SAME absolute setting prediction"
+  ],
+  "statistics": "2000 paired patient-cluster bootstrap replicates; exploratory pointwise 95% intervals; seed dispersion separate",
+  "learnability_interpretation": "Evidence requires no-fluid models to improve over training-median and static/time references across held patients; numerical physiology increment assessed against observation-only control. Weak performance does not prove information-theoretic impossibility.",
+  "scope": "Predictability of documented/reconstructed historical care, not an optimal clinical fluid prescription; no pump telemetry or clinical outcome claims",
+  "privacy": "Patient-level outputs local only"
+}

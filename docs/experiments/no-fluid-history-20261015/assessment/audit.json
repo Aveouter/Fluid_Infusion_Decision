@@ -1,0 +1,12 @@
+{
+  "label_and_index_alignment_verified": true,
+  "bootstrap_replicates": 2000,
+  "no_outer_parameter_selection": true,
+  "categorical_seed_codes_averaged": false,
+  "setting_mae_and_action_metrics_use_same_absolute_prediction": true,
+  "dynamic_reference_previous_setting_used_only_for_evaluation": true,
+  "completed_neural_seed_fits": 15,
+  "completed_absolute_neural_seed_fits": 15,
+  "scope_files_verified": 55,
+  "patient_data_uploaded": false
+}

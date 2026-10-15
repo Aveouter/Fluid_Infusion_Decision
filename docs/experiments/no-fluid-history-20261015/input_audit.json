@@ -1,0 +1,10 @@
+{
+  "input_intervention_invariance_passed": true,
+  "rows": 20239,
+  "volume_patients": 335,
+  "setting_patients": 296,
+  "neural_fluid_columns_always_missing": true,
+  "neural_fluid_anchors_always_unknown": true,
+  "per_patient_state_used_for_no_fluid_decoding": false,
+  "raw_features_sha256": "a1e3af0426ce6493478d75422b9213c2a82b67fb9327d76e7cb77c2043e9fb2f"
+}

@@ -1,0 +1,19 @@
+{
+  ".gitattributes": "a79691a93b46e49ce460c26ef22afcc03d6eca1e63bf2edbc20e96159510f6c9",
+  "absolute_amendment.json": "35e511e5cea785257bd885ab2027abcf812d046e6452394382fa0b393dc15adf",
+  "absolute_frozen_sources.json": "7a5589a94476b35ab937d0d3b1b757527bb6fe94f1b6b700898f1b5068f8ae0e",
+  "assessment/audit.json": "cb4f6f0b1cba11102dd6fd595fec6fdaf2482f481de91c82973e7c6b9fbf43f7",
+  "assessment/fold_summary.csv": "a5fe76b9e3ddcf364acc8cda36966915738ad04f269162a10d82d4f593b6d32c",
+  "assessment/model_summary.csv": "7e711e4eb7f2432bed815c888246a9550caf613b42732e1a602eaecc15ef3f83",
+  "assessment/paired_effects.csv": "3b5d79dfc867dabcd63e84125c035cb2280fbc7a677935e868adf8e2005601c8",
+  "assessment/per_liquid.csv": "447df8694afde902d79cf356d82368aa98a9c8edaaf8bd875c26437ff976ddf9",
+  "assessment/seed_dispersion.csv": "c67f29d4c5afc05f79c8f211ad67916f55a25cd958cd599dd37ea038169d9742",
+  "frozen_sources.json": "6f021b9efda7320c83fa04f390ddb800837c46757dcd7458236c98aa87554c90",
+  "input_audit.json": "8e8c8b64df72301cec735b705c38267a2453b5f38923f7b75eebcedcbaeec0aa",
+  "physiology_coverage.csv": "cfb5755fb1659009f91249f25d814b99a413cd0755deb4e28094b62153b55f97",
+  "raw_cvp_screen.json": "0b5da31449b4ea9a77c12824b60d11cac16d3349e192d7548594efcb20d4e7c1",
+  "README.md": "ecb3a09fe16922955d92d73a7bac998d9cfc6878a626517ff746ca53ac03deed",
+  "registered_protocol.json": "c05356f97de4615d665d196e26bd30600f73758204dbfe92670defb2b46df48a",
+  "trained_inference_audit.json": "4ff6dec35c24b338b1425e026dd808ee19a9ce27bfa98f09a94e48e081f8bb54",
+  "verify_evidence.py": "7522b940f1f3f6e1368b2ba40326ecd6e22c24131c05cf6da521dccdd4a09697"
+}

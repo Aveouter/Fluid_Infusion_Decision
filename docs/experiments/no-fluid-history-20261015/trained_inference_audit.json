@@ -1,0 +1,30 @@
+{
+  "requests": 9,
+  "trained_model_intervention_checks": [
+    {
+      "model": "static_time_hgb",
+      "maximum_prediction_difference_after_fluid_intervention": 0.0
+    },
+    {
+      "model": "observation_only_hgb",
+      "maximum_prediction_difference_after_fluid_intervention": 0.0
+    },
+    {
+      "model": "physiology_only_hgb",
+      "maximum_prediction_difference_after_fluid_intervention": 0.0
+    },
+    {
+      "model": "physiology_only_nm",
+      "maximum_prediction_difference_after_fluid_intervention": 0.0,
+      "all_anchors_unknown": true,
+      "action_fallback_equals_absolute_setting": true
+    },
+    {
+      "model": "physiology_only_nm_absolute",
+      "maximum_prediction_difference_after_fluid_intervention": 0.0,
+      "nonzero_nonconstant_predictions_verified": true
+    }
+  ],
+  "target_fields_passed_to_prediction": false,
+  "patient_level_values_exported": false
+}
