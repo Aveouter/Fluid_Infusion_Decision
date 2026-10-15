@@ -1,0 +1,15 @@
+{
+  "evidence_tier": "independent reproduction from the frozen artifacts",
+  "source_hashes_verified": 10,
+  "max_absolute_difference_from_saved_predictions": {
+    "volume": 0.0,
+    "setting_point": 0.0,
+    "event_probability": 0.0
+  },
+  "replayed_volume_mae": 27.873503053103573,
+  "saved_volume_mae": 27.873503053103573,
+  "replayed_setting_mae": 10.744821779562693,
+  "saved_setting_mae": 10.744821779562692,
+  "tolerance": 0.005,
+  "passed": true
+}
