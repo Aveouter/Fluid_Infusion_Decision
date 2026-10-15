@@ -1,0 +1,22 @@
+{
+  "evidence_tier": "oracle reachability bound, not a result: the weights are fitted on the development index the bound is then evaluated on",
+  "single_model_volume_mae": {
+    "new_model": 30.93509026617602,
+    "historical_hybrid": 30.26383616510664,
+    "previous_round_v6": 30.164543886223644,
+    "strongest_boosting_tree": 33.14051621074987,
+    "causal_inventory_anchor": 36.164707150329654
+  },
+  "oracle_convex_weights": {
+    "new_model": 0.31026129618964665,
+    "historical_hybrid": 0.12304251126685177,
+    "previous_round_v6": 0.5666961911170915,
+    "strongest_boosting_tree": 1.2161404712983223e-09,
+    "causal_inventory_anchor": 2.1026954610361168e-10
+  },
+  "oracle_minimum_volume_mae": 29.937102232404218,
+  "d1_target": 29.355885999999998,
+  "d1_reachable_by_any_convex_combination": false,
+  "shortfall_at_the_oracle_optimum": 0.5812162324042198,
+  "reading": "no convex weighting of the predictors that currently exist in this project reaches a 3 percent reduction against the historical hybrid on this endpoint. Earning D1 therefore requires a predictor whose errors are not spanned by these five, rather than a different way of combining them."
+}

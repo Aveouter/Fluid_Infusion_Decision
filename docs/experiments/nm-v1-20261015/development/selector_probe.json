@@ -1,0 +1,154 @@
+{
+  "evidence_tier": "inner-fold-fitted per-row selector, development folds only",
+  "selector_volume_mae": 34.39220203083149,
+  "seed_averaged_main_volume_mae": 30.968620878032777,
+  "per_liquid_selector": [
+    42.61212028938742,
+    35.406906966900316,
+    25.157578836206735
+  ],
+  "per_liquid_main": [
+    39.45002580241286,
+    28.73718490625152,
+    24.718651925433946
+  ],
+  "choices_per_fold": [
+    {
+      "fold": 0,
+      "choice": [
+        {
+          "liquid": 0,
+          "member": "volume_only",
+          "alpha": 0.25,
+          "tau": 20.0,
+          "inner_oof_mae": 112.96535482569325
+        },
+        {
+          "liquid": 1,
+          "member": "main",
+          "alpha": 0.0,
+          "tau": 0.0,
+          "inner_oof_mae": 61.630177038291684
+        },
+        {
+          "liquid": 2,
+          "member": "main",
+          "alpha": 0.0,
+          "tau": 0.0,
+          "inner_oof_mae": 68.002809670159
+        }
+      ]
+    },
+    {
+      "fold": 1,
+      "choice": [
+        {
+          "liquid": 0,
+          "member": "volume_only",
+          "alpha": 0.25,
+          "tau": 40.0,
+          "inner_oof_mae": 111.36593621812817
+        },
+        {
+          "liquid": 1,
+          "member": "main",
+          "alpha": 0.25,
+          "tau": 0.0,
+          "inner_oof_mae": 59.36402093584902
+        },
+        {
+          "liquid": 2,
+          "member": "no_dilation",
+          "alpha": 0.5,
+          "tau": 80.0,
+          "inner_oof_mae": 66.20286964954853
+        }
+      ]
+    },
+    {
+      "fold": 2,
+      "choice": [
+        {
+          "liquid": 0,
+          "member": "volume_only",
+          "alpha": 0.25,
+          "tau": 20.0,
+          "inner_oof_mae": 113.36532140176368
+        },
+        {
+          "liquid": 1,
+          "member": "aug_dropout",
+          "alpha": 0.25,
+          "tau": 0.0,
+          "inner_oof_mae": 62.66877183378936
+        },
+        {
+          "liquid": 2,
+          "member": "no_bridge",
+          "alpha": 0.75,
+          "tau": 40.0,
+          "inner_oof_mae": 69.64251937368009
+        }
+      ]
+    },
+    {
+      "fold": 3,
+      "choice": [
+        {
+          "liquid": 0,
+          "member": "volume_only",
+          "alpha": 0.25,
+          "tau": 20.0,
+          "inner_oof_mae": 108.49535185400622
+        },
+        {
+          "liquid": 1,
+          "member": "main",
+          "alpha": 0.0,
+          "tau": 0.0,
+          "inner_oof_mae": 60.02718153614493
+        },
+        {
+          "liquid": 2,
+          "member": "no_dilation",
+          "alpha": 0.75,
+          "tau": 80.0,
+          "inner_oof_mae": 67.6120170127416
+        }
+      ]
+    },
+    {
+      "fold": 4,
+      "choice": [
+        {
+          "liquid": 0,
+          "member": "volume_only",
+          "alpha": 0.25,
+          "tau": 0.0,
+          "inner_oof_mae": 105.77798029022087
+        },
+        {
+          "liquid": 1,
+          "member": "volume_only",
+          "alpha": 0.25,
+          "tau": 0.0,
+          "inner_oof_mae": 58.93980387816574
+        },
+        {
+          "liquid": 2,
+          "member": "no_film",
+          "alpha": 1.0,
+          "tau": 80.0,
+          "inner_oof_mae": 65.94450106990604
+        }
+      ]
+    }
+  ],
+  "search_space": 462,
+  "reference_points": {
+    "historical_hybrid": 30.2638,
+    "v6": 30.1645,
+    "D1_target": 29.356
+  },
+  "reading": "the (member, alpha, tau) triple is chosen on inner-fold OOF of the training patients of each outer fold, so the outer score estimates this rule honestly"
+}
