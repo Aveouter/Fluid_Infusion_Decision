@@ -349,10 +349,13 @@ def data_loader(
     #   - permute_blocks 会把含目标小时的段搬进输入区；
     #   - x 中的累计体积列 cum 由 label 派生，cum[目标小时] 就含待预测的体积，
     #     于是模型输入里直接出现了答案。
-    # 只保留逐点变换（jitter / scaling / magnitude_warp），它们不移动行位置。
+    # 只扰动历史内的原始测量列。时间坐标、由标签派生的累计体积列和目标区保持原样。
+    # 逐点增强不能保证提高指标；其效果需在固定患者划分上做开/关消融。
     augmenter = TSAugmenter(
+        history_length=history_length, feature_cols=tuple(range(1, 9)),
         p_timewarp=0.0, max_stretch=0.0,
         p_perm=0.0,     n_perm_segs=1,
+        p_mask=0.0,
         p_scale=0.2,    scale_sigma=0.05,
         p_jitter=0.2,   jitter_sigma=0.01,
         p_magwarp=0.2,  magwarp_sigma=0.15,
