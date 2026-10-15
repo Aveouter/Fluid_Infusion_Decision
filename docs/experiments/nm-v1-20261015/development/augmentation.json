@@ -1,0 +1,81 @@
+{
+  "source": "training rows of development outer fold 0 (never a validation fold)",
+  "rows_sampled": 4096,
+  "history_hours": 24,
+  "strength": 0.5,
+  "rng_seeds": {
+    "augmentation": 20261015,
+    "training": [
+      20261015,
+      20261016,
+      20261017
+    ]
+  },
+  "observed_physiology_entries": 299987,
+  "mean_observed_share_before": 0.30516254901885986,
+  "strategies": {
+    "dropout": {
+      "components": [
+        "dropout"
+      ],
+      "observations_removed": 73899,
+      "removed_share_of_observed": 0.24634067476257304,
+      "mean_observed_share_after": 0.22998860478401184,
+      "windows_touched": 3442,
+      "physiology_mean_before": 0.11259474605321884,
+      "physiology_mean_after": 0.11075696349143982,
+      "physiology_std_before": 1.2265913486480713,
+      "physiology_std_after": 1.2207900285720825,
+      "infusion_channels_unchanged": true,
+      "labels_never_touched": true
+    },
+    "noise": {
+      "components": [
+        "noise"
+      ],
+      "observations_removed": 0,
+      "removed_share_of_observed": 0.0,
+      "mean_observed_share_after": 0.30516254901885986,
+      "windows_touched": 4093,
+      "physiology_mean_before": 0.11259474605321884,
+      "physiology_mean_after": 0.11351688206195831,
+      "physiology_std_before": 1.2265913486480713,
+      "physiology_std_after": 1.2362337112426758,
+      "infusion_channels_unchanged": true,
+      "labels_never_touched": true
+    },
+    "truncation": {
+      "components": [
+        "truncation"
+      ],
+      "observations_removed": 29581,
+      "removed_share_of_observed": 0.09860760632960762,
+      "mean_observed_share_after": 0.2750712037086487,
+      "windows_touched": 2250,
+      "physiology_mean_before": 0.11259474605321884,
+      "physiology_mean_after": 0.1158565878868103,
+      "physiology_std_before": 1.2265913486480713,
+      "physiology_std_after": 1.231276035308838,
+      "infusion_channels_unchanged": true,
+      "labels_never_touched": true
+    },
+    "combined": {
+      "components": [
+        "dropout",
+        "noise",
+        "truncation"
+      ],
+      "observations_removed": 99571,
+      "removed_share_of_observed": 0.33191771643437884,
+      "mean_observed_share_after": 0.20387369394302368,
+      "windows_touched": 4093,
+      "physiology_mean_before": 0.11259474605321884,
+      "physiology_mean_after": 0.11341135948896408,
+      "physiology_std_before": 1.2265913486480713,
+      "physiology_std_after": 1.2341053485870361,
+      "infusion_channels_unchanged": true,
+      "labels_never_touched": true
+    }
+  },
+  "passed": true
+}

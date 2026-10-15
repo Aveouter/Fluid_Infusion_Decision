@@ -1,0 +1,72 @@
+{
+  "D1_volume_vs_strong_hybrid": {
+    "baseline": 30.26383616510664,
+    "new": 30.93509026617602,
+    "relative_reduction": -0.022180073187262263,
+    "target_relative_reduction": 0.03,
+    "paired_delta": 0.6712541010693798,
+    "paired_ci": [
+      0.25881334999988254,
+      1.1442535144986699
+    ],
+    "target_met": false
+  },
+  "D2_setting_vs_persistence": {
+    "baseline": 10.796129580321724,
+    "baseline_model": "strong_hybrid",
+    "all_setting_comparators": {
+      "causal_inventory": 10.955634956164422,
+      "strong_hybrid": 10.796129580321724,
+      "v6_action": 11.835342419171342
+    },
+    "new_model_raw_point_output": 10.965857643541597,
+    "new_model_guarded_point_output": 10.955634956164422,
+    "paired_delta": 0.15950537584269853,
+    "paired_ci": [
+      0.08822299742444231,
+      0.23269345701089975
+    ],
+    "rule": "judged on the model output, not on a guard that holds the anchor everywhere: reaching a low setting MAE by never predicting a change is explicitly not an acceptable route",
+    "target_met": false,
+    "guard_fallback_alpha": [
+      [
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        0.0
+      ]
+    ],
+    "note": "the inner-OOF guard selects alpha = 0 on every liquid, i.e. the best setting point output the rule can build from this network is the previous documented setting unchanged; that is reported as the tension between the two outputs, not as evidence for D2"
+  },
+  "D3_action_vs_v6": {
+    "baseline": 0.12117865253816418,
+    "new": 0.19315750247931193,
+    "absolute_gain": 0.07197884994114775,
+    "target_absolute_gain": 0.03,
+    "paired_delta": 0.07197884994114775,
+    "paired_ci": [
+      0.05574811421956052,
+      0.08726466045510478
+    ],
+    "target_met": true
+  }
+}

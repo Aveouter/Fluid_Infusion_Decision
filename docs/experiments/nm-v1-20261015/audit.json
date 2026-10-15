@@ -1,0 +1,52 @@
+{
+  "evidence_tier": "development-fold audit; the historical holdout is not touched here",
+  "rows": 20239,
+  "patients": 335,
+  "causality": {
+    "origins_checked": 96,
+    "all_inputs_unchanged": 96,
+    "passed": true,
+    "definition": "randomising every recorded hour at or after the origin, plus both label arrays, must leave the window, anchor, static block and summary bitwise unchanged"
+  },
+  "patient_isolation": {
+    "groups": 359,
+    "group_split_conflicts": 0,
+    "held_out_patients_inside_an_inner_fold": 0,
+    "augmentation_grouping": "synthesised per training batch from its own row, so no derivative can reach another patient or another fold",
+    "passed": true
+  },
+  "missingness": {
+    "observed_zero_volume_rows": 26451,
+    "masked_out_rows": 0,
+    "zero_rows_kept_as_activity_negatives": 26451,
+    "masked_rows_with_a_finite_label": 0,
+    "rule": "an observed zero stays a real target; a masked row is dropped from every loss term rather than replaced by zero",
+    "passed": true
+  },
+  "saved_predictions": {
+    "prediction_files_checked": 60,
+    "problems": [],
+    "passed": true
+  },
+  "bundle_reload": {
+    "bundles_reloaded": 3,
+    "problems": [],
+    "passed": true,
+    "tolerance": 0.0005
+  },
+  "source_hashes": {
+    "utils/nm_model.py": "996e8a16cc09cb15f3311605c76eea6c0a5c5ebd008ddcb2d60ca1777c24e8e6",
+    "utils/nm_train.py": "1d800187ab53ab9118252573dd4c23a229c5cdc03ebefa74685e5c8b31152f44",
+    "utils/nm_features.py": "e031b0f3d860166fa5add9ba7ed2c14eb1819b29f0b1828f868f1ff604691399",
+    "utils/nm_augment.py": "943fc1a2b03cf44058a46dd2c2c79af9c620635003455ff88b6de4a0381d55e3",
+    "utils/nm_decode.py": "7fd8e863eeaa839a9b997f020cd202b6700d5f3c86a8f18465c3a4835529a11a",
+    "utils/nm_metrics.py": "eeeb5c6e6496290daa5aaefcaadd803d2858bcffdd52cbd7737af0b31859f169",
+    "utils/nm_report.py": "ade8303cbf2d337257c0f5b59493ed2266cb277de59a7333e0b80945a46ed973",
+    "run_nm.py": "00e9a56568e3abedda8f9713facad5a3d15b76c1bd177c995e4e6d83ef91b7ee",
+    "finalize_nm.py": "98a09516746eab9ccbe326422815e3fc27ec637aae347ba51c1ecb829628db7c",
+    "evaluate_nm.py": "e9d33ab84dbad539072fb34dbc12b855a4bd40ad5972a1dae75da6a0e858963d",
+    "docs/nm_protocol.json": "06ff1f3782acdd375f79715a244d5aa5ac7bc38cad6676a15bf8d936f74a3eac"
+  },
+  "frozen_payload": "b3ceeef1b58fd4c75ee45d14245ba4fa685cdb5dcea4ac1846cb19f6e86f34fc",
+  "passed": true
+}

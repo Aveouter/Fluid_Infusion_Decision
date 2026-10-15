@@ -1,0 +1,58 @@
+{
+  "evidence_tier": "exploratory, development folds only, mixture weight chosen on the same rows it is scored on, therefore an optimistic bound and not a result",
+  "question": "does the new model carry volume information the historical hybrid does not?",
+  "new_model_alone": 30.93509026617602,
+  "historical_hybrid_alone": 30.26383616510664,
+  "best_mixture": {
+    "new_model_weight": 0.3,
+    "volume_mae": 29.97359428579901
+  },
+  "relative_gain_of_the_best_mixture_over_the_hybrid": 0.009590386285604803,
+  "reading": "a mixture that beats both components means the new model is not redundant, but the gain is far below the 3 percent target and the weight is not usable as fitted; the new model alone remains worse than every historical baseline on this endpoint",
+  "grid": [
+    {
+      "new_model_weight": 0.0,
+      "volume_mae": 30.26383616510664
+    },
+    {
+      "new_model_weight": 0.1,
+      "volume_mae": 30.116667860044583
+    },
+    {
+      "new_model_weight": 0.2,
+      "volume_mae": 30.01986095567842
+    },
+    {
+      "new_model_weight": 0.3,
+      "volume_mae": 29.97359428579901
+    },
+    {
+      "new_model_weight": 0.4,
+      "volume_mae": 29.982388346839787
+    },
+    {
+      "new_model_weight": 0.5,
+      "volume_mae": 30.036100509416986
+    },
+    {
+      "new_model_weight": 0.6,
+      "volume_mae": 30.128249637410217
+    },
+    {
+      "new_model_weight": 0.7,
+      "volume_mae": 30.273748770163724
+    },
+    {
+      "new_model_weight": 0.8,
+      "volume_mae": 30.458931766915725
+    },
+    {
+      "new_model_weight": 0.9,
+      "volume_mae": 30.67967524280705
+    },
+    {
+      "new_model_weight": 1.0,
+      "volume_mae": 30.93509026617602
+    }
+  ]
+}

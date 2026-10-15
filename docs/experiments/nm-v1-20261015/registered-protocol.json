@@ -1,0 +1,140 @@
+{
+  "version": "nm_v1_20261015",
+  "status": "Registered before any outer-fold result of this round was inspected; the fold-0 feasibility work that motivated the architecture was exploratory and is recorded as such",
+  "purpose": "Independent new temporal multi-task model for next-hour fluid volume and documented device setting, judged against the acceptance specification's gates",
+  "positioning": "Targeted model-improvement study. It does not replace the manuscript's registered primary endpoint, and it makes no clinical-efficacy claim.",
+  "task": {
+    "origin": "hour h in 1..71 after injury; predict the hour [h, h+1)",
+    "inputs": "recorded hours strictly before h, static baseline gated by its own availability hour, previous-hour stock and setting anchors; no target, nursing reconciliation or future completion record",
+    "outputs": [
+      "volume_ml per liquid",
+      "setting_point_ml_h per liquid",
+      "setting_action_ml_h per liquid",
+      "volume_activity_probability",
+      "setting_activity_probability",
+      "event_probability",
+      "direction_class",
+      "magnitude_ml_h",
+      "average_input_speed derived as volume over one hour"
+    ],
+    "separation": "average input speed is the predicted volume over a one-hour window and is never a trained label; it is never used to convert a device setting into a volume",
+    "history_hours": 24
+  },
+  "data": {
+    "feature_file": "data/model_adapters/review_independent_reference_v4_20261015/features.npz",
+    "label_provenance": "volume is a within-patient retrospective reconstruction; setting is the original doctor table with hour-start approximation and forward continuation; explicit zeros are recorded events, blank cells are not recorded at all",
+    "splits": "patient-grouped; development outer 5 folds seed 20261017, inner 3 folds seed 20261101+fold; historical holdout is the fold-0 partition (seed 20261015) and has been seen in earlier rounds",
+    "preprocessing": "scaling, imputation statistics and the summary scaler are fitted on the training rows of the fold in question only",
+    "causality": "features read hours < h only; randomising every hour at or after the origin must leave the inputs bitwise unchanged"
+  },
+  "architecture": {
+    "name": "NewFluidNet",
+    "components": [
+      "missing-aware sequence projection over value and missingness channels",
+      "causal dilated residual convolution stack with dilations 1,2,4",
+      "static FiLM conditioning",
+      "masked attention pooling",
+      "two task towers with an explicit sigmoid bridge between them",
+      "heads: volume, setting point, volume activity, setting activity, event, direction, magnitude"
+    ],
+    "decoding": "volume and setting point are independent point predictions; the action output is the previous documented setting plus a signed magnitude that fires only when the event head clears its per-liquid threshold, falling back to the point prediction when no previous setting is known",
+    "ablations": [
+      "no_summary",
+      "no_attention",
+      "no_dilation",
+      "no_film",
+      "no_bridge",
+      "volume_only",
+      "setting_only"
+    ]
+  },
+  "training": {
+    "seeds": [
+      20261015,
+      20261016,
+      20261017
+    ],
+    "epochs": 60,
+    "batch_size": 512,
+    "optimizer": "AdamW lr 2e-3, weight decay 0.01, cosine decay to 1e-4, gradient norm clipped at 5",
+    "loss": "masked patient-weighted sum of volume L1/50, setting point L1/50, volume activity BCE, setting activity BCE, event BCE, direction cross-entropy and magnitude L1/100",
+    "task_weights": {
+      "volume": 1.0,
+      "setting": 1.0,
+      "volume_activity": 0.1,
+      "setting_activity": 0.1,
+      "event": 0.5,
+      "direction": 0.2,
+      "magnitude": 0.1
+    },
+    "missing_labels": "masked out of every loss term; an observed zero contributes as a zero",
+    "augmentation_for_main_model": "none"
+  },
+  "augmentation": {
+    "strategies": {
+      "dropout": "a contiguous interior block of physiology observations is marked unrecorded",
+      "noise": "Gaussian measurement error on observed physiology values",
+      "truncation": "the oldest observations are replaced by unrecorded, matching a shorter history"
+    },
+    "scope": "training folds only; labels, masks, infusion and inventory channels are never modified",
+    "comparison": "none, each single strategy, and the combination, with identical architecture, splits, real validation patients and training budget"
+  },
+  "selection": {
+    "event_threshold": "per liquid, maximising strict same-hour same-class F1 on inner-fold OOF predictions only; ties resolve to the higher threshold",
+    "volume_output": "the mean of the three seed predictions of the main variant",
+    "setting_point_output": "the mean of the three seed predictions of the main variant",
+    "guard": "per liquid (alpha, tau) over a pre-declared grid, minimising inner-fold-OOF patient-macro MAE, applied as anchor + alpha*1[|delta| >= tau]*delta on top of the seed average; fitted separately for the volume point output and the setting point output",
+    "guard_grid": {
+      "alpha": [
+        0.0,
+        0.25,
+        0.5,
+        0.75,
+        0.9,
+        1.0
+      ],
+      "tau_ml": [
+        0.0,
+        5.0,
+        10.0,
+        20.0,
+        40.0,
+        80.0
+      ]
+    },
+    "guard_amendment": "Registered during this round, after the inner-fold selection code was first written and before any outer-fold result of this round was computed. The grid is fixed and coarse and was not revised against outer outcomes; an exploratory held-data sweep that motivated it is reported as an oracle upper bound and is not the applied rule. alpha = 0 keeps the anchor and alpha = 1 with tau = 0 keeps the model, so the fitted guard can always fall back to either endpoint and cannot be worse than the better of the two on the data it was fitted on. The alpha grid was corrected to include its own 0.0 endpoint (the anchor-only strategy) before any outer-fold result of this round was inspected; the grid previously started at 0.25, which contradicted the stated fallback.",
+    "forbidden": "no threshold, weight or guard parameter is chosen on outer-fold or holdout outcomes"
+  },
+  "performance_targets": {
+    "D1_volume": {
+      "metric": "patient-equal-weight next-hour volume MAE, averaged over the three liquids",
+      "comparator": "strongest historical hybrid (previous_hybrid_inner_recalibrated) on the identical evaluation index",
+      "target": "at least 3% lower than the comparator; paired difference MAE_new - MAE_baseline with 95% CI upper bound below zero",
+      "also_required": "per-liquid MAE, RMSE, bias, positive-flow error, tail error, activity Macro-F1 non-degradation, share of errors above 50 mL"
+    },
+    "D2_setting": {
+      "metric": "overall setting MAE on the point prediction",
+      "comparator": "persistence and the strongest historical setting model",
+      "target": "no increase relative to the comparator; the inner-loop MAE allowance is not evidence of outer non-degradation",
+      "also_required": "hold-hour, change-hour, up-hour and down-hour MAE separately"
+    },
+    "D3_action": {
+      "metric": "strict same-hour same-direction same-class action F1, macro over the three liquids",
+      "comparator": "V6 frozen operating point on the same development folds",
+      "target": "at least +0.03, with a paired confidence interval",
+      "also_required": "per-class support, predicted, TP, FP, FN, precision and recall; up recall reported jointly with up false positives; the frozen change-point and lag metrics retained; stop reported as not estimable rather than as a success"
+    }
+  },
+  "statistics": {
+    "unit": "patient",
+    "bootstrap": "patient-cluster resampling, 2000 replicates, seed 20261015, percentile 95% intervals",
+    "multiplicity": "pointwise intervals for every outcome; the three performance targets are reported separately and none is presented as a global superiority claim",
+    "negative_results": "every ablation and every unmet target is reported, including the ones that make the new model look worse"
+  },
+  "claims_boundary": {
+    "clinical_or_online_pump_validation": false,
+    "fresh_external_test": false,
+    "historical_holdout_previously_seen": true,
+    "model_success_and_delivery_success_are_separate": true
+  }
+}
