@@ -1,0 +1,38 @@
+{
+  "status": "passed",
+  "training_scope_checks": 146,
+  "results": {
+    "action_v5c_20261015": {
+      "exact_predicted_events": 883,
+      "exact_matched_events": 368,
+      "frozen_files_verified": 21,
+      "isolated_cli": {
+        "requests": 9,
+        "component_rows": 27,
+        "max_absolute_error": 2.921668098565533e-05,
+        "exit_code": 0
+      }
+    },
+    "action_state_v6_20261015": {
+      "exact_predicted_events": 937,
+      "exact_matched_events": 380,
+      "frozen_files_verified": 23,
+      "isolated_cli": {
+        "requests": 9,
+        "component_rows": 27,
+        "max_absolute_error": 2.921668098565533e-05,
+        "exit_code": 0
+      }
+    }
+  },
+  "environment": {
+    "numpy": "2.5.4",
+    "pandas": "3.0.6",
+    "scikit-learn": "1.9.1",
+    "torch": "2.14.1+cu126",
+    "joblib": "1.6.0",
+    "pytest": "9.1.1"
+  },
+  "raw_feature_sha256": "a1e3af0426ce6493478d75422b9213c2a82b67fb9327d76e7cb77c2043e9fb2f",
+  "clinical_or_online_pump_validation": false
+}

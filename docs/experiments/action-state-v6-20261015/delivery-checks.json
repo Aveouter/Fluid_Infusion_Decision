@@ -1,0 +1,29 @@
+{
+  "status": "complete_with_performance_tradeoffs",
+  "completed_model_fits": 148,
+  "disjoint_scope_checks": 146,
+  "full_development_final_scope_checks": [
+    {
+      "run": "action_v5b_20261015",
+      "final_training_patients": 335,
+      "frozen_training_code_verified": true
+    },
+    {
+      "run": "action_state_v6_20261015",
+      "final_training_patients": 335,
+      "frozen_training_code_verified": true
+    }
+  ],
+  "targeted_tests_passed": 11,
+  "isolated_release_cli_passed": true,
+  "wrong_representation_rejected": true,
+  "full_cohort_predictions": {
+    "patients": 449,
+    "origins": 31879,
+    "component_rows": 95637,
+    "in_training_patients": 335,
+    "no_independent_validation_claim_for_all449": true
+  },
+  "clinical_or_online_pump_validation": false,
+  "all_original_non_degradation_gates_passed": false
+}

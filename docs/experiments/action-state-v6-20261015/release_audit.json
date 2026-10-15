@@ -1,0 +1,26 @@
+{
+  "status": "passed",
+  "results": {
+    "action_v5c_20261015": {
+      "cli": {
+        "requests": 9,
+        "component_rows": 27,
+        "max_absolute_error": 2.921668098565533e-05,
+        "exit_code": 0
+      },
+      "model_files_unchanged": 5,
+      "archive_inventory_verified": 22
+    },
+    "action_state_v6_20261015": {
+      "cli": {
+        "requests": 9,
+        "component_rows": 27,
+        "max_absolute_error": 2.921668098565533e-05,
+        "exit_code": 0
+      },
+      "model_files_unchanged": 5,
+      "archive_inventory_verified": 24,
+      "wrong_model_entry_rejected": true
+    }
+  }
+}

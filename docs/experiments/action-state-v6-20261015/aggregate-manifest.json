@@ -1,0 +1,20 @@
+{
+  ".gitattributes": "7846b37551c23529eb00c68fbb5a435390e922d9db2625cb88681c31746b289e",
+  "audit.json": "f1279869f97ad63cec0429915063722df1bf2cf4e72118427c31c491642359e0",
+  "delivery-checks.json": "be6009f7dec4d83c061fae450355260c42094897658770ec7087f9573c7e5cad",
+  "development/directional_action_types.csv": "63a9ed91470a8d8bd390847ba298f05ec2a79453d84e2302614799913bf51065",
+  "development/model_summary.csv": "66bf67b04cb4f8444231573586ba399b30b8c9c01323e60ff2235abc858d4fbf",
+  "development/paired_patient_effects.csv": "99921a25788c45d4dfe537fed81648e092f2061971ea6edae709a254c4b81426",
+  "development/setting_heads.csv": "206ecef221ee743bef123c67c96a084e41b0ee900ef904dcbf3556a8b650056e",
+  "frozen-source-hashes.json": "04aaec9447bf1e0836f2bbc5f27ecdf8d0c636b346725e23855ec7e81c7a3da6",
+  "historical-holdout/directional_action_types.csv": "936caa12b7c00cc2c8d0da41eeece1501610b3c2c0446344df7de98cce328a8c",
+  "historical-holdout/model_summary.csv": "577d43e879f6000179c69593c85cd869b24a01139196b66bcfc417601ff15796",
+  "historical-holdout/paired_patient_effects.csv": "4af587070e1ed324460f5e4fd9edd13c0cb4ef7dd0fddbc2923a2a5d92e11da6",
+  "historical-holdout/setting_heads.csv": "f744d98df1d23717f19cebcf056e3d3b916a5be8568992770557dfe536cfe536",
+  "main-comparison.png": "fea5cfdeb80bb60ed9291ff3fb80b35b785ccb5b0cca24439a9b3b28cf49f509",
+  "README.md": "359f5075eb6f494f1651e1cdd2561c45ab5e4526f1d51c14110a814af550457a",
+  "registered-v6-protocol.json": "1c23aad8355529a4a49c7bb47b372eb46ca076bdc011e1399e5ca310604a4fb3",
+  "release_audit.json": "f064fc02ff2fd9148f62e840c33a93f7efd141290bf8f90b8371e38ee63ee904",
+  "v5c-development/model_summary.csv": "0b904d46452a7bc91670dbae169f7850ae4a06654d59a9ea353f5702a2fb5ccf",
+  "v5c-development/paired_patient_effects.csv": "4591e65ac7534fdf508992015e113f0ea9e4a5904135ee1ecffc46221d275d5e"
+}

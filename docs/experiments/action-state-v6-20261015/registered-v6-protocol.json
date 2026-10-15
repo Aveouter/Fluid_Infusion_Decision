@@ -1,0 +1,15 @@
+{
+  "version": "action_state_v6_20261015",
+  "status": "Registered after V5 primary development results, before this round historical holdout assessment",
+  "purpose": "Test whether sparse physiology was hidden by raw missing hourly lags; retain explicit next-action decoding",
+  "feature_change": "For each original recorded variable: causal last value, observation age, last two observation difference and slope, mean and observation count in last6h; original dose/setting variables are never jittered; all calculations only use k<h",
+  "cadence_change": "Past setting-change counts and elapsed times over all available pre-origin hours, plus recorded-stock/rate proxy and past additions; not physical measured stock or urine flow",
+  "inputs": "Original V4 source and static availability; no retrospective target, nursing reconciliation or future completion record used as input",
+  "components": ["joint","infusion_only"],
+  "training": "Exactly the V5b100-iteration HGB and conditional expert budget, patient and class weights, source anchors; unchanged event thresholds",
+  "splits": "Same5outer/3inner patient folds as V4/V5",
+  "setting_selection": "Same exact inner-OOF F1 maximization under source-persistence MAE+1mL/h constraint as V5c",
+  "volume_selection": "Same inner OOF historical hybrid + newly fitted absolute/residual HGB mixtures as V5b",
+  "final_selection": "Use all-development3fold OOF only; no historical holdout tuning",
+  "interpretation": "Exploratory redevelopment, report V5c and V6 separately; clinical or online pump validation is not created by preprocessing"
+}
