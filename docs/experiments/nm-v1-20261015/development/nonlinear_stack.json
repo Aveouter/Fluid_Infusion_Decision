@@ -1,0 +1,10 @@
+{
+  "evidence_tier": "per-fold honest; the residual stack is fitted on each fold training rows only",
+  "base_v6_volume_mae": 30.164543886223644,
+  "base_plus_nonlinear_stack": 30.108086411155057,
+  "gain": 0.056457475068587115,
+  "d1_target": 29.355885999999998,
+  "reaches_target": false,
+  "features": "15 prediction columns + 170 window summaries + 6 anchor values",
+  "note": "strictly wider than any convex combination: the stack may weight the members differently per row"
+}
