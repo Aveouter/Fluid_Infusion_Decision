@@ -1,0 +1,10 @@
+{
+  "status": "registered after the original no-history NN collapsed to zero; before any corrected-head OOF result",
+  "original_experiment_preserved": "data/model_experiments/no_fluid_history_20261015",
+  "diagnosis": "all 15 original no-history neural fits produce zero point estimates; negative residuals plus zero unknown anchors enter a hard nonnegative clamp with zero gradient for positive targets",
+  "change": "dimensionless absolute regression head -> 50*softplus(logit), no individual fluid anchor; same encoder, inputs, losses, epochs, folds, and seeds",
+  "scale_reason": "50 is the already registered regression loss normalization in mL and mL/h, not a held-fold tuned parameter",
+  "forbidden": "No changed labels, splits, additional features, outer early stopping, or oracle parameter selection",
+  "interpretation": "This is a corrected absolute-output estimator for the no-history task; it is not an architecture-matched ablation of the original residual full-history neural model. Matched full/no-history tree comparison remains primary evidence of the input-family effect.",
+  "output_directory": "data/model_experiments/no_fluid_absolute_20261015"
+}
