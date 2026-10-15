@@ -1,0 +1,9 @@
+{
+  "evidence_tier": "development folds only; the combination weights are fitted per fold on its training rows, the residual model likewise",
+  "combination_mae": 29.947765867346675,
+  "combination_plus_residual_model": 30.019009873875245,
+  "residual_gain": -0.07124400652856977,
+  "d1_target": 29.355885999999998,
+  "residual_reaches_target": false,
+  "reading": "if a residual model trained on the same inputs cannot improve the best combination, the remaining error is not extractable from these inputs by this feature set"
+}
