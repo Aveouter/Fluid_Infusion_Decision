@@ -1,0 +1,16 @@
+{
+  "evidence_tier": "development fold 0, three seeds, same architecture; the added channels come from the raw record and are appended to the frozen arrays, which are asserted unchanged",
+  "new_channels": 19,
+  "total_channels": 48,
+  "definition": "per vital sign, how many times it was charted in the hour and the spread of the charted values; plus all recorded items per hour. These are discarded by the hourly median every existing model uses.",
+  "observed_fraction": 0.324,
+  "mean_items_per_hour": 7.53,
+  "volume_mae": {
+    "v4_features_volume_weight_1": 30.3131,
+    "v5_features_volume_weight_1": 30.3361,
+    "v4_features_volume_weight_4": 29.9527,
+    "v5_features_volume_weight_4": 29.9515
+  },
+  "d1_target": 29.3559,
+  "reading": "genuinely new information from the same source records does not improve the volume endpoint either; the endpoint is limited by the information content of the record, not by which model reads it"
+}
