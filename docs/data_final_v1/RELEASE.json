@@ -1,0 +1,92 @@
+{
+  "version": "final_data_v1_20261019",
+  "status": "frozen_research_data_version",
+  "package_manifest_sha256": "7e9f0cfcfcd10481efa8878e6ce790aca62b24940dd229b2b59642b84e7777a4",
+  "checksum_index_sha256": "f462c430cfa76da813502879adfb622ce715c91330b0d3b7465ce6efd3fc0d84",
+  "archive_sha256": "b794b2c000165ec611b70a9dced3ecb6bb474609498233c5aff19b499189f90e",
+  "archive_bytes": 40397683,
+  "package_file_bytes": 331590914,
+  "source_patients": 449,
+  "eligible_patients": 416,
+  "development_patients": 333,
+  "historical_holdout_patients": 83,
+  "excluded_missing_admission": 33,
+  "independent_clinical_review": false,
+  "model_scores_computed": false,
+  "validation": {
+    "status": "passed",
+    "source_patients": 449,
+    "eligible_patients": 416,
+    "excluded_patients": 33,
+    "hourly_iv_rows": 89856,
+    "causal_state_rows": 91104,
+    "clinical_source_observations": 137830,
+    "source_raw_hashes_verified": 449,
+    "doctor_observations_verified": 10178,
+    "preserved_reference_max_difference_ml": 0.0,
+    "independent_segment_hour_integral_max_difference_ml": 4.547473508864641e-13,
+    "lot_original_net_max_difference_ml": 0.0,
+    "lot_net_consumed_remaining_max_difference_ml": 6.366462912410498e-12,
+    "real_past_state_checks": 168,
+    "future_completion_poison_checks": 168,
+    "no_model_training_or_scores": true,
+    "independent_clinical_review": false,
+    "support_by_component": {
+      "colloid": {
+        "full_inpatient_hour": 23754,
+        "quantity_reference_eligible": 22933,
+        "setting_reference_eligible": 21189,
+        "exact_joint_eligible": 5907
+      },
+      "crystalloid": {
+        "full_inpatient_hour": 23754,
+        "quantity_reference_eligible": 22933,
+        "setting_reference_eligible": 20623,
+        "exact_joint_eligible": 19158
+      },
+      "water": {
+        "full_inpatient_hour": 23754,
+        "quantity_reference_eligible": 22933,
+        "setting_reference_eligible": 20163,
+        "exact_joint_eligible": 19806
+      }
+    },
+    "input_value_status_counts": {
+      "estimated_reference": 69753,
+      "outside_or_partial_boundary": 18594,
+      "recorded_no_input_zero": 1509
+    },
+    "clinical_field_counts": {
+      "urine_recorded_amount_unspecified_unit": 22220,
+      "respiratory_rate": 17176,
+      "systolic_bp": 17129,
+      "diastolic_bp": 17123,
+      "heart_rate": 16892,
+      "spo2": 16370,
+      "temperature": 11931,
+      "text_lactate_mmol_l": 1917,
+      "reported_potassium_mmol_l": 1804,
+      "text_blood_ph": 1787,
+      "text_paco2_mmhg": 1784,
+      "text_pao2_mmhg": 1780,
+      "text_base_excess_mmol_l": 1774,
+      "text_bicarbonate_mmol_l": 1764,
+      "glucose_recorded_value": 891,
+      "cvp": 696,
+      "text_gedi_ml_m2": 680,
+      "text_elwi_ml_kg": 679,
+      "text_cardiac_index_l_min_m2": 678,
+      "text_hemoglobin_g_l": 581,
+      "pulse": 309,
+      "text_norepinephrine_pump_ml_h": 91,
+      "reported_glucose_mmol_l": 64,
+      "reported_sodium_mmol_l": 64,
+      "reported_total_hemoglobin_g_l": 39,
+      "reported_calcium_mmol_l": 31,
+      "reported_lactate_lower_bound_mmol_l": 23,
+      "residual_urine_recorded_amount_unspecified_unit": 15,
+      "reported_hematocrit_percent": 3,
+      "reported_hematocrit_lower_bound_percent": 1
+    }
+  }
+}

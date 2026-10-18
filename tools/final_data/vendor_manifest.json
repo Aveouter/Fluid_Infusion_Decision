@@ -1,0 +1,142 @@
+[
+  {
+    "original_path": "utils/volume_speed_features.py",
+    "original_sha256": "2088bf2680f5d53d2e26cebb1b37866565aea7271e0ccb0983b15d3fbda46188",
+    "vendored_path": "tools/final_data/vendor/volume_speed_features.py",
+    "vendored_sha256": "7f699aaf18ec0a49d7135b7e21ad4f7ae47eb71843f92752451fe4779426fc07",
+    "change": "Import namespace only; extraction rules unchanged"
+  },
+  {
+    "original_path": "utils/inventory_numeric_vitals.py",
+    "original_sha256": "63baec1b7d068c2c5ea48fcf4e5306866a193a20152cafe54ae3741d00dfaf28",
+    "vendored_path": "tools/final_data/vendor/inventory_numeric_vitals.py",
+    "vendored_sha256": "e3528e33dd0a2160833853382dc26637fa15874953abd30c268260a0acf0f108",
+    "change": "Import namespace only; extraction rules unchanged"
+  },
+  {
+    "original_path": "utils/inventory_cvp_string.py",
+    "original_sha256": "433776e086c1bbd5b91e7bf3723e39b5f9638974b316ffad7254bb47f9da7768",
+    "vendored_path": "tools/final_data/vendor/inventory_cvp_string.py",
+    "vendored_sha256": "c1a92ebd2d012043fd64834adc48ac1351d4bfdcd8473dfa6a66959bce1cfa4f",
+    "change": "Import namespace only; extraction rules unchanged"
+  },
+  {
+    "original_path": "utils/fluid_text_evidence.py",
+    "original_sha256": "f47d20b85504184be891a29a5c96a0b9c1a755f614a04b0b93738214e5b00821",
+    "vendored_path": "tools/final_data/vendor/fluid_text_evidence.py",
+    "vendored_sha256": "6e32891230562ac6997f5b2492925232385d7702444cc6dc7d98ddc491ddd60b",
+    "change": "Import namespace only; extraction rules unchanged"
+  },
+  {
+    "original_path": "utils/clinical_unit_aliases.py",
+    "original_sha256": "33b4e180221009a108c716624787ef8d21cb6f6e46926d49274510b8ec9f7317",
+    "vendored_path": "tools/final_data/vendor/clinical_unit_aliases.py",
+    "vendored_sha256": "f821b252217d3483dd81e21239e1b074acef6927ed5710f08c1de9ab7e445a94",
+    "change": "Import namespace only; extraction rules unchanged"
+  },
+  {
+    "original_path": "utils/inventory_reported_chemistry.py",
+    "original_sha256": "c55d4e74ce1f4c0f28b2dfc9dfc49a7bae9daf60cdc5355188818283c74863a4",
+    "vendored_path": "tools/final_data/vendor/inventory_reported_chemistry.py",
+    "vendored_sha256": "011746a1b546cf3b8ccf73266432c0072dfb28c4818087884f99b71d4a3d66c4",
+    "change": "Import namespace only; extraction rules unchanged"
+  },
+  {
+    "original_path": "utils/inventory_explicit_context_rates.py",
+    "original_sha256": "b192c5a018a26da0ce74ae309b699839afdc4e5341a68393bdad21d754271b22",
+    "vendored_path": "tools/final_data/vendor/inventory_explicit_context_rates.py",
+    "vendored_sha256": "de81524703289e5f77c685c69568f94cfcf30c1916a29c8af7fc1b4c01ed8e80",
+    "change": "Import namespace only; extraction rules unchanged"
+  },
+  {
+    "original_path": "utils/inventory_event_sources.py",
+    "original_sha256": "298fc6bd44144a294b1fc46a514c23098b20f6927727f53a75dc6bf8a0970122",
+    "vendored_path": "tools/final_data/vendor/inventory_event_sources.py",
+    "vendored_sha256": "9487d00cff9213996213a818655dd03737976b003355532094431881548eef38",
+    "change": "Import namespace only; extraction rules unchanged"
+  },
+  {
+    "original_path": "utils/inventory_event_availability.py",
+    "original_sha256": "637db247098c5a03c05a8ce99faacdd3fd5134d25971707548c5d85ab47174f6",
+    "vendored_path": "tools/final_data/vendor/inventory_event_availability.py",
+    "vendored_sha256": "8ec6c2827a8e51c8032e9769c72ab8ef90665c612be096c4030938bae700592e",
+    "change": "Import namespace only; extraction rules unchanged"
+  },
+  {
+    "original_path": "utils/inventory_event_state.py",
+    "original_sha256": "6660a3228515dd2281b127f58bd78acca42a1ca0500b145da7f33258d58e4c51",
+    "vendored_path": "tools/final_data/vendor/inventory_event_state.py",
+    "vendored_sha256": "11e1fe463b63188e0512244a6b789c63f8d1394e2a4e7d6978445024da79c76f",
+    "change": "Import namespace only; extraction rules unchanged"
+  },
+  {
+    "original_path": "utils/inventory_event_clock.py",
+    "original_sha256": "c0b247984c99eb416a438eaf4a90e89c2fd7ce2bce35cf6b9d1ad7cb6537621c",
+    "vendored_path": "tools/final_data/vendor/inventory_event_clock.py",
+    "vendored_sha256": "7fdc156ce29660aeb7f0e7c2662c240fc524349b1490c30ef706498ddcbed6b2",
+    "change": "Import namespace only; extraction rules unchanged"
+  },
+  {
+    "original_path": "utils/inventory_reference_feasibility.py",
+    "original_sha256": "7ddf36c0cd9e37396a866575236507fc06cb43878b587a9a52be24da3d877c09",
+    "vendored_path": "tools/final_data/vendor/inventory_reference_feasibility.py",
+    "vendored_sha256": "8f6853986464cf44afd216b36af9ca1047c808e1bab0f923c10bf3b4ca33ccce",
+    "change": "Import namespace only; extraction rules unchanged"
+  },
+  {
+    "original_path": "utils/inventory_reference_uncertainty.py",
+    "original_sha256": "bafde746e8742dfa8763616cccdb3d8b1b096baac4d1834715ad703c376a3f65",
+    "vendored_path": "tools/final_data/vendor/inventory_reference_uncertainty.py",
+    "vendored_sha256": "df5e6d76f6c8520044703b528476112baa99b92b2afa5f183517d216f2bbcef8",
+    "change": "Import namespace only; extraction rules unchanged"
+  },
+  {
+    "original_path": "utils/inventory_current_source_scope.py",
+    "original_sha256": "ad37ca2035257409d624855738f2b0fcba6e7f59de6b61cab2ec8a871697f5af",
+    "vendored_path": "tools/final_data/vendor/inventory_current_source_scope.py",
+    "vendored_sha256": "0d6029fccf527e4df659cb975cb265b9e2cbbec9a30b88a273f778e0ae699b4d",
+    "change": "Import namespace only; extraction rules unchanged"
+  },
+  {
+    "original_path": "utils/inventory_current_source_scope_v2.py",
+    "original_sha256": "d46a957caad6e0312c4c7dd5cbb7113be03a3991ce8ed1bb7b785400dc34c3b3",
+    "vendored_path": "tools/final_data/vendor/inventory_current_source_scope_v2.py",
+    "vendored_sha256": "50ef43fcf7d764f8e9f911dfc49562f9fd4f71d483521e790b16986c4063c815",
+    "change": "Import namespace only; extraction rules unchanged"
+  },
+  {
+    "original_path": "utils/inventory_primary_source_loads.py",
+    "original_sha256": "3f9c738dfd7adba88ea454af1793d4458a167ee1ef92b8cbe62d70a593179409",
+    "vendored_path": "tools/final_data/vendor/inventory_primary_source_loads.py",
+    "vendored_sha256": "a4cd06d20f399e8fd3be9f29b87f9d5b527d660abd33e9129aeea32848a398b9",
+    "change": "Import namespace only; extraction rules unchanged"
+  },
+  {
+    "original_path": "utils/inventory_text_quantity.py",
+    "original_sha256": "9605a7dfb58b59a53c31fedc69501d15de5ab52757fec5129434d1329f74fccf",
+    "vendored_path": "tools/final_data/vendor/inventory_text_quantity.py",
+    "vendored_sha256": "6cf35769f81359a4cf3f8bac0ed37b73b6a5eeefb2a0925d37211589873de0b9",
+    "change": "Import namespace only; extraction rules unchanged"
+  },
+  {
+    "original_path": "utils/hospital_boundaries.py",
+    "original_sha256": "674e95cbf87eba342a2fe72fcd332ae20129c37b1b317335c024eba7f89d2038",
+    "vendored_path": "tools/final_data/vendor/hospital_boundaries.py",
+    "vendored_sha256": "025cf478e61a84d46f46d10a80b78d23f60bc598b793398cf708acd4e5c4f4aa",
+    "change": "Import namespace only; extraction rules unchanged"
+  },
+  {
+    "original_path": "data/fluid_reconstruction_sources.py",
+    "original_sha256": "340d55c46fd9756197bb9ded0dff51e23d4c0aceb94befcdf31b0ea3bf770cf8",
+    "vendored_path": "tools/final_data/vendor/fluid_reconstruction_sources.py",
+    "vendored_sha256": "40bfbc509e5735bc72ca6d572d130bccffabf28318ec4a030508c44e752922eb",
+    "change": "Import namespace only; extraction rules unchanged"
+  },
+  {
+    "original_path": "data/fluid_classification_rules_20261014.json",
+    "original_sha256": "a09a1e47b7c29b2d90c1340ab27babc0e539d97d6e600eaa8a0e51044cd55c99",
+    "vendored_path": "tools/final_data/vendor/fluid_classification_rules_20261014.json",
+    "vendored_sha256": "7369c48e315d77766127dc6971be57b9c6386cce35f7376b5c98f752db8cde9c",
+    "change": "Import namespace only; extraction rules unchanged"
+  }
+]

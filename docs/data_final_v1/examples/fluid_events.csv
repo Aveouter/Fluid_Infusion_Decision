@@ -1,0 +1,5 @@
+patient_id,hour,available_hour,kind,component,value,source_id
+synthetic-001,0,0,addition,crystalloid,500,load-a
+synthetic-001,0,0,setting,crystalloid,100,setting-a
+synthetic-001,0.5,0.5,setting,crystalloid,200,setting-b
+synthetic-001,2.8,2.8,addition,crystalloid,250,load-b
