@@ -82,6 +82,7 @@ def seal(package,destination,archive,public):
     # package, while retaining the exact earlier build snapshot separately.
     for name in ['README.md','METHODS.md','DATA_REPORT.md','REPRODUCIBILITY.json']:shutil.copy2(public/name,package/name)
     text=(package/'README.md').read_text(encoding='utf-8').replace('](fields.csv)','](dictionary/fields.csv)').replace('](clinical_fields.csv)','](dictionary/clinical_fields.csv)')
+    text=text.replace('](fields.json)','](dictionary/fields.csv)').replace('](clinical_fields.json)','](dictionary/clinical_fields.csv)')
     (package/'README.md').write_text(text,encoding='utf-8')
     shutil.copytree(public/'examples',package/'examples')
     tools=Path(__file__).resolve().parent

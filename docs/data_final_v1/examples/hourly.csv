@@ -1,4 +1,0 @@
-patient_id,hour_start,component,input_ml,start_setting_ml_h,end_setting_ml_h,average_actual_input_rate_ml_h,remaining_at_hour_end_ml
-synthetic-001,0,crystalloid,150,100,200,150,350
-synthetic-001,1,crystalloid,200,200,200,200,150
-synthetic-001,2,crystalloid,190,200,200,190,210

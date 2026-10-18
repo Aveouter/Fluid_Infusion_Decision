@@ -226,12 +226,12 @@ def generate(package,public):
     if missing:raise ValueError('Undocumented columns: '+', '.join(sorted(missing)))
     dictionary=package/'dictionary';dictionary.mkdir(exist_ok=True)
     frame=pd.DataFrame(entries);frame.to_csv(dictionary/'fields.csv',index=False,encoding='utf-8-sig')
-    frame.to_csv(public/'fields.csv',index=False,encoding='utf-8-sig')
+    (public/'fields.json').write_text(frame.to_json(orient='records',force_ascii=False,indent=2)+'\n',encoding='utf-8')
     observations=pd.read_csv(package/'observations/records.csv',usecols=['field','unit','qualifier','method'])
     fields=observations.drop_duplicates().sort_values(['field','unit','qualifier','method'])
     fields['aggregation']='same patient/hour/field/unit/qualifier median; urine recorded amounts sum only within matching units; residual urine separate'
     fields.to_csv(dictionary/'clinical_fields.csv',index=False,encoding='utf-8-sig')
-    fields.to_csv(public/'clinical_fields.csv',index=False,encoding='utf-8-sig')
+    (public/'clinical_fields.json').write_text(fields.to_json(orient='records',force_ascii=False,indent=2)+'\n',encoding='utf-8')
     print(json.dumps(dict(tables=frame.table.nunique(),documented_fields=len(frame),clinical_field_variants=len(fields))))
 
 

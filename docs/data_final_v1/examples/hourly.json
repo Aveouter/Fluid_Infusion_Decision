@@ -1,0 +1,32 @@
+[
+  {
+    "patient_id":"synthetic-001",
+    "hour_start":0,
+    "component":"crystalloid",
+    "input_ml":150,
+    "start_setting_ml_h":100,
+    "end_setting_ml_h":200,
+    "average_actual_input_rate_ml_h":150,
+    "remaining_at_hour_end_ml":350
+  },
+  {
+    "patient_id":"synthetic-001",
+    "hour_start":1,
+    "component":"crystalloid",
+    "input_ml":200,
+    "start_setting_ml_h":200,
+    "end_setting_ml_h":200,
+    "average_actual_input_rate_ml_h":200,
+    "remaining_at_hour_end_ml":150
+  },
+  {
+    "patient_id":"synthetic-001",
+    "hour_start":2,
+    "component":"crystalloid",
+    "input_ml":190,
+    "start_setting_ml_h":200,
+    "end_setting_ml_h":200,
+    "average_actual_input_rate_ml_h":190,
+    "remaining_at_hour_end_ml":210
+  }
+]

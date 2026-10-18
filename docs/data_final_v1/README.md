@@ -58,4 +58,6 @@ targets另提供已量化原始主补液加液量recorded_source_added_ml及独�
 
 源指纹、原表一致性、分段积分、库存核算、因果时点和文件完整性检查属于程序与来源核验。独立医生盲法复核仍未完成；“Final”表示本次研究数据规则和版本固定，不表示每条记录已取得独立临床真值认证。
 
-详细提取方法见[METHODS.md](METHODS.md)，逐表字段见[fields.csv](fields.csv)，临床变量与聚合规则见[clinical_fields.csv](clinical_fields.csv)。原始来源、当前提取、回顾性估计与预测输入的边界在方法中分别说明。
+详细提取方法见[METHODS.md](METHODS.md)，逐表字段见[fields.json](fields.json)，临床变量与聚合规则见[clinical_fields.json](clinical_fields.json)。原始来源、当前提取、回顾性估计与预测输入的边界在方法中分别说明。
+
+公开字典和合成示例以JSON发布，遵守仓库禁止数据CSV入库的规则；本地包内仍使用CSV字典，两者字段内容相同。
