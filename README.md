@@ -1,6 +1,6 @@
-<!--
-
 # BurnResu: A Multi-Task Temporal Prediction Framework for Early Burn Resuscitation
+
+[![CI](https://github.com/Aveouter/Fluid_Infusion_Decision/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/Aveouter/Fluid_Infusion_Decision/actions/workflows/ci.yml)
 
 > **Xinyu Liu, Jingyuan Lang, Xiaoguang Lin, Haisheng Li, Ranran Sun, Xueliang Zhao, Qihan Wu, Zhiqiang Yuan, Ning Li, Gaoxing Luo**
 >
@@ -211,8 +211,8 @@ Loss weights: $\lambda_{\mathrm{cls}}=1.0$, $\lambda_{\mathrm{cum}}=0.5$, $\lamb
 ## Installation
 
 ```bash
-git clone https://github.com/Aveouter/BurnResu.git
-cd BurnResu
+git clone https://github.com/Aveouter/Fluid_Infusion_Decision.git
+cd Fluid_Infusion_Decision
 
 # Runtime dependencies (versions verified on Python 3.12)
 pip install -r requirements.txt
@@ -243,9 +243,25 @@ Every test uses synthetic fixtures only. The suite does **not** read any clinica
 record under `data/`, so it is safe to run on public CI.
 
 ```bash
+# Local GPU environment
 pip install -r requirements-dev.txt
+
+# CPU-only environment (same as CI)
+pip install -r requirements-ci.txt
+
 pytest -q
 ```
+
+CI runs four independent gates on every pull request and on `main`:
+
+| Gate | Command |
+| --- | --- |
+| `lint` | `python -m ruff check .` |
+| `protocol-freeze` | `python freeze_eval_protocol.py` |
+| `repo-hygiene` | `python tools/check_repo_hygiene.py` |
+| `test` | `python -m pytest` |
+
+See [`docs/ci_cd.md`](docs/ci_cd.md) for the release procedure and known limits.
 
 - `tests/test_smoke.py` — all six builders (full model plus the five ablation
   variants) complete a CPU forward/backward pass; output shapes and the ZILN
@@ -395,4 +411,4 @@ This project is for research purposes. The data used in this study are not publi
 - **Haisheng Li** — Southwest Hospital, Third Military Medical University
 - **Gaoxing Luo** — Institute of Burn Research, Southwest Hospital
 
-Source code: [https://github.com/Aveouter/BurnResu](https://github.com/Aveouter/BurnResu)
+Source code: [https://github.com/Aveouter/Fluid_Infusion_Decision](https://github.com/Aveouter/Fluid_Infusion_Decision)
