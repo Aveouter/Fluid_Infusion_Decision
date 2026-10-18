@@ -1,0 +1,182 @@
+name: Release
+
+# tag 发布：先在 tag commit 上重跑全部门禁，再生成可复现清单并创建 GitHub Release。
+# 手动 dispatch 可 dry_run：不填 tag、不创建 release，只验证并上传 evidence artifact。
+
+on:
+  push:
+    tags: ["v*.*.*"]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Tag to release (vMAJOR.MINOR.PATCH). Leave empty only when dry_run is true."
+        required: false
+        default: ""
+        type: string
+      dry_run:
+        description: "Run all gates and build the evidence manifest without creating a release."
+        required: false
+        default: false
+        type: boolean
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release-${{ inputs.tag || github.ref }}
+  cancel-in-progress: false
+
+env:
+  PYTHONUTF8: "1"
+  MPLBACKEND: "Agg"
+  PIP_DISABLE_PIP_VERSION_CHECK: "1"
+
+jobs:
+  release:
+    name: release
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    permissions:
+      contents: write
+    env:
+      CUDA_VISIBLE_DEVICES: ""
+      DRY_RUN: ${{ github.event_name == 'workflow_dispatch' && inputs.dry_run || 'false' }}
+    steps:
+      - name: Checkout release ref
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+        with:
+          ref: ${{ github.event_name == 'workflow_dispatch' && inputs.tag && format('refs/tags/{0}', inputs.tag) || github.ref }}
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Resolve and verify tag
+        id: meta
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          INPUT_TAG: ${{ inputs.tag }}
+          REF_NAME: ${{ github.ref_name }}
+        run: |
+          set -euo pipefail
+          if [ "$EVENT_NAME" = "workflow_dispatch" ]; then TAG="$INPUT_TAG"; else TAG="$REF_NAME"; fi
+          HEAD_SHA=$(git rev-parse HEAD)
+          echo "sha=$HEAD_SHA" >> "$GITHUB_OUTPUT"
+
+          if [ -z "$TAG" ]; then
+            if [ "$DRY_RUN" != "true" ]; then
+              echo "::error::tag is required when dry_run is false"
+              exit 1
+            fi
+            echo "tag=" >> "$GITHUB_OUTPUT"
+            echo "publish=false" >> "$GITHUB_OUTPUT"
+            echo "Dry run on $REF_NAME at $HEAD_SHA (no tag); validation only."
+            exit 0
+          fi
+
+          if ! printf '%s' "$TAG" | grep -Eq '^v[0-9]+\.[0-9]+\.[0-9]+$'; then
+            echo "::error::tag '$TAG' is not vMAJOR.MINOR.PATCH"
+            exit 1
+          fi
+
+          if ! git rev-parse -q --verify "refs/tags/$TAG^{commit}" >/dev/null; then
+            git fetch --no-tags origin "+refs/tags/$TAG:refs/tags/$TAG"
+          fi
+          TAG_SHA=$(git rev-parse "refs/tags/$TAG^{commit}")
+          if [ "$TAG_SHA" != "$HEAD_SHA" ]; then
+            echo "::error::HEAD $HEAD_SHA does not match tag $TAG ($TAG_SHA)"
+            exit 1
+          fi
+
+          if ! git rev-parse -q --verify refs/remotes/origin/main >/dev/null; then
+            git fetch --no-tags origin "+refs/heads/main:refs/remotes/origin/main"
+          fi
+          if ! git merge-base --is-ancestor "$HEAD_SHA" refs/remotes/origin/main; then
+            echo "::error::tag commit $HEAD_SHA is not on main"
+            exit 1
+          fi
+          if [ "$HEAD_SHA" != "$(git rev-parse refs/remotes/origin/main)" ]; then
+            echo "::warning::tag $TAG is not the tip of main"
+          fi
+
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+          if [ "$DRY_RUN" = "true" ]; then
+            echo "publish=false" >> "$GITHUB_OUTPUT"
+            echo "Dry run for $TAG; no release will be created."
+          else
+            echo "publish=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97  # v7.0.0
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: |
+            requirements-base.txt
+            requirements-ci.txt
+
+      - name: Install dependencies
+        run: python -m pip install -r requirements-ci.txt
+
+      - name: Lint
+        run: python -m ruff check .
+
+      - name: Verify frozen evaluation protocol
+        run: python freeze_eval_protocol.py
+
+      - name: Check tracked tree hygiene
+        run: python tools/check_repo_hygiene.py
+
+      - name: Run tests
+        run: |
+          mkdir -p artifacts
+          python -m pytest --color=no --junitxml=artifacts/junit.xml
+
+      - name: Upload JUnit report
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9  # v7.0.2
+        with:
+          name: release-junit-${{ github.run_id }}
+          path: artifacts/junit.xml
+          if-no-files-found: warn
+          retention-days: 14
+
+      - name: Build reproducibility manifest
+        env:
+          TAG: ${{ steps.meta.outputs.tag }}
+        run: |
+          set -euo pipefail
+          extra=()
+          if [ "$DRY_RUN" = "true" ]; then extra+=(--dry-run); fi
+          python tools/build_release_manifest.py \
+            --output artifacts/release-manifest.json \
+            --tag "$TAG" \
+            --ref "$GITHUB_REF" \
+            "${extra[@]}" \
+            artifacts/junit.xml docs/eval_protocol.json docs/eval_protocol.md
+
+      - name: Upload release evidence
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9  # v7.0.2
+        with:
+          name: release-evidence-${{ steps.meta.outputs.sha }}
+          path: artifacts/
+          if-no-files-found: error
+          retention-days: 30
+
+      - name: Publish GitHub Release
+        if: ${{ steps.meta.outputs.publish == 'true' }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ steps.meta.outputs.tag }}
+        run: |
+          set -euo pipefail
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            echo "::error::release $TAG already exists; refusing to overwrite"
+            exit 1
+          fi
+          gh release create "$TAG" \
+            --verify-tag \
+            --title "$TAG" \
+            --generate-notes \
+            artifacts/release-manifest.json \
+            artifacts/junit.xml \
+            docs/eval_protocol.json \
+            docs/eval_protocol.md

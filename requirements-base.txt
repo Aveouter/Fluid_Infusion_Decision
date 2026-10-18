@@ -1,0 +1,10 @@
+# 运行时公共依赖（不含 torch）。
+# torch 按设备在 requirements.txt / requirements-ci.txt 中选择，避免装错轮子。
+numpy==2.5.4
+pandas==3.0.6
+scikit-learn==1.9.1
+scipy==1.18.1
+matplotlib==3.11.2
+openpyxl==3.1.5
+tqdm==4.70.1
+requests==2.34.2

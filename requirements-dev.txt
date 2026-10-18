@@ -1,3 +1,4 @@
 # 开发与测试依赖（见 issue #3）
 -r requirements.txt
+-r requirements-lint.txt
 pytest==9.1.1

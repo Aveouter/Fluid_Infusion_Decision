@@ -14,7 +14,6 @@ import numpy as np
 import pytest
 
 from tests import eval_fixtures as F
-from utils import baselines as B
 from utils import eval_protocol as P
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -45,8 +44,7 @@ def _synthetic_bundle(path: Path, *, n_patients: int = 4, hours: int = 24) -> Pa
              "target_bits": np.stack(tb), "target_rates": np.stack(tr),
              "prob": np.stack(prob), "speed": np.stack(speed)}
     share["rate"] = share["prob"] * share["speed"]
-    pers = np.stack([B.persistence_next(t[None, :] * 0 + t) if False else
-                     np.concatenate([b[:3], r]) for b, r in
+    pers = np.stack([np.concatenate([b[:3], r]) for b, r in
                      zip(share["target_bits"], share["target_rates"])])
     share["pers_bits"], share["pers_rates"] = pers[:, :3], pers[:, 3:]
     share["ma_bits"], share["ma_rates"] = pers[:, :3], pers[:, 3:]
