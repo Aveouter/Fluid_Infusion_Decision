@@ -1,0 +1,25 @@
+# 最小门禁：语法错误、未定义名字、__all__ 破损、赋值前使用。
+# 有意不做风格检查；格式问题不应阻塞研究代码。
+target-version = "py312"
+
+# extend-exclude 是追加到 Ruff 默认排除项；顶层 exclude 会替换默认值。
+extend-exclude = [
+  ".audit",
+  "artifacts",
+  "ckpts",
+  "data",
+  "docs/experiments",
+  "draw",
+  "Fig",
+  "ml_output*",
+  "outputs",
+  "per_patient_outputs*",
+  "preds",
+  "reports",
+  "results_plus",
+  "runs",
+  "scripts",
+]
+
+[lint]
+select = ["E9", "F63", "F821", "F822", "F823"]

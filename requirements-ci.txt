@@ -1,0 +1,6 @@
+# CI 与 release 校验：CPU-only torch，避免在 ubuntu-latest 下载 CUDA 依赖。
+--extra-index-url https://download.pytorch.org/whl/cpu
+-r requirements-base.txt
+-r requirements-lint.txt
+torch==2.14.1+cpu
+pytest==9.1.1

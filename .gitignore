@@ -13,7 +13,6 @@ ckpts/
 outputs/
 runs/
 __pycache__/
-data/
 per_patient_outputs/
 results_plus/
 Fig/
@@ -41,3 +40,21 @@ EAAI_review_letter_original.txt
 
 # 评测产物（逐窗口预测，体积大且可重建）
 preds/
+
+# 生成产物与数据（公开仓库禁止提交；CI 由 tools/check_repo_hygiene.py 再校验）
+reports/
+artifacts/
+junit.xml
+*.csv
+*.xls
+*.xlsx
+*.pkl
+*.joblib
+*.npy
+*.parquet
+*.onnx
+.env
+.env.*
+!.env.example
+ml_output/
+.ruff_cache/
