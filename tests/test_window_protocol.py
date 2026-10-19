@@ -326,6 +326,33 @@ def test_train_augmenter_must_not_reorder_time():
     assert getattr(aug, "p_timewarp", 0.0) == 0.0, (
         "训练增强启用了 time_warp_uniform：会破坏 H/P 边界的时间对齐"
     )
+    assert aug.history_length == 4
+    assert aug.feature_cols == tuple(range(1, 9))
+    assert aug.p_mask == 0.0
+
+
+def test_online_augmentation_preserves_target_and_engineered_features():
+    """增强只能改变历史测量值，不能改变时间、累计体积、目标或标签。"""
+    from utils.ts_augmentation_toolkit import TSAugmenter
+
+    x = torch.arange(6 * 13, dtype=torch.float32).reshape(6, 13)
+    b = torch.tensor([1.0])
+    y = torch.arange(6 * 6, dtype=torch.float32).reshape(6, 6)
+    aug = TSAugmenter(
+        history_length=4, feature_cols=tuple(range(1, 9)),
+        p_jitter=1.0, jitter_sigma=1.0,
+        p_scale=0.0, p_mask=0.0, p_timewarp=0.0,
+        p_perm=0.0, p_magwarp=0.0,
+    )
+    torch.manual_seed(7)
+    out, out_b, out_y = aug(x, b, y)
+    assert not torch.equal(out[:4, 1:9], x[:4, 1:9])
+    torch.testing.assert_close(out[4:], x[4:])
+    torch.testing.assert_close(out[:, 0], x[:, 0])
+    torch.testing.assert_close(out[:, 9:], x[:, 9:])
+    torch.testing.assert_close(out_b, b)
+    torch.testing.assert_close(out_y, y)
+    torch.testing.assert_close(x, torch.arange(6 * 13, dtype=torch.float32).reshape(6, 13))
 
 
 def test_permute_blocks_moves_target_segments_into_input():

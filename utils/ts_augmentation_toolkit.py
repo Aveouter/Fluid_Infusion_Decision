@@ -219,6 +219,8 @@ class TSAugmenter:
     clamp_positive_cols: Optional[Tuple[int, ...]] = None  # columns (in x) that must stay ≥0
     x_max_clip: Optional[float] = None
     recompute_cumvol_after: bool = False
+    history_length: Optional[int] = None
+    feature_cols: Optional[Tuple[int, ...]] = None
 
     def __init__(
         self,
@@ -237,6 +239,8 @@ class TSAugmenter:
         clamp_positive_cols: Optional[Tuple[int, ...]] = None,
         x_max_clip: Optional[float] = None,
         recompute_cumvol_after: bool = False,
+        history_length: Optional[int] = None,
+        feature_cols: Optional[Tuple[int, ...]] = None,
         **legacy_kwargs,
     ):
         """
@@ -264,6 +268,8 @@ class TSAugmenter:
         self.clamp_positive_cols = clamp_positive_cols
         self.x_max_clip = x_max_clip
         self.recompute_cumvol_after = recompute_cumvol_after
+        self.history_length = history_length
+        self.feature_cols = feature_cols
 
         # 旧→新 名称映射
         mapping = {
@@ -292,7 +298,15 @@ class TSAugmenter:
 
     def __call__(self, x: torch.Tensor, b: torch.Tensor, y: torch.Tensor):
         """x:(T,F), b:(...), y:(T,>=6)  -> possibly augmented triplet."""
-        x_aug = x
+        if self.history_length is not None and not 0 < self.history_length <= x.size(0):
+            raise ValueError("history_length must fall within the input window")
+        if self.feature_cols is not None and any(c < 0 or c >= x.size(1) for c in self.feature_cols):
+            raise ValueError("feature_cols contains an invalid column")
+        if (self.history_length is not None or self.feature_cols is not None) and (self.p_timewarp or self.p_perm):
+            raise ValueError("time-axis transforms are unsafe with restricted augmentation")
+        end = self.history_length if self.history_length is not None else x.size(0)
+        cols = self.feature_cols if self.feature_cols is not None else tuple(range(x.size(1)))
+        x_aug = x[:end, list(cols)].clone()
         if _rand_bool(self.p_jitter):
             x_aug = jitter(x_aug, self.jitter_sigma)
         if _rand_bool(self.p_scale):
@@ -317,7 +331,9 @@ class TSAugmenter:
         if self.recompute_cumvol_after:
             x_aug = recompute_cumvol(x_aug, y)
 
-        return x_aug, b, y
+        result = x.clone()
+        result[:end, list(cols)] = x_aug
+        return result, b, y
 
 
 __all__ = [
