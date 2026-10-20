@@ -14,7 +14,7 @@
 
 **Internal working draft — do not submit until all items above are checked and all bracketed fields are replaced.**
 
-October 19, 2026
+October 20, 2026
 
 Editor-in-Chief  
 *Engineering Applications of Artificial Intelligence*
