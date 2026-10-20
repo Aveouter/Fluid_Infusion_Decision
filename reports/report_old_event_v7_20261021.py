@@ -282,7 +282,10 @@ def main():
                          fmt(summary["event_f1"], 4), fmt(summary["zero_flow_accuracy"], 4)])
         lines += [table(["方法", "设置 MAE", "变化小时 MAE", "严格动作 F1", "事件 F1", "零流精确率"],
                         rows), ""]
-        lines += ["原模型的 `speed` 头不是 `rate`；本表只用 `rate`，与 PR #101 的口径一致。", ""]
+        lines += ["原模型的 `speed` 头不是 `rate`；本表只用 `rate`，与 PR #101 的口径一致。"
+                  f"V7.1 的事件 F1 为 {payload['summaries']['V7_prev_base']['event_f1']:.3f}，"
+                  f"原模型为 {payload['summaries']['original_BurnResu_rate']['event_f1']:.3f}，略低；"
+                  "但严格动作 F1、总体 MAE 与零流精确率显著更好。", ""]
 
     history = REPORT / "history_ablation.json"
     if history.exists():
