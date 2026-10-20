@@ -1,0 +1,1067 @@
+{
+  "schema_version": 1,
+  "date": "2026-10-21",
+  "protocol": {
+    "version": "2.0",
+    "hash": "849a59c17baf8815",
+    "eval_mode": "one_step_observed_history",
+    "split": "historical 15% test",
+    "quality_track": "main"
+  },
+  "cohort": {
+    "patients": 55,
+    "windows": 3622,
+    "note": "single retrospective evaluation; not nested or external validation"
+  },
+  "checkpoint": {
+    "file": "ckpts/tcn_film_best_f1_0.7203_mae_21.3136.pth",
+    "epoch": 15,
+    "best_score": 0.7146202386775634,
+    "note": "the paper's 2025-11-03 test log loaded epoch 15 with this best_score"
+  },
+  "input": {
+    "data": "data/output_data.pkl (legacy format with label)",
+    "baseline": "data/baseline.pkl with None -> 0 for 205 patients",
+    "note": "data/output_data_final.pkl no longer carries the label field"
+  },
+  "old_metric_mapping": {
+    "paper_positive_flow_mae_ml_per_h": 27.44,
+    "v2_speed_pooled_positive_flow_mae_ml_per_h": 27.4488,
+    "paper_positive_flow_r2": 0.82,
+    "v2_speed_pooled_positive_flow_r2": 0.8213,
+    "v2_rate_pooled_positive_flow_mae_ml_per_h": 81.38,
+    "v2_rate_pooled_positive_flow_r2": 0.295,
+    "v2_rate_patient_mean_positive_flow_mae_ml_per_h": 90.8361,
+    "v2_speed_patient_mean_positive_flow_mae_ml_per_h": 30.0868,
+    "note": "run_epoch.py:345 scores flow_pred, not rate = prob_cls * speed"
+  },
+  "p1_cumulative_dose": {
+    "rate": {
+      "mae_ml": {
+        "24": 1693.2979117411155,
+        "48": 2036.7523870791,
+        "72": 2699.6505454727944
+      },
+      "bias_ml": {
+        "24": 1258.7971334479473,
+        "48": 1422.3219404617946,
+        "72": 2247.5195756973103
+      },
+      "n_patients_72h": 47
+    },
+    "action_rate_uncond": {
+      "mae_ml": {
+        "24": 3300.245111288848,
+        "48": 5459.611510356267,
+        "72": 7049.528504229606
+      },
+      "bias_ml": {
+        "24": 3259.6769706231576,
+        "48": 5426.644905408223,
+        "72": 7007.782201969877
+      },
+      "n_patients_72h": 47
+    },
+    "persistence": {
+      "mae_ml": {
+        "24": 330.27777777777777,
+        "48": 208.54166666666666,
+        "72": 164.14893617021278
+      },
+      "bias_ml": {
+        "24": -330.27777777777777,
+        "48": -208.54166666666666,
+        "72": -164.14893617021278
+      },
+      "n_patients_72h": 47
+    },
+    "moving_average": {
+      "mae_ml": {
+        "24": 645.0926219710598,
+        "48": 423.2292373577754,
+        "72": 322.48236365013935
+      },
+      "bias_ml": {
+        "24": -645.0926219710598,
+        "48": -423.2292373577754,
+        "72": -322.48236365013935
+      },
+      "n_patients_72h": 47
+    }
+  },
+  "p1_bias_by_fluid_72h": {
+    "rate": {
+      "crystal": 43.66558838905172,
+      "colloid": -150.18255538001975,
+      "water": 2354.0365426882786
+    }
+  },
+  "p2_tolerance": {
+    "rate": {
+      "joint_24h": 0.125,
+      "joint_72h": 0.0851063829787234,
+      "zero_dose_accuracy_24h": 0.0,
+      "zero_dose_n_24h": 6
+    },
+    "action_rate_uncond": {
+      "joint_24h": 0.10416666666666667,
+      "joint_72h": 0.10638297872340426,
+      "zero_dose_accuracy_24h": 0.8333333333333334,
+      "zero_dose_n_24h": 6
+    },
+    "persistence": {
+      "joint_24h": 0.3541666666666667,
+      "joint_72h": 0.7021276595744681,
+      "zero_dose_accuracy_24h": 1.0,
+      "zero_dose_n_24h": 6
+    },
+    "moving_average": {
+      "joint_24h": 0.125,
+      "joint_72h": 0.3404255319148936,
+      "zero_dose_accuracy_24h": 1.0,
+      "zero_dose_n_24h": 6
+    }
+  },
+  "p3_activity": {
+    "rate": {
+      "macro_f1": {
+        "value": 0.6893643688431642,
+        "ci_low": 0.6548227900576885,
+        "ci_high": 0.7188017142875299,
+        "n_patients": 55
+      },
+      "micro_f1": {
+        "value": 0.6985794901731854,
+        "ci_low": 0.6644781675047412,
+        "ci_high": 0.7283606640378992,
+        "n_patients": 55
+      }
+    },
+    "action_rate_uncond": {
+      "macro_f1": {
+        "value": 0.6893643688431642,
+        "ci_low": 0.6548227900576885,
+        "ci_high": 0.7188017142875299,
+        "n_patients": 55
+      },
+      "micro_f1": {
+        "value": 0.6985794901731854,
+        "ci_low": 0.6644781675047412,
+        "ci_high": 0.7283606640378992,
+        "n_patients": 55
+      }
+    },
+    "persistence": {
+      "macro_f1": {
+        "value": 0.6687658149953233,
+        "ci_low": 0.6264607670217353,
+        "ci_high": 0.7044602835200032,
+        "n_patients": 55
+      },
+      "micro_f1": {
+        "value": 0.6817711328349626,
+        "ci_low": 0.6397293321977042,
+        "ci_high": 0.7174400851907285,
+        "n_patients": 55
+      }
+    },
+    "moving_average": {
+      "macro_f1": {
+        "value": 0.6853722073410694,
+        "ci_low": 0.6490075273480741,
+        "ci_high": 0.7182519019120569,
+        "n_patients": 55
+      },
+      "micro_f1": {
+        "value": 0.6987706812089842,
+        "ci_low": 0.6624630458861951,
+        "ci_high": 0.7331935709395113,
+        "n_patients": 55
+      }
+    }
+  },
+  "strict_action_exploratory": {
+    "note": "Final action_classes applied to the old rate labels; not the Final model's strict action endpoint",
+    "methods": {
+      "rate": {
+        "strict_f1": 0.2397384671267708,
+        "strict_f1_macro3": 0.23834027693629753,
+        "event_f1": 0.4898898171691488,
+        "true_events": 2897,
+        "predicted_events": 5362,
+        "per_class_support": [
+          7969,
+          1331,
+          1270,
+          110,
+          186
+        ],
+        "per_class_predicted": [
+          5504,
+          2801,
+          0,
+          7,
+          2554
+        ],
+        "confusion": [
+          [
+            4630,
+            1965,
+            0,
+            4,
+            1370
+          ],
+          [
+            495,
+            836,
+            0,
+            0,
+            0
+          ],
+          [
+            303,
+            0,
+            0,
+            1,
+            966
+          ],
+          [
+            42,
+            0,
+            0,
+            2,
+            66
+          ],
+          [
+            34,
+            0,
+            0,
+            0,
+            152
+          ]
+        ],
+        "classes": [
+          "hold_or_small",
+          "start",
+          "stop",
+          "up",
+          "down"
+        ]
+      },
+      "action_rate_uncond": {
+        "strict_f1": 0.30037390943082676,
+        "strict_f1_macro3": 0.3011833924416717,
+        "event_f1": 0.3406730369754882,
+        "true_events": 2897,
+        "predicted_events": 1917,
+        "per_class_support": [
+          7969,
+          1331,
+          1270,
+          110,
+          186
+        ],
+        "per_class_predicted": [
+          8949,
+          1632,
+          83,
+          44,
+          158
+        ],
+        "confusion": [
+          [
+            6872,
+            996,
+            22,
+            34,
+            45
+          ],
+          [
+            695,
+            636,
+            0,
+            0,
+            0
+          ],
+          [
+            1119,
+            0,
+            59,
+            6,
+            86
+          ],
+          [
+            104,
+            0,
+            1,
+            3,
+            2
+          ],
+          [
+            159,
+            0,
+            1,
+            1,
+            25
+          ]
+        ],
+        "classes": [
+          "hold_or_small",
+          "start",
+          "stop",
+          "up",
+          "down"
+        ]
+      },
+      "speed": {
+        "strict_f1": 0.2914007571660357,
+        "strict_f1_macro3": 0.2932241385469741,
+        "event_f1": 0.3143320713899405,
+        "true_events": 2897,
+        "predicted_events": 6348,
+        "per_class_support": [
+          7969,
+          1331,
+          1270,
+          110,
+          186
+        ],
+        "per_class_predicted": [
+          4518,
+          6131,
+          0,
+          45,
+          172
+        ],
+        "confusion": [
+          [
+            3074,
+            4813,
+            0,
+            35,
+            47
+          ],
+          [
+            13,
+            1318,
+            0,
+            0,
+            0
+          ],
+          [
+            1167,
+            0,
+            0,
+            6,
+            97
+          ],
+          [
+            105,
+            0,
+            0,
+            3,
+            2
+          ],
+          [
+            159,
+            0,
+            0,
+            1,
+            26
+          ]
+        ],
+        "classes": [
+          "hold_or_small",
+          "start",
+          "stop",
+          "up",
+          "down"
+        ]
+      },
+      "persistence": {
+        "strict_f1": 0.0,
+        "strict_f1_macro3": 0.0,
+        "event_f1": 0.0,
+        "true_events": 2897,
+        "predicted_events": 0,
+        "per_class_support": [
+          7969,
+          1331,
+          1270,
+          110,
+          186
+        ],
+        "per_class_predicted": [
+          10866,
+          0,
+          0,
+          0,
+          0
+        ],
+        "confusion": [
+          [
+            7969,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            1331,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            1270,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            110,
+            0,
+            0,
+            0,
+            0
+          ],
+          [
+            186,
+            0,
+            0,
+            0,
+            0
+          ]
+        ],
+        "classes": [
+          "hold_or_small",
+          "start",
+          "stop",
+          "up",
+          "down"
+        ]
+      },
+      "moving_average": {
+        "strict_f1": 0.23291139240506328,
+        "strict_f1_macro3": 0.2301915209075794,
+        "event_f1": 0.5069247952345495,
+        "true_events": 2897,
+        "predicted_events": 3818,
+        "per_class_support": [
+          7969,
+          1331,
+          1270,
+          110,
+          186
+        ],
+        "per_class_predicted": [
+          7048,
+          1684,
+          0,
+          91,
+          2043
+        ],
+        "confusion": [
+          [
+            5853,
+            1014,
+            0,
+            58,
+            1044
+          ],
+          [
+            661,
+            670,
+            0,
+            0,
+            0
+          ],
+          [
+            408,
+            0,
+            0,
+            22,
+            840
+          ],
+          [
+            49,
+            0,
+            0,
+            7,
+            54
+          ],
+          [
+            77,
+            0,
+            0,
+            4,
+            105
+          ]
+        ],
+        "classes": [
+          "hold_or_small",
+          "start",
+          "stop",
+          "up",
+          "down"
+        ]
+      }
+    }
+  },
+  "secondary": {
+    "rate": {
+      "all_hours_mae": 78.92502049853232,
+      "positive_flow_mae": 90.8361424777521,
+      "zero_flow_mae": 81.55310298465457,
+      "positive_flow_smape": 59.49537540488463,
+      "r2_positive_flow": 0.29498766333170423,
+      "macro_auc": 0.8102593603555363,
+      "brier_mean": 0.17785853251137884,
+      "ece_macro": 0.07150442293273777,
+      "change_point_f1_exact": 0.40630472854640987,
+      "change_point_f1": 0.7751313485113837,
+      "change_timing_unmatched_true": 684,
+      "no_change_hour_mae": 33.88056719864595,
+      "false_change_rate": 0.07529175555276697,
+      "change_hour_mae": 135.63647037088762,
+      "change_timing_mean_lag": 0.4487121554450971,
+      "n1_direction_concordance": 0.9778024417314095,
+      "n1_false_change_rate": 0.37471867966991745,
+      "total_variation_ratio": 0.4562015310663655
+    },
+    "persistence": {
+      "all_hours_mae": 61.528975558453496,
+      "positive_flow_mae": 90.32777996376768,
+      "zero_flow_mae": 51.54604104139962,
+      "positive_flow_smape": 75.38948706384707,
+      "r2_positive_flow": -0.29816439237305703,
+      "macro_auc": null,
+      "brier_mean": null,
+      "ece_macro": null,
+      "change_point_f1_exact": 0.43858431644691187,
+      "change_point_f1": 0.9947952810548231,
+      "change_timing_unmatched_true": 30,
+      "no_change_hour_mae": 2.3344709897610922,
+      "false_change_rate": 0.0,
+      "change_hour_mae": 213.46342962507683,
+      "change_timing_mean_lag": 0.9755842343913499,
+      "n1_direction_concordance": 0.0,
+      "n1_false_change_rate": 0.0,
+      "total_variation_ratio": 0.9905916865049549
+    },
+    "moving_average": {
+      "all_hours_mae": 65.46163075470452,
+      "positive_flow_mae": 97.37640858013282,
+      "zero_flow_mae": 54.56396058475286,
+      "positive_flow_smape": 72.18324634921053,
+      "r2_positive_flow": 0.00491428277505912,
+      "macro_auc": null,
+      "brier_mean": null,
+      "ece_macro": null,
+      "change_point_f1_exact": 0.43755295712591086,
+      "change_point_f1": 0.6775122860532113,
+      "change_timing_unmatched_true": 898,
+      "no_change_hour_mae": 14.382252825649118,
+      "false_change_rate": 0.12611369055088467,
+      "change_hour_mae": 161.48535188195453,
+      "change_timing_mean_lag": 0.14507253626813407,
+      "n1_direction_concordance": 0.6256011838697744,
+      "n1_false_change_rate": 0.20805201300325082,
+      "total_variation_ratio": 0.4448701533369903
+    }
+  },
+  "paired": [
+    {
+      "model": "rate",
+      "baseline": "persistence",
+      "endpoint": "P1_cumulative_dose_mae",
+      "horizon_hours": 24,
+      "delta": 1363.0201339633377,
+      "ci_low": 808.5156352364354,
+      "ci_high": 2011.2999510590128,
+      "crosses_zero": false,
+      "n_patients": 54
+    },
+    {
+      "model": "rate",
+      "baseline": "persistence",
+      "endpoint": "P1_cumulative_dose_bias",
+      "horizon_hours": 24,
+      "delta": 1589.0749112257251,
+      "ci_low": 969.7650730661496,
+      "ci_high": 2297.6638743302888,
+      "crosses_zero": false,
+      "n_patients": 54
+    },
+    {
+      "model": "rate",
+      "baseline": "persistence",
+      "endpoint": "P2_tolerance_joint",
+      "horizon_hours": 24,
+      "delta": -0.22916666666666669,
+      "ci_low": -0.39583333333333326,
+      "ci_high": -0.0625,
+      "crosses_zero": false,
+      "n_patients": 48
+    },
+    {
+      "model": "rate",
+      "baseline": "persistence",
+      "endpoint": "P1_cumulative_dose_mae",
+      "horizon_hours": 48,
+      "delta": 1828.2107204124331,
+      "ci_low": 1252.2746795182738,
+      "ci_high": 2474.0158467097517,
+      "crosses_zero": false,
+      "n_patients": 48
+    },
+    {
+      "model": "rate",
+      "baseline": "persistence",
+      "endpoint": "P1_cumulative_dose_bias",
+      "horizon_hours": 48,
+      "delta": 1630.8636071284614,
+      "ci_low": 913.118810125006,
+      "ci_high": 2470.614129013102,
+      "crosses_zero": false,
+      "n_patients": 48
+    },
+    {
+      "model": "rate",
+      "baseline": "persistence",
+      "endpoint": "P2_tolerance_joint",
+      "horizon_hours": 48,
+      "delta": -0.574468085106383,
+      "ci_low": -0.723404255319149,
+      "ci_high": -0.4250000000000029,
+      "crosses_zero": false,
+      "n_patients": 47
+    },
+    {
+      "model": "rate",
+      "baseline": "persistence",
+      "endpoint": "P1_cumulative_dose_mae",
+      "horizon_hours": 72,
+      "delta": 2535.5016093025815,
+      "ci_low": 1785.9566854003579,
+      "ci_high": 3354.2353751749747,
+      "crosses_zero": false,
+      "n_patients": 47
+    },
+    {
+      "model": "rate",
+      "baseline": "persistence",
+      "endpoint": "P1_cumulative_dose_bias",
+      "horizon_hours": 72,
+      "delta": 2411.668511867523,
+      "ci_low": 1535.7867588176691,
+      "ci_high": 3375.5558930577117,
+      "crosses_zero": false,
+      "n_patients": 47
+    },
+    {
+      "model": "rate",
+      "baseline": "persistence",
+      "endpoint": "P2_tolerance_joint",
+      "horizon_hours": 72,
+      "delta": -0.6170212765957447,
+      "ci_low": -0.7659574468085106,
+      "ci_high": -0.46808510638297873,
+      "crosses_zero": false,
+      "n_patients": 47
+    },
+    {
+      "model": "rate",
+      "baseline": "persistence",
+      "endpoint": "P3_macro_f1",
+      "horizon_hours": null,
+      "delta": 0.020598553847840928,
+      "ci_low": 0.003449509848268159,
+      "ci_high": 0.03952556667207213,
+      "crosses_zero": false,
+      "n_patients": 55
+    },
+    {
+      "model": "rate",
+      "baseline": "persistence",
+      "endpoint": "P3_micro_f1",
+      "horizon_hours": null,
+      "delta": 0.016808357338222835,
+      "ci_low": 0.0008705284030003925,
+      "ci_high": 0.03397380028438221,
+      "crosses_zero": false,
+      "n_patients": 55
+    },
+    {
+      "model": "rate",
+      "baseline": "moving_average",
+      "endpoint": "P1_cumulative_dose_mae",
+      "horizon_hours": 24,
+      "delta": 1048.2052897700557,
+      "ci_low": 487.29920551914864,
+      "ci_high": 1720.109891346511,
+      "crosses_zero": false,
+      "n_patients": 54
+    },
+    {
+      "model": "rate",
+      "baseline": "moving_average",
+      "endpoint": "P1_cumulative_dose_bias",
+      "horizon_hours": 24,
+      "delta": 1903.889755419007,
+      "ci_low": 1284.9667001732798,
+      "ci_high": 2602.1863155480055,
+      "crosses_zero": false,
+      "n_patients": 54
+    },
+    {
+      "model": "rate",
+      "baseline": "moving_average",
+      "endpoint": "P2_tolerance_joint",
+      "horizon_hours": 24,
+      "delta": 0.0,
+      "ci_low": -0.125,
+      "ci_high": 0.12499999999999999,
+      "crosses_zero": true,
+      "n_patients": 48
+    },
+    {
+      "model": "rate",
+      "baseline": "moving_average",
+      "endpoint": "P1_cumulative_dose_mae",
+      "horizon_hours": 48,
+      "delta": 1613.5231497213244,
+      "ci_low": 1069.2524014777505,
+      "ci_high": 2204.064682965477,
+      "crosses_zero": false,
+      "n_patients": 48
+    },
+    {
+      "model": "rate",
+      "baseline": "moving_average",
+      "endpoint": "P1_cumulative_dose_bias",
+      "horizon_hours": 48,
+      "delta": 1845.55117781957,
+      "ci_low": 1091.297349004665,
+      "ci_high": 2725.941542921246,
+      "crosses_zero": false,
+      "n_patients": 48
+    },
+    {
+      "model": "rate",
+      "baseline": "moving_average",
+      "endpoint": "P2_tolerance_joint",
+      "horizon_hours": 48,
+      "delta": -0.1702127659574468,
+      "ci_low": -0.2978723404255319,
+      "ci_high": -0.06382978723404253,
+      "crosses_zero": false,
+      "n_patients": 47
+    },
+    {
+      "model": "rate",
+      "baseline": "moving_average",
+      "endpoint": "P1_cumulative_dose_mae",
+      "horizon_hours": 72,
+      "delta": 2377.1681818226552,
+      "ci_low": 1620.212106062472,
+      "ci_high": 3182.168909597714,
+      "crosses_zero": false,
+      "n_patients": 47
+    },
+    {
+      "model": "rate",
+      "baseline": "moving_average",
+      "endpoint": "P1_cumulative_dose_bias",
+      "horizon_hours": 72,
+      "delta": 2570.0019393474495,
+      "ci_low": 1686.8522494060248,
+      "ci_high": 3546.3058122304515,
+      "crosses_zero": false,
+      "n_patients": 47
+    },
+    {
+      "model": "rate",
+      "baseline": "moving_average",
+      "endpoint": "P2_tolerance_joint",
+      "horizon_hours": 72,
+      "delta": -0.2553191489361702,
+      "ci_low": -0.4042553191489362,
+      "ci_high": -0.10638297872340424,
+      "crosses_zero": false,
+      "n_patients": 47
+    },
+    {
+      "model": "rate",
+      "baseline": "moving_average",
+      "endpoint": "P3_macro_f1",
+      "horizon_hours": null,
+      "delta": 0.003992161502094804,
+      "ci_low": -0.007249179593669924,
+      "ci_high": 0.014758781202398886,
+      "crosses_zero": true,
+      "n_patients": 55
+    },
+    {
+      "model": "rate",
+      "baseline": "moving_average",
+      "endpoint": "P3_micro_f1",
+      "horizon_hours": null,
+      "delta": -0.00019119103579878782,
+      "ci_low": -0.011244444623264146,
+      "ci_high": 0.010591052098318279,
+      "crosses_zero": true,
+      "n_patients": 55
+    },
+    {
+      "model": "action_rate_uncond",
+      "baseline": "persistence",
+      "endpoint": "P1_cumulative_dose_mae",
+      "horizon_hours": 24,
+      "delta": 2969.96733351107,
+      "ci_low": 1975.662063240122,
+      "ci_high": 3980.6941907423516,
+      "crosses_zero": false,
+      "n_patients": 54
+    },
+    {
+      "model": "action_rate_uncond",
+      "baseline": "persistence",
+      "endpoint": "P1_cumulative_dose_bias",
+      "horizon_hours": 24,
+      "delta": 3589.9547484009354,
+      "ci_low": 2507.863979970967,
+      "ci_high": 4687.461773412316,
+      "crosses_zero": false,
+      "n_patients": 54
+    },
+    {
+      "model": "action_rate_uncond",
+      "baseline": "persistence",
+      "endpoint": "P2_tolerance_joint",
+      "horizon_hours": 24,
+      "delta": -0.25,
+      "ci_low": -0.3958333333333333,
+      "ci_high": -0.10416666666666666,
+      "crosses_zero": false,
+      "n_patients": 48
+    },
+    {
+      "model": "action_rate_uncond",
+      "baseline": "persistence",
+      "endpoint": "P1_cumulative_dose_mae",
+      "horizon_hours": 48,
+      "delta": 5251.0698436896,
+      "ci_low": 3515.3673329800367,
+      "ci_high": 7151.310335432489,
+      "crosses_zero": false,
+      "n_patients": 48
+    },
+    {
+      "model": "action_rate_uncond",
+      "baseline": "persistence",
+      "endpoint": "P1_cumulative_dose_bias",
+      "horizon_hours": 48,
+      "delta": 5635.18657207489,
+      "ci_low": 3859.694382392367,
+      "ci_high": 7615.690384539961,
+      "crosses_zero": false,
+      "n_patients": 48
+    },
+    {
+      "model": "action_rate_uncond",
+      "baseline": "persistence",
+      "endpoint": "P2_tolerance_joint",
+      "horizon_hours": 48,
+      "delta": -0.574468085106383,
+      "ci_low": -0.723404255319149,
+      "ci_high": -0.4250000000000029,
+      "crosses_zero": false,
+      "n_patients": 47
+    },
+    {
+      "model": "action_rate_uncond",
+      "baseline": "persistence",
+      "endpoint": "P1_cumulative_dose_mae",
+      "horizon_hours": 72,
+      "delta": 6885.379568059394,
+      "ci_low": 4592.16297660787,
+      "ci_high": 9365.911457481789,
+      "crosses_zero": false,
+      "n_patients": 47
+    },
+    {
+      "model": "action_rate_uncond",
+      "baseline": "persistence",
+      "endpoint": "P1_cumulative_dose_bias",
+      "horizon_hours": 72,
+      "delta": 7171.931138140089,
+      "ci_low": 4811.128393037268,
+      "ci_high": 9729.489135876107,
+      "crosses_zero": false,
+      "n_patients": 47
+    },
+    {
+      "model": "action_rate_uncond",
+      "baseline": "persistence",
+      "endpoint": "P2_tolerance_joint",
+      "horizon_hours": 72,
+      "delta": -0.5957446808510638,
+      "ci_low": -0.7446808510638298,
+      "ci_high": -0.44680851063829785,
+      "crosses_zero": false,
+      "n_patients": 47
+    },
+    {
+      "model": "action_rate_uncond",
+      "baseline": "persistence",
+      "endpoint": "P3_macro_f1",
+      "horizon_hours": null,
+      "delta": 0.020598553847840928,
+      "ci_low": 0.003449509848268159,
+      "ci_high": 0.03952556667207213,
+      "crosses_zero": false,
+      "n_patients": 55
+    },
+    {
+      "model": "action_rate_uncond",
+      "baseline": "persistence",
+      "endpoint": "P3_micro_f1",
+      "horizon_hours": null,
+      "delta": 0.016808357338222835,
+      "ci_low": 0.0008705284030003925,
+      "ci_high": 0.03397380028438221,
+      "crosses_zero": false,
+      "n_patients": 55
+    },
+    {
+      "model": "action_rate_uncond",
+      "baseline": "moving_average",
+      "endpoint": "P1_cumulative_dose_mae",
+      "horizon_hours": 24,
+      "delta": 2655.1524893177884,
+      "ci_low": 1720.593135477437,
+      "ci_high": 3640.3405129401776,
+      "crosses_zero": false,
+      "n_patients": 54
+    },
+    {
+      "model": "action_rate_uncond",
+      "baseline": "moving_average",
+      "endpoint": "P1_cumulative_dose_bias",
+      "horizon_hours": 24,
+      "delta": 3904.769592594217,
+      "ci_low": 2762.405395905177,
+      "ci_high": 5032.3932962362405,
+      "crosses_zero": false,
+      "n_patients": 54
+    },
+    {
+      "model": "action_rate_uncond",
+      "baseline": "moving_average",
+      "endpoint": "P2_tolerance_joint",
+      "horizon_hours": 24,
+      "delta": -0.02083333333333333,
+      "ci_low": -0.125,
+      "ci_high": 0.08333333333333334,
+      "crosses_zero": true,
+      "n_patients": 48
+    },
+    {
+      "model": "action_rate_uncond",
+      "baseline": "moving_average",
+      "endpoint": "P1_cumulative_dose_mae",
+      "horizon_hours": 48,
+      "delta": 5036.382272998491,
+      "ci_low": 3351.779129713774,
+      "ci_high": 6899.088323763509,
+      "crosses_zero": false,
+      "n_patients": 48
+    },
+    {
+      "model": "action_rate_uncond",
+      "baseline": "moving_average",
+      "endpoint": "P1_cumulative_dose_bias",
+      "horizon_hours": 48,
+      "delta": 5849.874142765999,
+      "ci_low": 4033.03945098122,
+      "ci_high": 7875.362147713204,
+      "crosses_zero": false,
+      "n_patients": 48
+    },
+    {
+      "model": "action_rate_uncond",
+      "baseline": "moving_average",
+      "endpoint": "P2_tolerance_joint",
+      "horizon_hours": 48,
+      "delta": -0.1702127659574468,
+      "ci_low": -0.3404255319148936,
+      "ci_high": -0.021276595744680826,
+      "crosses_zero": false,
+      "n_patients": 47
+    },
+    {
+      "model": "action_rate_uncond",
+      "baseline": "moving_average",
+      "endpoint": "P1_cumulative_dose_mae",
+      "horizon_hours": 72,
+      "delta": 6727.046140579467,
+      "ci_low": 4464.925736165808,
+      "ci_high": 9176.13085621773,
+      "crosses_zero": false,
+      "n_patients": 47
+    },
+    {
+      "model": "action_rate_uncond",
+      "baseline": "moving_average",
+      "endpoint": "P1_cumulative_dose_bias",
+      "horizon_hours": 72,
+      "delta": 7330.264565620017,
+      "ci_low": 4949.324911032839,
+      "ci_high": 9913.558932974744,
+      "crosses_zero": false,
+      "n_patients": 47
+    },
+    {
+      "model": "action_rate_uncond",
+      "baseline": "moving_average",
+      "endpoint": "P2_tolerance_joint",
+      "horizon_hours": 72,
+      "delta": -0.23404255319148937,
+      "ci_low": -0.3829787234042553,
+      "ci_high": -0.08510638297872339,
+      "crosses_zero": false,
+      "n_patients": 47
+    },
+    {
+      "model": "action_rate_uncond",
+      "baseline": "moving_average",
+      "endpoint": "P3_macro_f1",
+      "horizon_hours": null,
+      "delta": 0.003992161502094804,
+      "ci_low": -0.007249179593669924,
+      "ci_high": 0.014758781202398886,
+      "crosses_zero": true,
+      "n_patients": 55
+    },
+    {
+      "model": "action_rate_uncond",
+      "baseline": "moving_average",
+      "endpoint": "P3_micro_f1",
+      "horizon_hours": null,
+      "delta": -0.00019119103579878782,
+      "ci_low": -0.011244444623264146,
+      "ci_high": 0.010591052098318279,
+      "crosses_zero": true,
+      "n_patients": 55
+    }
+  ],
+  "caveats": [
+    "Single historical 15% test split; not nested and not a generalization estimate.",
+    "Strict action F1 is exploratory cross-task; do not compare with the Final model's 0.198.",
+    "The old paper's F1 0.743 is a transcription error; the corrected activity macro F1 is 0.696.",
+    "Patient-level predictions, bundles and checkpoints are not committed."
+  ]
+}
