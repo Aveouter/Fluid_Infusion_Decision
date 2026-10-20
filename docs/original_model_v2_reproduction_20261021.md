@@ -142,24 +142,32 @@ because they contain patient identifiers; they are not part of this repository.
 Local commands used:
 
 ```bash
+# 0. fill missing baseline fields (None -> 0) in a local copy
+python - <<'PY'
+import pickle
+b = pickle.load(open('data/baseline.pkl', 'rb'))
+out = {k: [0.0 if x is None else float(x) for x in v] for k, v in b.items()}
+pickle.dump(out, open('.audit/eval_v2/baseline_filled.pkl', 'wb'))
+PY
+
 # 1. export the original checkpoint's test predictions
 python predict_test_set.py \
   --ckpt ckpts/tcn_film_best_f1_0.7203_mae_21.3136.pth \
   --data_pkl data/output_data.pkl \
-  --base_pkl data/baseline.pkl \
+  --base_pkl .audit/eval_v2/baseline_filled.pkl \
   --thresholds 0.35 0.35 0.45 \
   --out .audit/eval_v2/test_original_epoch15.npz
 
 # 2. build the aligned v2 bundle
 python make_eval_bundle.py \
   --preds .audit/eval_v2/test_original_epoch15.npz \
-  --data_pkl data/output_data.pkl --base_pkl data/baseline.pkl \
+  --data_pkl data/output_data.pkl --base_pkl .audit/eval_v2/baseline_filled.pkl \
   --out .audit/eval_v2/bundle_original_epoch15.npz
 
 # 3. run the frozen engine
 python evaluate_v2.py \
   --bundle .audit/eval_v2/bundle_original_epoch15.npz \
-  --base_pkl data/baseline.pkl \
+  --base_pkl .audit/eval_v2/baseline_filled.pkl \
   --methods speed,rate,action_rate_uncond,persistence,moving_average \
   --model_id BurnResu-original-epoch15 --run_id original_epoch15_20261021 \
   --expect_protocol_hash 849a59c17baf8815 \
