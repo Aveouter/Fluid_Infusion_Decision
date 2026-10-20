@@ -26,8 +26,7 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
-from utils.action_fluid_model import action_classes
-from utils.review_dynamic import action_change
+from utils.eval_protocol import CHANGE_ABS_ML, CHANGE_REL, REL_BASE_ML
 
 #: Clinically plausible value domains for the raw hourly chart.  Values outside
 #: a domain are treated as missing (never as zero) and counted in ``guards``.
@@ -56,6 +55,27 @@ BASELINE_COLUMNS = ("性别", "年龄", "身高", "体重", "体重指数", "烧
                     "合计Ⅲ°", "合计深Ⅱ°", "合计浅Ⅱ°", "吸入性损伤")
 HORIZONS = (6, 12, 24)
 EPS = 1e-6
+
+
+def action_change(previous, next_value):
+    """Registered change rule, kept local so the module is self-contained."""
+    delta = np.abs(next_value - previous)
+    base = np.maximum(np.abs(previous), np.abs(next_value))
+    return (delta >= CHANGE_ABS_ML) | ((base >= REL_BASE_ML) & (delta >= CHANGE_REL * base))
+
+
+def action_classes(previous, current):
+    """0 hold/small, 1 start, 2 stop, 3 up, 4 down. Unknown never becomes hold."""
+    previous, current = np.asarray(previous, float), np.asarray(current, float)
+    valid = np.isfinite(previous) & np.isfinite(current)
+    result = np.full(previous.shape, -1, int)
+    result[valid] = 0
+    changed = valid & action_change(previous, current)
+    result[changed & (previous <= 1e-6)] = 1
+    result[changed & (current <= 1e-6)] = 2
+    result[changed & (previous > 1e-6) & (current > previous)] = 3
+    result[changed & (current > 1e-6) & (current < previous)] = 4
+    return result
 
 
 def _guarded(values: np.ndarray, low: float, high: float):

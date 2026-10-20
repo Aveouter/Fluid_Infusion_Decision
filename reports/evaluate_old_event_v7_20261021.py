@@ -15,9 +15,8 @@ import numpy as np
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
-from utils.action_fluid_model import action_classes
+from utils.old_fluid_data_v1 import action_classes, build
 from utils.changepoints import detect_changes, event_prf
-from utils.old_fluid_data_v1 import build
 
 PREDICTIONS = ROOT / ".audit/old_event_v7"
 REPORT = ROOT / "docs/experiments/old-event-v7-20261021"
