@@ -40,8 +40,11 @@ Two files exist and they are **different runs**:
 * `inference.py`'s default `--ckpt` points at the **second**.
 * The filename metrics belong to the **second**.
 
-Which one produced the manuscript's results cannot be determined from the
-artefacts alone and must be settled when the tables are regenerated (#26).
+The manuscript's 2025-11-03 test log loaded an epoch-15 checkpoint with
+`best_score=0.7146202386775634`; the second file carries exactly that epoch and
+score. The second file is therefore the run that produced the manuscript's test
+metrics; the first is a later retrain. The 2026-10-21 re-evaluation under
+protocol v2 is in `docs/original_model_v2_reproduction_20261021.md`.
 
 `test_metrics.json` evaluated the first file on the test split:
 
