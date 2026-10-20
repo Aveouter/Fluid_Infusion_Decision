@@ -1,0 +1,71 @@
+{
+  "protocol": "old-event-original-cohort-20261021",
+  "seeds": [
+    20261015,
+    20261016,
+    20261017
+  ],
+  "variants": {
+    "prev_base": {
+      "hidden": 64,
+      "dropout": 0.1,
+      "epochs": 60,
+      "batch_size": 512,
+      "learning_rate": 0.002,
+      "weight_decay": 0.01,
+      "gradient_clip": 5.0,
+      "event_weight": 0.5,
+      "direction_weight": 0.5,
+      "magnitude_weight": 0.2,
+      "active_weight": 0.2,
+      "delta_weight": 0.1,
+      "horizon_weight": 0.2,
+      "absolute_weight": 0.5,
+      "balanced_event": false,
+      "use_delta": false,
+      "use_horizon": false,
+      "min_change": 50.0,
+      "detach_actions": false,
+      "hold_mode": "previous",
+      "event_negative_weight": 1.0,
+      "event_fbeta_weight": 0.0,
+      "event_fbeta_beta": 1.0,
+      "mode": "two_branch"
+    },
+    "hold_absolute": {
+      "hidden": 64,
+      "dropout": 0.1,
+      "epochs": 60,
+      "batch_size": 512,
+      "learning_rate": 0.002,
+      "weight_decay": 0.01,
+      "gradient_clip": 5.0,
+      "event_weight": 0.5,
+      "direction_weight": 0.5,
+      "magnitude_weight": 0.2,
+      "active_weight": 0.2,
+      "delta_weight": 0.1,
+      "horizon_weight": 0.2,
+      "absolute_weight": 0.5,
+      "balanced_event": false,
+      "use_delta": false,
+      "use_horizon": false,
+      "min_change": 50.0,
+      "detach_actions": false,
+      "hold_mode": "absolute",
+      "event_negative_weight": 1.0,
+      "event_fbeta_weight": 0.0,
+      "event_fbeta_beta": 1.0,
+      "mode": "two_branch"
+    }
+  },
+  "bundle": ".audit/eval_v2/bundle_original_epoch15.npz",
+  "bundle_sha256": "f6661cb40fcd5529ad4444566676abda89dbc17b3d8010cf06510dfa79ec5d76",
+  "code_sha256": {
+    "utils/old_fluid_data_v1.py": "4de34a08abaf439b777d50e643ae191e02134e2d29dcaaf4e282fdd3f1b9bc1d",
+    "utils/old_event_model_v1.py": "0cd2e96bc36df79eded708a939961baf1bd90bf99539301ce2fed9b1bd324a44",
+    "utils/old_event_training_v1.py": "1490f85d4925d1fd5e7524397259be0a223305908dfbb97bb2bcf6ff787c43d6",
+    "reports/train_old_event_original_cohort_20261021.py": "b11ebbf85b808775dcbd33fb241b71ff742565501ff5cc45975695ff29366f08"
+  },
+  "note": "Train on the 308 old-cohort patients outside the original model's 55-patient test cohort; predict its 3,622 windows for a paired comparison with the submitted checkpoint."
+}
