@@ -16,6 +16,13 @@ import numpy as np
 from run_epoch import run_epoch
 
 
+def _is_main_score_improved(score, best_score, improve_eps=1e-8):
+    """Select by the configured validation score; ties keep the earlier epoch."""
+    if not math.isfinite(improve_eps) or improve_eps < 0:
+        raise ValueError("improve_eps must be finite and non-negative")
+    return math.isfinite(score) and score > best_score + improve_eps
+
+
 # ------------------------------ 统计参数工具 ------------------------------ #
 def _count_params(model: nn.Module):
     """返回(总参数, 可训练参数)，单位：个"""
@@ -219,7 +226,7 @@ def train(model: nn.Module, train_loader, val_loader, args):
     best_epoch = -1
     best_ckpt_path = None
 
-    # 双指标追踪（F1 大优、MAE 小优）
+    # 所选 checkpoint 的同一 epoch 指标；不跨 epoch 拼接最优值
     best_f1 = -float("inf")
     best_mae = float("inf")
     improve_eps = float(getattr(args, "improve_eps", 1e-8))
@@ -299,20 +306,14 @@ def train(model: nn.Module, train_loader, val_loader, args):
         if epoch % 10 == 0:
             _analyze_regression_performance(val_pack, args)
 
-        # ---- Save best: 任一改进（F1↑ 或 MAE↓）即保存 ----
+        # ---- Save best by the single configured validation score ----
+        improved = _is_main_score_improved(main_score, best_score, improve_eps)
         if not np.isfinite(main_score):
-            logging.warning("[VAL] main_score is NaN, skip improvement check.")
-            improved = False
-        else:
-            f1_better = (val_f1 > best_f1 + improve_eps)
-            mae_better = (val_mae + improve_eps < best_mae)
-            improved = f1_better or mae_better
+            logging.warning("[VAL] main_score is non-finite; skip checkpoint selection.")
 
         if improved:
-            if f1_better:
-                best_f1 = float(val_f1)
-            if mae_better:
-                best_mae = float(val_mae)
+            best_f1 = float(val_f1)
+            best_mae = float(val_mae)
 
             best_epoch = epoch
             best_score = float(main_score)
@@ -331,6 +332,9 @@ def train(model: nn.Module, train_loader, val_loader, args):
                 'best_score': best_score,
                 'best_f1': best_f1,
                 'best_mae': best_mae,
+                'selection_metric': str(args.main_metric),
+                'validation_metrics': {'f1_macro': float(val_f1), 'mae_positive_flow': float(val_mae)},
+                'validation_thresholds': val_stats.get('overall', {}).get('best_thresholds'),
                 'args': vars(args)
             }, ckpt_path)
 
@@ -345,9 +349,7 @@ def train(model: nn.Module, train_loader, val_loader, args):
                 pass
 
             logging.info(
-                f"[VAL] New best by {'F1' if f1_better else ''}"
-                f"{' & ' if f1_better and mae_better else ''}"
-                f"{'MAE' if mae_better else ''}: "
+                f"[VAL] New best by {args.main_metric}: "
                 f"F1={val_f1:.4f} (best {best_f1:.4f}), MAE={val_mae:.4f} (best {best_mae:.4f}); "
                 f"{args.main_metric}={best_score:.4f}. Saved -> {ckpt_path}"
             )
