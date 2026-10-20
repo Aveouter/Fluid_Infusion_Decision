@@ -184,8 +184,8 @@ def main():
     if variants.exists():
         payload = json.loads(variants.read_text(encoding="utf-8"))
         lines += ["## 3.1 hold 候选对照（开发折 1–4 与历史留出）", "",
-                  "fold 0 的完整外折曾用于选择 `hold=上一小时` 与负事件权重 1.5；下表把 fold 0 排除在开发对照之外，"
-                  "保留折 1–4 作为未参与该选择的检查。历史留出同样只评价一次。", ""]
+                  "fold 0 的完整外折曾用于选择 `hold=上一小时` 与负事件权重 1.5；`prev_base` 与 `prev_neg15` 的取舍在折 1–4 上完成，"
+                  "因此折 1–4 的 V7.1 数字对该取舍略乐观。历史留出是独立检查，只评价一次。", ""]
         rows = []
         for key in ("hold_absolute_folds1to4", "prev_base_folds1to4", "prev_neg15_folds1to4",
                     "hold_absolute_test", "prev_base_test", "prev_neg15_test"):
@@ -233,7 +233,7 @@ def main():
                        f"严格动作 F1 {absolute['strict_action_f1']['difference']:+.4f}；"
                        f"但恒 0 的严格 F1 为 {zero['strict_action_f1']:.3f}，"
                        "动作端点相对平凡零预测的增量不大，主要价值在总体 MAE、变化小时与 stop 召回；"
-                       "作为 V7.1 主变体，历史留出另看。")
+                       "作为 V7.1 主变体；注意折 1–4 也参与了 prev_base/neg15 的取舍，历史留出是独立检查。")
         else:
             verdict = ("`prev_base` 在折 1–4 上未同时满足“设置 MAE 低于持续性”与“严格动作 F1 ≥0.30”；按失败保留。")
         lines += [verdict, ""]
