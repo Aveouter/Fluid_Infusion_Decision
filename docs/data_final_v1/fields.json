@@ -1,0 +1,3942 @@
+[
+  {
+    "table":"baseline\/values.csv",
+    "field":"patient_id",
+    "logical_type":"identifier_string",
+    "unit":"see_unit_or_clinical_field",
+    "description":"本地患者来源键；用于连接，不是模型数值输入；公开示例使用合成键。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"conditional_source_requires_availability_filter"
+  },
+  {
+    "table":"baseline\/values.csv",
+    "field":"field",
+    "logical_type":"str",
+    "unit":"see_unit_or_clinical_field",
+    "description":"基线\/观测变量名；每种实际取值另见clinical_fields.csv及方法说明。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"conditional_source_requires_availability_filter"
+  },
+  {
+    "table":"baseline\/values.csv",
+    "field":"value",
+    "logical_type":"numeric",
+    "unit":"see_unit_or_clinical_field",
+    "description":"该field对应的数值；必须与unit、qualifier、eligible和method一起解释，未知不填0。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"conditional_source_requires_availability_filter"
+  },
+  {
+    "table":"baseline\/values.csv",
+    "field":"available_at_hour",
+    "logical_type":"numeric",
+    "unit":"hour_from_injury",
+    "description":"基线为入院相对小时；临床观测为记录所在小时结束h+1，消费已完成小时用<=预测起点。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"conditional_source_requires_availability_filter"
+  },
+  {
+    "table":"baseline\/values.csv",
+    "field":"source",
+    "logical_type":"str",
+    "unit":"see_unit_or_clinical_field",
+    "description":"来源或分段设置的来源类型；doctor_table与explicit_nursing_*是文书来源，不是泵遥测。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"conditional_source_requires_availability_filter"
+  },
+  {
+    "table":"baseline\/values.csv",
+    "field":"source_excel_rows",
+    "logical_type":"identifier_string",
+    "unit":"see_unit_or_clinical_field",
+    "description":"基线表匹配该患者的Excel行号（含表头）；允许多行，非单个固定行。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"conditional_source_requires_availability_filter"
+  },
+  {
+    "table":"baseline\/values.csv",
+    "field":"method",
+    "logical_type":"str",
+    "unit":"see_unit_or_clinical_field",
+    "description":"提取\/估计\/聚合方法代码；事件与分段的具体分支见METHODS.md及冻结recipe。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"conditional_source_requires_availability_filter"
+  },
+  {
+    "table":"causal_history\/states.csv",
+    "field":"patient_id",
+    "logical_type":"identifier_string",
+    "unit":"see_unit_or_clinical_field",
+    "description":"本地患者来源键；用于连接，不是模型数值输入；公开示例使用合成键。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"asof_predictor_state_estimate"
+  },
+  {
+    "table":"causal_history\/states.csv",
+    "field":"origin_hour",
+    "logical_type":"numeric",
+    "unit":"hour_from_injury",
+    "description":"因果历史状态的查询起点，取0至72；本表只含起点前已发生且业务可见的记录。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"asof_predictor_state_estimate"
+  },
+  {
+    "table":"causal_history\/states.csv",
+    "field":"component",
+    "logical_type":"str",
+    "unit":"see_unit_or_clinical_field",
+    "description":"晶体crystalloid、胶体colloid、水water独立成分；口服另表，不按通道假设划分。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"asof_predictor_state_estimate"
+  },
+  {
+    "table":"causal_history\/states.csv",
+    "field":"unknown_quantity_cue_count",
+    "logical_type":"int64",
+    "unit":"see_unit_or_clinical_field",
+    "description":"起点前已可见未量化来源线索数，不等于缺失瓶数。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"asof_predictor_state_estimate"
+  },
+  {
+    "table":"causal_history\/states.csv",
+    "field":"remaining_lower_ml",
+    "logical_type":"numeric",
+    "unit":"mL",
+    "description":"因果来源账剩余下界；未知速度时可降为0，仍不称实际设备库存。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"asof_predictor_state_estimate"
+  },
+  {
+    "table":"causal_history\/states.csv",
+    "field":"remaining_upper_ml",
+    "logical_type":"numeric",
+    "unit":"mL",
+    "description":"因果来源账剩余上界；缺量记录不擅自扩大已登记容量。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"asof_predictor_state_estimate"
+  },
+  {
+    "table":"causal_history\/states.csv",
+    "field":"remaining_point_ml",
+    "logical_type":"numeric",
+    "unit":"mL",
+    "description":"剩余上下界相同才给点值，否则为空。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"asof_predictor_state_estimate"
+  },
+  {
+    "table":"causal_history\/states.csv",
+    "field":"remaining_midpoint_estimate_ml",
+    "logical_type":"numeric",
+    "unit":"mL",
+    "description":"剩余上下界算术中点，显式估计，不能写成实测剩余量。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"asof_predictor_state_estimate"
+  },
+  {
+    "table":"causal_history\/states.csv",
+    "field":"recorded_capacity_ml",
+    "logical_type":"numeric",
+    "unit":"mL",
+    "description":"起点前已发生且已可见的原始明确加液累计量；不读取退回后净量或未来完成。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"asof_predictor_state_estimate"
+  },
+  {
+    "table":"causal_history\/states.csv",
+    "field":"last_known_setting_ml_h",
+    "logical_type":"numeric",
+    "unit":"mL\/h",
+    "description":"因果解析得到的最后已知文书设置；初始未知为NA，有明确暂停才可为0。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"asof_predictor_state_estimate"
+  },
+  {
+    "table":"causal_history\/states.csv",
+    "field":"unknown_flow_exposure_hours",
+    "logical_type":"float64",
+    "unit":"see_unit_or_clinical_field",
+    "description":"有已登记可能库存但速度未知的累计时长；不填充一条假速度。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"asof_predictor_state_estimate"
+  },
+  {
+    "table":"causal_history\/states.csv",
+    "field":"last_setting_source_id",
+    "logical_type":"identifier_string",
+    "unit":"see_unit_or_clinical_field",
+    "description":"最后已知设置的医生\/护理来源ID。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"asof_predictor_state_estimate"
+  },
+  {
+    "table":"causal_history\/states.csv",
+    "field":"last_setting_unit_inferred",
+    "logical_type":"object",
+    "unit":"see_unit_or_clinical_field",
+    "description":"该最后设置是否含单位推断；无设置时为空。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"asof_predictor_state_estimate"
+  },
+  {
+    "table":"causal_history\/states.csv",
+    "field":"has_unit_inferred_setting_history",
+    "logical_type":"bool",
+    "unit":"see_unit_or_clinical_field",
+    "description":"历史已可见设置中是否曾使用允许的省略单位推断。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"asof_predictor_state_estimate"
+  },
+  {
+    "table":"causal_history\/states.csv",
+    "field":"included_events",
+    "logical_type":"int64",
+    "unit":"see_unit_or_clinical_field",
+    "description":"该起点因果状态实际纳入的addition\/setting事件条数。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"asof_predictor_state_estimate"
+  },
+  {
+    "table":"causal_history\/states.csv",
+    "field":"conditional_on_recorded_additions",
+    "logical_type":"bool",
+    "unit":"see_unit_or_clinical_field",
+    "description":"恒为True：状态仅条件于已量化登记来源，不代表完整物理设备账。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"asof_predictor_state_estimate"
+  },
+  {
+    "table":"cohort\/patients.csv",
+    "field":"patient_id",
+    "logical_type":"identifier_string",
+    "unit":"see_unit_or_clinical_field",
+    "description":"本地患者来源键；用于连接，不是模型数值输入；公开示例使用合成键。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"join_and_eligibility_metadata_not_model_feature"
+  },
+  {
+    "table":"cohort\/patients.csv",
+    "field":"injury_time_local",
+    "logical_type":"str",
+    "unit":"see_unit_or_clinical_field",
+    "description":"既有来源索引的伤时本地业务钟，作为相对小时零点；保留来源版本。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"join_and_eligibility_metadata_not_model_feature"
+  },
+  {
+    "table":"cohort\/patients.csv",
+    "field":"admission_hour",
+    "logical_type":"numeric",
+    "unit":"hour_from_injury",
+    "description":"基线表非空入院时间最小值减伤时，除3600；不以护理首条记录替代。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"join_and_eligibility_metadata_not_model_feature"
+  },
+  {
+    "table":"cohort\/patients.csv",
+    "field":"eligible",
+    "logical_type":"bool",
+    "unit":"see_unit_or_clinical_field",
+    "description":"本表所描述记录的规则资格；cohort表指基线入院时间存在，观测\/事件表指该条解析通过相应规则。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"join_and_eligibility_metadata_not_model_feature"
+  },
+  {
+    "table":"cohort\/patients.csv",
+    "field":"exclusion_reason",
+    "logical_type":"str",
+    "unit":"see_unit_or_clinical_field",
+    "description":"排除原因代码；未排除为空，不以缺失原因替代数值0。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"join_and_eligibility_metadata_not_model_feature"
+  },
+  {
+    "table":"cohort\/patients.csv",
+    "field":"historical_holdout",
+    "logical_type":"object",
+    "unit":"see_unit_or_clinical_field",
+    "description":"既有患者分组的历史留出标志；仅作来源\/协议元数据，不表示新外部测试。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"join_and_eligibility_metadata_not_model_feature"
+  },
+  {
+    "table":"cohort\/patients.csv",
+    "field":"historical_development_fold",
+    "logical_type":"int64",
+    "unit":"see_unit_or_clinical_field",
+    "description":"旧开发患者折编号，留出为-1；保留供复核，不作为生理输入。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"join_and_eligibility_metadata_not_model_feature"
+  },
+  {
+    "table":"cohort\/patients.csv",
+    "field":"observation_end_lower_hour",
+    "logical_type":"numeric",
+    "unit":"hour_from_injury",
+    "description":"已提取结束证据的保守下界与来源右截断\/72小时中的较早者；用于完整小时资格。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"join_and_eligibility_metadata_not_model_feature"
+  },
+  {
+    "table":"cohort\/patients.csv",
+    "field":"observation_end_upper_hour",
+    "logical_type":"numeric",
+    "unit":"hour_from_injury",
+    "description":"同一结束证据的上界；日期精度不被造为精确离院时刻。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"join_and_eligibility_metadata_not_model_feature"
+  },
+  {
+    "table":"cohort\/patients.csv",
+    "field":"observation_end_status",
+    "logical_type":"str",
+    "unit":"see_unit_or_clinical_field",
+    "description":"结束证据的精度\/右截断类型；source_censored_or_72h不等于确认出院。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"join_and_eligibility_metadata_not_model_feature"
+  },
+  {
+    "table":"cohort\/patients.csv",
+    "field":"cross_patient_volume_prior_dependency",
+    "logical_type":"bool",
+    "unit":"see_unit_or_clinical_field",
+    "description":"旧提取元数据：该患者量参考存在跨患者典型速度依赖；保守地不进入主量参考资格。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"join_and_eligibility_metadata_not_model_feature"
+  },
+  {
+    "table":"cohort\/patients.csv",
+    "field":"raw_source_sha256",
+    "logical_type":"str",
+    "unit":"see_unit_or_clinical_field",
+    "description":"原始患者CSV完整字节的SHA256，用于来源核验。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"join_and_eligibility_metadata_not_model_feature"
+  },
+  {
+    "table":"evidence\/completion_constraints.csv",
+    "field":"hour",
+    "logical_type":"numeric",
+    "unit":"hour_from_injury",
+    "description":"上下文依赖：观测为记录所属整数小时；完成约束为约束结束相对小时，可有小数。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"reference_or_provenance_only"
+  },
+  {
+    "table":"evidence\/completion_constraints.csv",
+    "field":"source_id",
+    "logical_type":"identifier_string",
+    "unit":"see_unit_or_clinical_field",
+    "description":"来源事件ID；按所在表连接到医生、护理、入量或约束账。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"reference_or_provenance_only"
+  },
+  {
+    "table":"evidence\/completion_constraints.csv",
+    "field":"kind",
+    "logical_type":"str",
+    "unit":"see_unit_or_clinical_field",
+    "description":"来源事件或约束的种类；addition\/setting与回顾性完成类严格分开。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"reference_or_provenance_only"
+  },
+  {
+    "table":"evidence\/completion_constraints.csv",
+    "field":"cumulative_ml",
+    "logical_type":"numeric",
+    "unit":"mL",
+    "description":"截至该完成\/余量检查点的参考累计输入约束。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"reference_or_provenance_only"
+  },
+  {
+    "table":"evidence\/completion_constraints.csv",
+    "field":"target_lot_id",
+    "logical_type":"identifier_string",
+    "unit":"see_unit_or_clinical_field",
+    "description":"约束匹配的目标批次；匹配仍可能是推断，应结合resolution和决策账。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"reference_or_provenance_only"
+  },
+  {
+    "table":"evidence\/completion_constraints.csv",
+    "field":"resolution",
+    "logical_type":"str",
+    "unit":"see_unit_or_clinical_field",
+    "description":"约束被采用、仅佐证或因时间\/库存不相容未采用的处置代码。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"reference_or_provenance_only"
+  },
+  {
+    "table":"evidence\/completion_constraints.csv",
+    "field":"scale",
+    "logical_type":"float64",
+    "unit":"see_unit_or_clinical_field",
+    "description":"完成总量拟合设置积分时使用的倍率；仅回顾性方法参数，不是预测输入。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"reference_or_provenance_only"
+  },
+  {
+    "table":"evidence\/completion_constraints.csv",
+    "field":"uniform_fallback",
+    "logical_type":"object",
+    "unit":"see_unit_or_clinical_field",
+    "description":"完成量拟合无法按原速度分配时是否用均匀时间估计；不改变设备设置记录。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"reference_or_provenance_only"
+  },
+  {
+    "table":"evidence\/completion_constraints.csv",
+    "field":"allocated_ml",
+    "logical_type":"numeric",
+    "unit":"mL",
+    "description":"完成\/余量端点在该区间约束出的回顾性总量；不直接均摊为新的设备速度。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"reference_or_provenance_only"
+  },
+  {
+    "table":"evidence\/completion_constraints.csv",
+    "field":"interval_start_hour",
+    "logical_type":"numeric",
+    "unit":"hour_from_injury",
+    "description":"完成量分配区间起点；与hour（结束）共同定义原区间。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"reference_or_provenance_only"
+  },
+  {
+    "table":"evidence\/completion_constraints.csv",
+    "field":"patient_id",
+    "logical_type":"identifier_string",
+    "unit":"see_unit_or_clinical_field",
+    "description":"本地患者来源键；用于连接，不是模型数值输入；公开示例使用合成键。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"reference_or_provenance_only"
+  },
+  {
+    "table":"evidence\/completion_constraints.csv",
+    "field":"component",
+    "logical_type":"str",
+    "unit":"see_unit_or_clinical_field",
+    "description":"晶体crystalloid、胶体colloid、水water独立成分；口服另表，不按通道假设划分。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"reference_or_provenance_only"
+  },
+  {
+    "table":"evidence\/reference_intervals.csv",
+    "field":"patient_id",
+    "logical_type":"identifier_string",
+    "unit":"see_unit_or_clinical_field",
+    "description":"本地患者来源键；用于连接，不是模型数值输入；公开示例使用合成键。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"reference_or_provenance_only"
+  },
+  {
+    "table":"evidence\/reference_intervals.csv",
+    "field":"component",
+    "logical_type":"str",
+    "unit":"see_unit_or_clinical_field",
+    "description":"晶体crystalloid、胶体colloid、水water独立成分；口服另表，不按通道假设划分。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"reference_or_provenance_only"
+  },
+  {
+    "table":"evidence\/reference_intervals.csv",
+    "field":"start_hour",
+    "logical_type":"numeric",
+    "unit":"hour_from_injury",
+    "description":"分段\/证据区间起点，相对伤时小时，区间左闭右开。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"reference_or_provenance_only"
+  },
+  {
+    "table":"evidence\/reference_intervals.csv",
+    "field":"end_hour",
+    "logical_type":"numeric",
+    "unit":"hour_from_injury",
+    "description":"分段\/证据区间终点，相对伤时小时，右端不把下一小时事件算入前一小时。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"reference_or_provenance_only"
+  },
+  {
+    "table":"evidence\/reference_intervals.csv",
+    "field":"reason",
+    "logical_type":"str",
+    "unit":"see_unit_or_clinical_field",
+    "description":"该条解析、排除、用途、证据资格或不确定性的具体原因代码。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"reference_or_provenance_only"
+  },
+  {
+    "table":"evidence\/reference_intervals.csv",
+    "field":"source_id",
+    "logical_type":"identifier_string",
+    "unit":"see_unit_or_clinical_field",
+    "description":"来源事件ID；按所在表连接到医生、护理、入量或约束账。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"reference_or_provenance_only"
+  },
+  {
+    "table":"evidence\/reference_intervals.csv",
+    "field":"allocated_ml",
+    "logical_type":"numeric",
+    "unit":"mL",
+    "description":"完成\/余量端点在该区间约束出的回顾性总量；不直接均摊为新的设备速度。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"reference_or_provenance_only"
+  },
+  {
+    "table":"evidence\/reference_intervals.csv",
+    "field":"nominal_setting_integral_ml",
+    "logical_type":"numeric",
+    "unit":"mL",
+    "description":"统一名义时钟上的文书设置时长积分；初始未知则NA。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"reference_or_provenance_only"
+  },
+  {
+    "table":"evidence\/reference_intervals.csv",
+    "field":"clock_envelope_upper_ml",
+    "logical_type":"numeric",
+    "unit":"mL",
+    "description":"允许小时精度医生记录在该小时内移动后的宽松设置积分上包络；不要求可达到该上界。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"reference_or_provenance_only"
+  },
+  {
+    "table":"evidence\/reference_intervals.csv",
+    "field":"unresolved_clock_metadata",
+    "logical_type":"float64",
+    "unit":"see_unit_or_clinical_field",
+    "description":"无法识别精度\/来源的设置事件数；不能因此将上包络视为已知。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"reference_or_provenance_only"
+  },
+  {
+    "table":"evidence\/unparsed_nursing_events.csv",
+    "field":"patient_id",
+    "logical_type":"identifier_string",
+    "unit":"see_unit_or_clinical_field",
+    "description":"本地患者来源键；用于连接，不是模型数值输入；公开示例使用合成键。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"reference_or_provenance_only"
+  },
+  {
+    "table":"evidence\/unparsed_nursing_events.csv",
+    "field":"record_time_local",
+    "logical_type":"str",
+    "unit":"see_unit_or_clinical_field",
+    "description":"原记录本地业务钟；FORM_TIME末尾Z按已确定的墙上时钟语义去时区，不另加8小时。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"reference_or_provenance_only"
+  },
+  {
+    "table":"evidence\/unparsed_nursing_events.csv",
+    "field":"source_form_time_raw",
+    "logical_type":"str",
+    "unit":"see_unit_or_clinical_field",
+    "description":"原FORM_TIME原串，包括原Z及原精度，便于核对。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"reference_or_provenance_only"
+  },
+  {
+    "table":"evidence\/unparsed_nursing_events.csv",
+    "field":"source_record_number",
+    "logical_type":"int64",
+    "unit":"see_unit_or_clinical_field",
+    "description":"原提取约定：从1开始的数据记录序号，不含表头；CSV含表头的逻辑记录号应再+1。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"reference_or_provenance_only"
+  },
+  {
+    "table":"evidence\/unparsed_nursing_events.csv",
+    "field":"form_id",
+    "logical_type":"identifier_string",
+    "unit":"see_unit_or_clinical_field",
+    "description":"原FORM_ID表单键；与时间和INNER_SEQ联合绑定同一次入\/出量，不跨表单借值。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"reference_or_provenance_only"
+  },
+  {
+    "table":"evidence\/unparsed_nursing_events.csv",
+    "field":"field_name",
+    "logical_type":"str",
+    "unit":"see_unit_or_clinical_field",
+    "description":"原记录组合项目名称；用于定位文字属于护理、入量、出量或其他节点。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"reference_or_provenance_only"
+  },
+  {
+    "table":"evidence\/unparsed_nursing_events.csv",
+    "field":"source_file",
+    "logical_type":"str",
+    "unit":"see_unit_or_clinical_field",
+    "description":"原始来源路径提示；新包原始来源统一按raw\/patient_records定位，旧串原样保留用于追溯。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"reference_or_provenance_only"
+  },
+  {
+    "table":"evidence\/unparsed_nursing_events.csv",
+    "field":"text_raw",
+    "logical_type":"str",
+    "unit":"see_unit_or_clinical_field",
+    "description":"对应来源原文，仅限本地；不会随公开PR上传。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"reference_or_provenance_only"
+  },
+  {
+    "table":"evidence\/unparsed_nursing_events.csv",
+    "field":"issue",
+    "logical_type":"str",
+    "unit":"see_unit_or_clinical_field",
+    "description":"未解析护理原句的具体问题代码；不因此补造事件或数值。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"reference_or_provenance_only"
+  },
+  {
+    "table":"fluid_events\/adjudicated_events.csv",
+    "field":"event_id",
+    "logical_type":"identifier_string",
+    "unit":"see_unit_or_clinical_field",
+    "description":"原始入量组合记录的稳定ID，由患者及同记录键生成。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"conditional_source_requires_availability_filter"
+  },
+  {
+    "table":"fluid_events\/adjudicated_events.csv",
+    "field":"patient_id",
+    "logical_type":"identifier_string",
+    "unit":"see_unit_or_clinical_field",
+    "description":"本地患者来源键；用于连接，不是模型数值输入；公开示例使用合成键。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"conditional_source_requires_availability_filter"
+  },
+  {
+    "table":"fluid_events\/adjudicated_events.csv",
+    "field":"source_form_time_raw",
+    "logical_type":"str",
+    "unit":"see_unit_or_clinical_field",
+    "description":"原FORM_TIME原串，包括原Z及原精度，便于核对。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"conditional_source_requires_availability_filter"
+  },
+  {
+    "table":"fluid_events\/adjudicated_events.csv",
+    "field":"record_time_local",
+    "logical_type":"str",
+    "unit":"see_unit_or_clinical_field",
+    "description":"原记录本地业务钟；FORM_TIME末尾Z按已确定的墙上时钟语义去时区，不另加8小时。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"conditional_source_requires_availability_filter"
+  },
+  {
+    "table":"fluid_events\/adjudicated_events.csv",
+    "field":"event_time_local",
+    "logical_type":"str",
+    "unit":"see_unit_or_clinical_field",
+    "description":"事件本地业务时间；明确原句时刻优先，没有精度证据时保留记录钟\/小时起点近似。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"conditional_source_requires_availability_filter"
+  },
+  {
+    "table":"fluid_events\/adjudicated_events.csv",
+    "field":"time_source",
+    "logical_type":"str",
+    "unit":"see_unit_or_clinical_field",
+    "description":"时钟如何取得的代码，例如doctor_hour_start_approximation、form_record_local_clock。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"conditional_source_requires_availability_filter"
+  },
+  {
+    "table":"fluid_events\/adjudicated_events.csv",
+    "field":"time_precision",
+    "logical_type":"str",
+    "unit":"see_unit_or_clinical_field",
+    "description":"时钟精度类别；hour_estimate不能解释为真实整点操作，record_seconds也不证明在线录入。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"conditional_source_requires_availability_filter"
+  },
+  {
+    "table":"fluid_events\/adjudicated_events.csv",
+    "field":"source_z_interpreted_as_local_clock",
+    "logical_type":"bool",
+    "unit":"see_unit_or_clinical_field",
+    "description":"是否按已确认的源系统墙钟语义处理末尾Z，不另作UTC+8转换。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"conditional_source_requires_availability_filter"
+  },
+  {
+    "table":"fluid_events\/adjudicated_events.csv",
+    "field":"hour_from_injury",
+    "logical_type":"float64",
+    "unit":"see_unit_or_clinical_field",
+    "description":"事件时间减伤时，以小时计，允许小数；相对零点固定。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"conditional_source_requires_availability_filter"
+  },
+  {
+    "table":"fluid_events\/adjudicated_events.csv",
+    "field":"form_id",
+    "logical_type":"identifier_string",
+    "unit":"see_unit_or_clinical_field",
+    "description":"原FORM_ID表单键；与时间和INNER_SEQ联合绑定同一次入\/出量，不跨表单借值。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"conditional_source_requires_availability_filter"
+  },
+  {
+    "table":"fluid_events\/adjudicated_events.csv",
+    "field":"inner_seq",
+    "logical_type":"identifier_string",
+    "unit":"see_unit_or_clinical_field",
+    "description":"原INNER_SEQ同表单子项序号；数量\/名称\/途径\/单位绑定键之一。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"conditional_source_requires_availability_filter"
+  },
+  {
+    "table":"fluid_events\/adjudicated_events.csv",
+    "field":"drug_name_raw",
+    "logical_type":"str",
+    "unit":"see_unit_or_clinical_field",
+    "description":"原始药名，保留人为错字、剂量和包装文本。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"conditional_source_requires_availability_filter"
+  },
+  {
+    "table":"fluid_events\/adjudicated_events.csv",
+    "field":"drug_name_corrected",
+    "logical_type":"str",
+    "unit":"see_unit_or_clinical_field",
+    "description":"规则可唯一纠正的名称；不借另一包装规格修改原瓶容量。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"conditional_source_requires_availability_filter"
+  },
+  {
+    "table":"fluid_events\/adjudicated_events.csv",
+    "field":"category_reference",
+    "logical_type":"str",
+    "unit":"see_unit_or_clinical_field",
+    "description":"历史分类参考表或分类规则返回的中文类别；参考表本身可能有误。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"conditional_source_requires_availability_filter"
+  },
+  {
+    "table":"fluid_events\/adjudicated_events.csv",
+    "field":"component",
+    "logical_type":"str",
+    "unit":"see_unit_or_clinical_field",
+    "description":"晶体crystalloid、胶体colloid、水water独立成分；口服另表，不按通道假设划分。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"conditional_source_requires_availability_filter"
+  },
+  {
+    "table":"fluid_events\/adjudicated_events.csv",
+    "field":"classification_method",
+    "logical_type":"str",
+    "unit":"see_unit_or_clinical_field",
+    "description":"精确参考、规范化、途径别名、受限药族、保守错字等实际分类分支。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"conditional_source_requires_availability_filter"
+  },
+  {
+    "table":"fluid_events\/adjudicated_events.csv",
+    "field":"route_raw",
+    "logical_type":"str",
+    "unit":"see_unit_or_clinical_field",
+    "description":"原给入途径；静脉注射\/静推等排除补液，口服\/鼻饲另计。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"conditional_source_requires_availability_filter"
+  },
+  {
+    "table":"fluid_events\/adjudicated_events.csv",
+    "field":"route_inferred",
+    "logical_type":"bool",
+    "unit":"see_unit_or_clinical_field",
+    "description":"空途径因来源类别使用工作推断的标志，不能声称原表明确记录静滴。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"conditional_source_requires_availability_filter"
+  },
+  {
+    "table":"fluid_events\/adjudicated_events.csv",
+    "field":"amount_raw",
+    "logical_type":"float64",
+    "unit":"see_unit_or_clinical_field",
+    "description":"原数量字符串；是否为单位量、瓶数、负量由volume_method及原单位说明。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"conditional_source_requires_availability_filter"
+  },
+  {
+    "table":"fluid_events\/adjudicated_events.csv",
+    "field":"unit_raw",
+    "logical_type":"str",
+    "unit":"see_unit_or_clinical_field",
+    "description":"原实用量单位字符串，未经静默修正。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"conditional_source_requires_availability_filter"
+  },
+  {
+    "table":"fluid_events\/adjudicated_events.csv",
+    "field":"backup_unit_raw",
+    "logical_type":"str",
+    "unit":"see_unit_or_clinical_field",
+    "description":"同组备用量单位，只有规则允许时用于补充单位证据。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"conditional_source_requires_availability_filter"
+  },
+  {
+    "table":"fluid_events\/adjudicated_events.csv",
+    "field":"backup_amount_raw",
+    "logical_type":"float64",
+    "unit":"see_unit_or_clinical_field",
+    "description":"同组备用量原值；不与另一表单数值拼接。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"conditional_source_requires_availability_filter"
+  },
+  {
+    "table":"fluid_events\/adjudicated_events.csv",
+    "field":"volume_ml",
+    "logical_type":"numeric",
+    "unit":"mL",
+    "description":"按来源单位规则换算的量；可能为整瓶、口服或负量，须结合component\/route\/decision，不是已输入小时量。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"conditional_source_requires_availability_filter"
+  },
+  {
+    "table":"fluid_events\/adjudicated_events.csv",
+    "field":"volume_method",
+    "logical_type":"str",
+    "unit":"see_unit_or_clinical_field",
+    "description":"原数量单位解析分支；explicit_unit与由瓶数×明确包装容量等推断分开。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"conditional_source_requires_availability_filter"
+  },
+  {
+    "table":"fluid_events\/adjudicated_events.csv",
+    "field":"input_kind_raw",
+    "logical_type":"str",
+    "unit":"see_unit_or_clinical_field",
+    "description":"原入量分类\/用途文字；辅助用途筛选须同表单同钟证据佐证。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"conditional_source_requires_availability_filter"
+  },
+  {
+    "table":"fluid_events\/adjudicated_events.csv",
+    "field":"eligible_stock_addition",
+    "logical_type":"bool",
+    "unit":"see_unit_or_clinical_field",
+    "description":"初始来源解析是否可作加液候选；并不覆盖后续重复\/注射\/辅助用途处置。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"conditional_source_requires_availability_filter"
+  },
+  {
+    "table":"fluid_events\/adjudicated_events.csv",
+    "field":"issues",
+    "logical_type":"str",
+    "unit":"see_unit_or_clinical_field",
+    "description":"解析发现的问题代码集合；空表示该解析器未发现问题，不代表已完成临床认证。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"conditional_source_requires_availability_filter"
+  },
+  {
+    "table":"fluid_events\/adjudicated_events.csv",
+    "field":"source_file",
+    "logical_type":"str",
+    "unit":"see_unit_or_clinical_field",
+    "description":"原始来源路径提示；新包原始来源统一按raw\/patient_records定位，旧串原样保留用于追溯。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"conditional_source_requires_availability_filter"
+  },
+  {
+    "table":"fluid_events\/adjudicated_events.csv",
+    "field":"source_record_numbers",
+    "logical_type":"identifier_string",
+    "unit":"see_unit_or_clinical_field",
+    "description":"同组原始数据记录序号集合，从1起不含表头；完整保留名称、量、单位、途径绑定。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"conditional_source_requires_availability_filter"
+  },
+  {
+    "table":"fluid_events\/adjudicated_events.csv",
+    "field":"fields_raw_json",
+    "logical_type":"str",
+    "unit":"see_unit_or_clinical_field",
+    "description":"按原组合项目名称保存NUMBER_VALUE和STRING_VALUE集合的JSON，不静默取一个冲突值。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"conditional_source_requires_availability_filter"
+  },
+  {
+    "table":"fluid_events\/adjudicated_events.csv",
+    "field":"effective_volume_ml",
+    "logical_type":"numeric",
+    "unit":"mL",
+    "description":"回顾语境推断\/调整后的参考量；不可拿来替换预测起点前的原来源量。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"conditional_source_requires_availability_filter"
+  },
+  {
+    "table":"fluid_events\/adjudicated_events.csv",
+    "field":"volume_resolution",
+    "logical_type":"str",
+    "unit":"see_unit_or_clinical_field",
+    "description":"原量、原句、单位补充、患者典型量等具体恢复\/排除方法。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"conditional_source_requires_availability_filter"
+  },
+  {
+    "table":"fluid_events\/adjudicated_events.csv",
+    "field":"volume_confidence",
+    "logical_type":"str",
+    "unit":"see_unit_or_clinical_field",
+    "description":"该量恢复方法的来源等级。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"conditional_source_requires_availability_filter"
+  },
+  {
+    "table":"fluid_events\/adjudicated_events.csv",
+    "field":"canonical_event_id",
+    "logical_type":"identifier_string",
+    "unit":"see_unit_or_clinical_field",
+    "description":"跨表单重复候选对应的保留来源ID；别名原记录仍保留。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"conditional_source_requires_availability_filter"
+  },
+  {
+    "table":"fluid_events\/adjudicated_events.csv",
+    "field":"decision",
+    "logical_type":"str",
+    "unit":"see_unit_or_clinical_field",
+    "description":"历史提取处置规则结果；保留，不将自动推断称医生复核结论。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"conditional_source_requires_availability_filter"
+  },
+  {
+    "table":"fluid_events\/adjudicated_events.csv",
+    "field":"component_original",
+    "logical_type":"str",
+    "unit":"see_unit_or_clinical_field",
+    "description":"原始分类成分，供来源状态使用；不因后续回顾处置重写原可见分类。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"conditional_source_requires_availability_filter"
+  },
+  {
+    "table":"fluid_events\/adjudicated_events.csv",
+    "field":"drug_name_inferred",
+    "logical_type":"float64",
+    "unit":"see_unit_or_clinical_field",
+    "description":"名称缺失或身份推断的标志\/方法；不覆盖原drug_name_raw。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"conditional_source_requires_availability_filter"
+  },
+  {
+    "table":"fluid_events\/auxiliary_loads.csv",
+    "field":"hour",
+    "logical_type":"numeric",
+    "unit":"hour_from_injury",
+    "description":"上下文依赖：观测为记录所属整数小时；完成约束为约束结束相对小时，可有小数。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"conditional_source_requires_availability_filter"
+  },
+  {
+    "table":"fluid_events\/auxiliary_loads.csv",
+    "field":"available_hour",
+    "logical_type":"numeric",
+    "unit":"hour_from_injury",
+    "description":"该来源记录业务钟相对伤时小时；事件和记录钟均严格早于起点才能进因果状态。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"conditional_source_requires_availability_filter"
+  },
+  {
+    "table":"fluid_events\/auxiliary_loads.csv",
+    "field":"component",
+    "logical_type":"str",
+    "unit":"see_unit_or_clinical_field",
+    "description":"晶体crystalloid、胶体colloid、水water独立成分；口服另表，不按通道假设划分。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"conditional_source_requires_availability_filter"
+  },
+  {
+    "table":"fluid_events\/auxiliary_loads.csv",
+    "field":"source_id",
+    "logical_type":"identifier_string",
+    "unit":"see_unit_or_clinical_field",
+    "description":"来源事件ID；按所在表连接到医生、护理、入量或约束账。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"conditional_source_requires_availability_filter"
+  },
+  {
+    "table":"fluid_events\/auxiliary_loads.csv",
+    "field":"kind",
+    "logical_type":"str",
+    "unit":"see_unit_or_clinical_field",
+    "description":"来源事件或约束的种类；addition\/setting与回顾性完成类严格分开。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"conditional_source_requires_availability_filter"
+  },
+  {
+    "table":"fluid_events\/auxiliary_loads.csv",
+    "field":"value",
+    "logical_type":"numeric",
+    "unit":"see_unit_or_clinical_field",
+    "description":"该field对应的数值；必须与unit、qualifier、eligible和method一起解释，未知不填0。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"conditional_source_requires_availability_filter"
+  },
+  {
+    "table":"fluid_events\/auxiliary_loads.csv",
+    "field":"scope",
+    "logical_type":"str",
+    "unit":"see_unit_or_clinical_field",
+    "description":"当前记录可见的用途分类：primary_candidate、辅助载液\/肾替代、uncertain等。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"conditional_source_requires_availability_filter"
+  },
+  {
+    "table":"fluid_events\/auxiliary_loads.csv",
+    "field":"scope_reason",
+    "logical_type":"str",
+    "unit":"see_unit_or_clinical_field",
+    "description":"辅助来源被分离的精确当前记录规则。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"conditional_source_requires_availability_filter"
+  },
+  {
+    "table":"fluid_events\/auxiliary_loads.csv",
+    "field":"scope_evidence",
+    "logical_type":"str",
+    "unit":"see_unit_or_clinical_field",
+    "description":"辅助来源的同表单同记录钟原句依据；不使用事后回顾用途作为在线过滤。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"conditional_source_requires_availability_filter"
+  },
+  {
+    "table":"fluid_events\/auxiliary_loads.csv",
+    "field":"patient_id",
+    "logical_type":"identifier_string",
+    "unit":"see_unit_or_clinical_field",
+    "description":"本地患者来源键；用于连接，不是模型数值输入；公开示例使用合成键。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"conditional_source_requires_availability_filter"
+  },
+  {
+    "table":"fluid_events\/doctor_observations.csv",
+    "field":"rate_event_id",
+    "logical_type":"identifier_string",
+    "unit":"see_unit_or_clinical_field",
+    "description":"医生或护理速度\/控制解析事件的稳定来源ID，可追溯原表成员或患者CSV。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"conditional_source_requires_availability_filter"
+  },
+  {
+    "table":"fluid_events\/doctor_observations.csv",
+    "field":"patient_id",
+    "logical_type":"identifier_string",
+    "unit":"see_unit_or_clinical_field",
+    "description":"本地患者来源键；用于连接，不是模型数值输入；公开示例使用合成键。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"conditional_source_requires_availability_filter"
+  },
+  {
+    "table":"fluid_events\/doctor_observations.csv",
+    "field":"component",
+    "logical_type":"str",
+    "unit":"see_unit_or_clinical_field",
+    "description":"晶体crystalloid、胶体colloid、水water独立成分；口服另表，不按通道假设划分。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"conditional_source_requires_availability_filter"
+  },
+  {
+    "table":"fluid_events\/doctor_observations.csv",
+    "field":"event_kind",
+    "logical_type":"str",
+    "unit":"see_unit_or_clinical_field",
+    "description":"rate_change、pause、resume、complete等原解析事件种类；完成不是新设备设置。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"conditional_source_requires_availability_filter"
+  },
+  {
+    "table":"fluid_events\/doctor_observations.csv",
+    "field":"rate_ml_h",
+    "logical_type":"numeric",
+    "unit":"mL\/h",
+    "description":"原速度解析值mL\/h；单位推断另列unit_inferred；空白不表示0。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"conditional_source_requires_availability_filter"
+  },
+  {
+    "table":"fluid_events\/doctor_observations.csv",
+    "field":"rate_raw",
+    "logical_type":"int64",
+    "unit":"see_unit_or_clinical_field",
+    "description":"来源速度原串，保留单位、文字和原数值。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"conditional_source_requires_availability_filter"
+  },
+  {
+    "table":"fluid_events\/doctor_observations.csv",
+    "field":"event_time_local",
+    "logical_type":"str",
+    "unit":"see_unit_or_clinical_field",
+    "description":"事件本地业务时间；明确原句时刻优先，没有精度证据时保留记录钟\/小时起点近似。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"conditional_source_requires_availability_filter"
+  },
+  {
+    "table":"fluid_events\/doctor_observations.csv",
+    "field":"hour_from_injury",
+    "logical_type":"int64",
+    "unit":"see_unit_or_clinical_field",
+    "description":"事件时间减伤时，以小时计，允许小数；相对零点固定。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"conditional_source_requires_availability_filter"
+  },
+  {
+    "table":"fluid_events\/doctor_observations.csv",
+    "field":"source",
+    "logical_type":"str",
+    "unit":"see_unit_or_clinical_field",
+    "description":"来源或分段设置的来源类型；doctor_table与explicit_nursing_*是文书来源，不是泵遥测。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"conditional_source_requires_availability_filter"
+  },
+  {
+    "table":"fluid_events\/doctor_observations.csv",
+    "field":"time_source",
+    "logical_type":"str",
+    "unit":"see_unit_or_clinical_field",
+    "description":"时钟如何取得的代码，例如doctor_hour_start_approximation、form_record_local_clock。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"conditional_source_requires_availability_filter"
+  },
+  {
+    "table":"fluid_events\/doctor_observations.csv",
+    "field":"time_precision",
+    "logical_type":"str",
+    "unit":"see_unit_or_clinical_field",
+    "description":"时钟精度类别；hour_estimate不能解释为真实整点操作，record_seconds也不证明在线录入。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"conditional_source_requires_availability_filter"
+  },
+  {
+    "table":"fluid_events\/doctor_observations.csv",
+    "field":"source_member",
+    "logical_type":"str",
+    "unit":"see_unit_or_clinical_field",
+    "description":"医生原ZIP中的CSV成员名；与source_record_number共同定位。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"conditional_source_requires_availability_filter"
+  },
+  {
+    "table":"fluid_events\/doctor_observations.csv",
+    "field":"source_record_number",
+    "logical_type":"int64",
+    "unit":"see_unit_or_clinical_field",
+    "description":"原提取约定：从1开始的数据记录序号，不含表头；CSV含表头的逻辑记录号应再+1。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"conditional_source_requires_availability_filter"
+  },
+  {
+    "table":"fluid_events\/doctor_observations.csv",
+    "field":"channel_raw",
+    "logical_type":"str",
+    "unit":"see_unit_or_clinical_field",
+    "description":"医生表原通道文字，仅保留证据，不据此合并三成分或推断流速。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"conditional_source_requires_availability_filter"
+  },
+  {
+    "table":"fluid_events\/doctor_observations.csv",
+    "field":"eligible",
+    "logical_type":"bool",
+    "unit":"see_unit_or_clinical_field",
+    "description":"本表所描述记录的规则资格；cohort表指基线入院时间存在，观测\/事件表指该条解析通过相应规则。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"conditional_source_requires_availability_filter"
+  },
+  {
+    "table":"fluid_events\/doctor_observations.csv",
+    "field":"issues",
+    "logical_type":"float64",
+    "unit":"see_unit_or_clinical_field",
+    "description":"解析发现的问题代码集合；空表示该解析器未发现问题，不代表已完成临床认证。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"conditional_source_requires_availability_filter"
+  },
+  {
+    "table":"fluid_events\/doctor_observations.csv",
+    "field":"text_raw",
+    "logical_type":"float64",
+    "unit":"see_unit_or_clinical_field",
+    "description":"对应来源原文，仅限本地；不会随公开PR上传。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"conditional_source_requires_availability_filter"
+  },
+  {
+    "table":"fluid_events\/nursing_events.csv",
+    "field":"patient_id",
+    "logical_type":"identifier_string",
+    "unit":"see_unit_or_clinical_field",
+    "description":"本地患者来源键；用于连接，不是模型数值输入；公开示例使用合成键。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"conditional_source_requires_availability_filter"
+  },
+  {
+    "table":"fluid_events\/nursing_events.csv",
+    "field":"record_time_local",
+    "logical_type":"str",
+    "unit":"see_unit_or_clinical_field",
+    "description":"原记录本地业务钟；FORM_TIME末尾Z按已确定的墙上时钟语义去时区，不另加8小时。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"conditional_source_requires_availability_filter"
+  },
+  {
+    "table":"fluid_events\/nursing_events.csv",
+    "field":"source_form_time_raw",
+    "logical_type":"str",
+    "unit":"see_unit_or_clinical_field",
+    "description":"原FORM_TIME原串，包括原Z及原精度，便于核对。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"conditional_source_requires_availability_filter"
+  },
+  {
+    "table":"fluid_events\/nursing_events.csv",
+    "field":"source_record_number",
+    "logical_type":"int64",
+    "unit":"see_unit_or_clinical_field",
+    "description":"原提取约定：从1开始的数据记录序号，不含表头；CSV含表头的逻辑记录号应再+1。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"conditional_source_requires_availability_filter"
+  },
+  {
+    "table":"fluid_events\/nursing_events.csv",
+    "field":"form_id",
+    "logical_type":"identifier_string",
+    "unit":"see_unit_or_clinical_field",
+    "description":"原FORM_ID表单键；与时间和INNER_SEQ联合绑定同一次入\/出量，不跨表单借值。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"conditional_source_requires_availability_filter"
+  },
+  {
+    "table":"fluid_events\/nursing_events.csv",
+    "field":"field_name",
+    "logical_type":"str",
+    "unit":"see_unit_or_clinical_field",
+    "description":"原记录组合项目名称；用于定位文字属于护理、入量、出量或其他节点。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"conditional_source_requires_availability_filter"
+  },
+  {
+    "table":"fluid_events\/nursing_events.csv",
+    "field":"source_file",
+    "logical_type":"str",
+    "unit":"see_unit_or_clinical_field",
+    "description":"原始来源路径提示；新包原始来源统一按raw\/patient_records定位，旧串原样保留用于追溯。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"conditional_source_requires_availability_filter"
+  },
+  {
+    "table":"fluid_events\/nursing_events.csv",
+    "field":"text_raw",
+    "logical_type":"str",
+    "unit":"see_unit_or_clinical_field",
+    "description":"对应来源原文，仅限本地；不会随公开PR上传。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"conditional_source_requires_availability_filter"
+  },
+  {
+    "table":"fluid_events\/nursing_events.csv",
+    "field":"event_kind",
+    "logical_type":"str",
+    "unit":"see_unit_or_clinical_field",
+    "description":"rate_change、pause、resume、complete等原解析事件种类；完成不是新设备设置。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"conditional_source_requires_availability_filter"
+  },
+  {
+    "table":"fluid_events\/nursing_events.csv",
+    "field":"component",
+    "logical_type":"str",
+    "unit":"see_unit_or_clinical_field",
+    "description":"晶体crystalloid、胶体colloid、水water独立成分；口服另表，不按通道假设划分。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"conditional_source_requires_availability_filter"
+  },
+  {
+    "table":"fluid_events\/nursing_events.csv",
+    "field":"rate_ml_h",
+    "logical_type":"numeric",
+    "unit":"mL\/h",
+    "description":"原速度解析值mL\/h；单位推断另列unit_inferred；空白不表示0。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"conditional_source_requires_availability_filter"
+  },
+  {
+    "table":"fluid_events\/nursing_events.csv",
+    "field":"rate_raw",
+    "logical_type":"str",
+    "unit":"see_unit_or_clinical_field",
+    "description":"来源速度原串，保留单位、文字和原数值。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"conditional_source_requires_availability_filter"
+  },
+  {
+    "table":"fluid_events\/nursing_events.csv",
+    "field":"unit_inferred",
+    "logical_type":"bool",
+    "unit":"see_unit_or_clinical_field",
+    "description":"是否从明确补液\/给药上下文推断省略的速度单位；True不是直接记录单位。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"conditional_source_requires_availability_filter"
+  },
+  {
+    "table":"fluid_events\/nursing_events.csv",
+    "field":"event_time_local",
+    "logical_type":"str",
+    "unit":"see_unit_or_clinical_field",
+    "description":"事件本地业务时间；明确原句时刻优先，没有精度证据时保留记录钟\/小时起点近似。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"conditional_source_requires_availability_filter"
+  },
+  {
+    "table":"fluid_events\/nursing_events.csv",
+    "field":"time_source",
+    "logical_type":"str",
+    "unit":"see_unit_or_clinical_field",
+    "description":"时钟如何取得的代码，例如doctor_hour_start_approximation、form_record_local_clock。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"conditional_source_requires_availability_filter"
+  },
+  {
+    "table":"fluid_events\/nursing_events.csv",
+    "field":"time_precision",
+    "logical_type":"str",
+    "unit":"see_unit_or_clinical_field",
+    "description":"时钟精度类别；hour_estimate不能解释为真实整点操作，record_seconds也不证明在线录入。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"conditional_source_requires_availability_filter"
+  },
+  {
+    "table":"fluid_events\/nursing_events.csv",
+    "field":"match_start",
+    "logical_type":"int64",
+    "unit":"see_unit_or_clinical_field",
+    "description":"NFKC规范化原文中的匹配起始字符偏移（含）。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"conditional_source_requires_availability_filter"
+  },
+  {
+    "table":"fluid_events\/nursing_events.csv",
+    "field":"match_end",
+    "logical_type":"int64",
+    "unit":"see_unit_or_clinical_field",
+    "description":"NFKC规范化原文中的匹配结束字符偏移（不含）。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"conditional_source_requires_availability_filter"
+  },
+  {
+    "table":"fluid_events\/nursing_events.csv",
+    "field":"matched_text",
+    "logical_type":"str",
+    "unit":"see_unit_or_clinical_field",
+    "description":"解析匹配的原句片段；推断依据仍须结合完整原文和作用对象。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"conditional_source_requires_availability_filter"
+  },
+  {
+    "table":"fluid_events\/nursing_events.csv",
+    "field":"issues",
+    "logical_type":"str",
+    "unit":"see_unit_or_clinical_field",
+    "description":"解析发现的问题代码集合；空表示该解析器未发现问题，不代表已完成临床认证。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"conditional_source_requires_availability_filter"
+  },
+  {
+    "table":"fluid_events\/nursing_events.csv",
+    "field":"eligible",
+    "logical_type":"bool",
+    "unit":"see_unit_or_clinical_field",
+    "description":"本表所描述记录的规则资格；cohort表指基线入院时间存在，观测\/事件表指该条解析通过相应规则。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"conditional_source_requires_availability_filter"
+  },
+  {
+    "table":"fluid_events\/nursing_events.csv",
+    "field":"hour_from_injury",
+    "logical_type":"float64",
+    "unit":"see_unit_or_clinical_field",
+    "description":"事件时间减伤时，以小时计，允许小数；相对零点固定。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"conditional_source_requires_availability_filter"
+  },
+  {
+    "table":"fluid_events\/nursing_events.csv",
+    "field":"source",
+    "logical_type":"str",
+    "unit":"see_unit_or_clinical_field",
+    "description":"来源或分段设置的来源类型；doctor_table与explicit_nursing_*是文书来源，不是泵遥测。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"conditional_source_requires_availability_filter"
+  },
+  {
+    "table":"fluid_events\/nursing_events.csv",
+    "field":"rate_event_id",
+    "logical_type":"identifier_string",
+    "unit":"see_unit_or_clinical_field",
+    "description":"医生或护理速度\/控制解析事件的稳定来源ID，可追溯原表成员或患者CSV。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"conditional_source_requires_availability_filter"
+  },
+  {
+    "table":"fluid_events\/nursing_events.csv",
+    "field":"completion_subject",
+    "logical_type":"str",
+    "unit":"see_unit_or_clinical_field",
+    "description":"完成原句的特定液体身份（血浆、白蛋白等）；不自动等同整类补液完成。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"conditional_source_requires_availability_filter"
+  },
+  {
+    "table":"fluid_events\/nursing_events.csv",
+    "field":"flush_volume_ml",
+    "logical_type":"numeric",
+    "unit":"mL",
+    "description":"文本明确提取的冲管量；空值不补固定量，不能把速度数值当冲管量。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"conditional_source_requires_availability_filter"
+  },
+  {
+    "table":"fluid_events\/nursing_events.csv",
+    "field":"available_hour",
+    "logical_type":"numeric",
+    "unit":"hour_from_injury",
+    "description":"该来源记录业务钟相对伤时小时；事件和记录钟均严格早于起点才能进因果状态。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"conditional_source_requires_availability_filter"
+  },
+  {
+    "table":"fluid_events\/nursing_events.csv",
+    "field":"quantity_confidence",
+    "logical_type":"float64",
+    "unit":"see_unit_or_clinical_field",
+    "description":"原量提取\/重建方法的证据等级；不是经独立医生标定的概率。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"conditional_source_requires_availability_filter"
+  },
+  {
+    "table":"fluid_events\/nursing_events.csv",
+    "field":"source_rule",
+    "logical_type":"float64",
+    "unit":"see_unit_or_clinical_field",
+    "description":"补充省略mL速度解析器的固定规则标识，保留该速度的推断来源。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"conditional_source_requires_availability_filter"
+  },
+  {
+    "table":"fluid_events\/reference_setting_events.csv",
+    "field":"hour",
+    "logical_type":"numeric",
+    "unit":"hour_from_injury",
+    "description":"上下文依赖：观测为记录所属整数小时；完成约束为约束结束相对小时，可有小数。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"conditional_source_requires_availability_filter"
+  },
+  {
+    "table":"fluid_events\/reference_setting_events.csv",
+    "field":"available_hour",
+    "logical_type":"numeric",
+    "unit":"hour_from_injury",
+    "description":"该来源记录业务钟相对伤时小时；事件和记录钟均严格早于起点才能进因果状态。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"conditional_source_requires_availability_filter"
+  },
+  {
+    "table":"fluid_events\/reference_setting_events.csv",
+    "field":"kind",
+    "logical_type":"str",
+    "unit":"see_unit_or_clinical_field",
+    "description":"来源事件或约束的种类；addition\/setting与回顾性完成类严格分开。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"conditional_source_requires_availability_filter"
+  },
+  {
+    "table":"fluid_events\/reference_setting_events.csv",
+    "field":"value",
+    "logical_type":"numeric",
+    "unit":"see_unit_or_clinical_field",
+    "description":"该field对应的数值；必须与unit、qualifier、eligible和method一起解释，未知不填0。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"conditional_source_requires_availability_filter"
+  },
+  {
+    "table":"fluid_events\/reference_setting_events.csv",
+    "field":"component",
+    "logical_type":"str",
+    "unit":"see_unit_or_clinical_field",
+    "description":"晶体crystalloid、胶体colloid、水water独立成分；口服另表，不按通道假设划分。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"conditional_source_requires_availability_filter"
+  },
+  {
+    "table":"fluid_events\/reference_setting_events.csv",
+    "field":"source_id",
+    "logical_type":"identifier_string",
+    "unit":"see_unit_or_clinical_field",
+    "description":"来源事件ID；按所在表连接到医生、护理、入量或约束账。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"conditional_source_requires_availability_filter"
+  },
+  {
+    "table":"fluid_events\/reference_setting_events.csv",
+    "field":"source",
+    "logical_type":"str",
+    "unit":"see_unit_or_clinical_field",
+    "description":"来源或分段设置的来源类型；doctor_table与explicit_nursing_*是文书来源，不是泵遥测。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"conditional_source_requires_availability_filter"
+  },
+  {
+    "table":"fluid_events\/reference_setting_events.csv",
+    "field":"unit_inferred",
+    "logical_type":"bool",
+    "unit":"see_unit_or_clinical_field",
+    "description":"是否从明确补液\/给药上下文推断省略的速度单位；True不是直接记录单位。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"conditional_source_requires_availability_filter"
+  },
+  {
+    "table":"fluid_events\/reference_setting_events.csv",
+    "field":"patient_id",
+    "logical_type":"identifier_string",
+    "unit":"see_unit_or_clinical_field",
+    "description":"本地患者来源键；用于连接，不是模型数值输入；公开示例使用合成键。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"conditional_source_requires_availability_filter"
+  },
+  {
+    "table":"fluid_events\/reference_setting_events.csv",
+    "field":"original_event_hour",
+    "logical_type":"numeric",
+    "unit":"hour_from_injury",
+    "description":"原医生\/护理来源的相对事件小时；与统一曲线hour对照，明确时刻校正不改原来源。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"conditional_source_requires_availability_filter"
+  },
+  {
+    "table":"fluid_events\/reference_setting_events.csv",
+    "field":"original_time_precision",
+    "logical_type":"str",
+    "unit":"see_unit_or_clinical_field",
+    "description":"未作护理时钟校正前原记录的精度类型。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"conditional_source_requires_availability_filter"
+  },
+  {
+    "table":"fluid_events\/reference_setting_events.csv",
+    "field":"time_precision",
+    "logical_type":"str",
+    "unit":"see_unit_or_clinical_field",
+    "description":"时钟精度类别；hour_estimate不能解释为真实整点操作，record_seconds也不证明在线录入。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"conditional_source_requires_availability_filter"
+  },
+  {
+    "table":"fluid_events\/reference_setting_events.csv",
+    "field":"timing_narrative_source_id",
+    "logical_type":"identifier_string",
+    "unit":"see_unit_or_clinical_field",
+    "description":"唯一护理变速证据用于校正医生小时近似时的原句事件ID；无校正为空。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"conditional_source_requires_availability_filter"
+  },
+  {
+    "table":"fluid_events\/source_loads.csv",
+    "field":"hour",
+    "logical_type":"numeric",
+    "unit":"hour_from_injury",
+    "description":"上下文依赖：观测为记录所属整数小时；完成约束为约束结束相对小时，可有小数。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"conditional_source_requires_availability_filter"
+  },
+  {
+    "table":"fluid_events\/source_loads.csv",
+    "field":"available_hour",
+    "logical_type":"numeric",
+    "unit":"hour_from_injury",
+    "description":"该来源记录业务钟相对伤时小时；事件和记录钟均严格早于起点才能进因果状态。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"conditional_source_requires_availability_filter"
+  },
+  {
+    "table":"fluid_events\/source_loads.csv",
+    "field":"component",
+    "logical_type":"str",
+    "unit":"see_unit_or_clinical_field",
+    "description":"晶体crystalloid、胶体colloid、水water独立成分；口服另表，不按通道假设划分。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"conditional_source_requires_availability_filter"
+  },
+  {
+    "table":"fluid_events\/source_loads.csv",
+    "field":"source_id",
+    "logical_type":"identifier_string",
+    "unit":"see_unit_or_clinical_field",
+    "description":"来源事件ID；按所在表连接到医生、护理、入量或约束账。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"conditional_source_requires_availability_filter"
+  },
+  {
+    "table":"fluid_events\/source_loads.csv",
+    "field":"kind",
+    "logical_type":"str",
+    "unit":"see_unit_or_clinical_field",
+    "description":"来源事件或约束的种类；addition\/setting与回顾性完成类严格分开。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"conditional_source_requires_availability_filter"
+  },
+  {
+    "table":"fluid_events\/source_loads.csv",
+    "field":"value",
+    "logical_type":"numeric",
+    "unit":"see_unit_or_clinical_field",
+    "description":"该field对应的数值；必须与unit、qualifier、eligible和method一起解释，未知不填0。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"conditional_source_requires_availability_filter"
+  },
+  {
+    "table":"fluid_events\/source_loads.csv",
+    "field":"patient_id",
+    "logical_type":"identifier_string",
+    "unit":"see_unit_or_clinical_field",
+    "description":"本地患者来源键；用于连接，不是模型数值输入；公开示例使用合成键。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"conditional_source_requires_availability_filter"
+  },
+  {
+    "table":"fluid_events\/source_loads.csv",
+    "field":"evidence_kind",
+    "logical_type":"str",
+    "unit":"see_unit_or_clinical_field",
+    "description":"source_loads中known为已量化来源，unknown_quantity_cue仅为未知量线索，不代表0瓶或确定加液。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"conditional_source_requires_availability_filter"
+  },
+  {
+    "table":"fluid_events\/source_loads.csv",
+    "field":"quantity_source",
+    "logical_type":"float64",
+    "unit":"see_unit_or_clinical_field",
+    "description":"来源量恢复的方法；same_clock_form_actual_mention要求同表单同钟、唯一同族记录和实际输注原句。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"conditional_source_requires_availability_filter"
+  },
+  {
+    "table":"fluid_lots\/accounting.csv",
+    "field":"patient_id",
+    "logical_type":"identifier_string",
+    "unit":"see_unit_or_clinical_field",
+    "description":"本地患者来源键；用于连接，不是模型数值输入；公开示例使用合成键。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"reference_or_provenance_only"
+  },
+  {
+    "table":"fluid_lots\/accounting.csv",
+    "field":"component",
+    "logical_type":"str",
+    "unit":"see_unit_or_clinical_field",
+    "description":"晶体crystalloid、胶体colloid、水water独立成分；口服另表，不按通道假设划分。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"reference_or_provenance_only"
+  },
+  {
+    "table":"fluid_lots\/accounting.csv",
+    "field":"lot_id",
+    "logical_type":"identifier_string",
+    "unit":"see_unit_or_clinical_field",
+    "description":"重建每瓶\/批次的稳定键；同袋成分可分账，不据此推断独立通道。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"reference_or_provenance_only"
+  },
+  {
+    "table":"fluid_lots\/accounting.csv",
+    "field":"source_event_id",
+    "logical_type":"identifier_string",
+    "unit":"see_unit_or_clinical_field",
+    "description":"该批次所依附的原始入量或明确文字来源ID。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"reference_or_provenance_only"
+  },
+  {
+    "table":"fluid_lots\/accounting.csv",
+    "field":"source_order",
+    "logical_type":"float64",
+    "unit":"see_unit_or_clinical_field",
+    "description":"同时间来源的稳定排序号，仅保证重放；不证明实际床旁先后。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"reference_or_provenance_only"
+  },
+  {
+    "table":"fluid_lots\/accounting.csv",
+    "field":"add_hour",
+    "logical_type":"numeric",
+    "unit":"hour_from_injury",
+    "description":"该批次登记进入待输库存的时刻，不是一次性实际输入时刻。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"reference_or_provenance_only"
+  },
+  {
+    "table":"fluid_lots\/accounting.csv",
+    "field":"name",
+    "logical_type":"str",
+    "unit":"see_unit_or_clinical_field",
+    "description":"该批次记录名称；保留具体药液身份。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"reference_or_provenance_only"
+  },
+  {
+    "table":"fluid_lots\/accounting.csv",
+    "field":"subject",
+    "logical_type":"str",
+    "unit":"see_unit_or_clinical_field",
+    "description":"白蛋白、血浆、红细胞等液体身份，用于兼容完成事件匹配。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"reference_or_provenance_only"
+  },
+  {
+    "table":"fluid_lots\/accounting.csv",
+    "field":"original_volume_ml",
+    "logical_type":"numeric",
+    "unit":"mL",
+    "description":"原始\/恢复的整瓶或整次量，退回发生前的量；不是小时输入量。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"reference_or_provenance_only"
+  },
+  {
+    "table":"fluid_lots\/accounting.csv",
+    "field":"net_ml",
+    "logical_type":"numeric",
+    "unit":"mL",
+    "description":"回顾处置后净可用量=original_volume_ml-cancelled_ml；只用于参考账，不作在线原容量。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"reference_or_provenance_only"
+  },
+  {
+    "table":"fluid_lots\/accounting.csv",
+    "field":"cancelled_ml",
+    "logical_type":"numeric",
+    "unit":"mL",
+    "description":"回顾解释的未用退回\/取消量，非负；不作为负输注写进小时量。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"reference_or_provenance_only"
+  },
+  {
+    "table":"fluid_lots\/accounting.csv",
+    "field":"quantity_method",
+    "logical_type":"str",
+    "unit":"see_unit_or_clinical_field",
+    "description":"整瓶量获取方法（原单位换算、原句、患者典型值、区间总量等），逐条保留。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"reference_or_provenance_only"
+  },
+  {
+    "table":"fluid_lots\/accounting.csv",
+    "field":"quantity_confidence",
+    "logical_type":"str",
+    "unit":"see_unit_or_clinical_field",
+    "description":"原量提取\/重建方法的证据等级；不是经独立医生标定的概率。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"reference_or_provenance_only"
+  },
+  {
+    "table":"fluid_lots\/accounting.csv",
+    "field":"modeled_consumed_ml",
+    "logical_type":"numeric",
+    "unit":"mL",
+    "description":"该批次所有参考分段已输入量总和；与余量守恒，不等于独立泵测量。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"reference_or_provenance_only"
+  },
+  {
+    "table":"fluid_lots\/accounting.csv",
+    "field":"remaining_at_episode_end_ml",
+    "logical_type":"numeric",
+    "unit":"mL",
+    "description":"重建期末未消耗量；截断不自动解释成弃液或设备停止。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"reference_or_provenance_only"
+  },
+  {
+    "table":"fluid_lots\/accounting.csv",
+    "field":"episode_start",
+    "logical_type":"float64",
+    "unit":"see_unit_or_clinical_field",
+    "description":"重建阶段起点，相对伤时小时。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"reference_or_provenance_only"
+  },
+  {
+    "table":"fluid_lots\/accounting.csv",
+    "field":"episode_end",
+    "logical_type":"float64",
+    "unit":"see_unit_or_clinical_field",
+    "description":"重建阶段结束\/截断点，相对伤时小时。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"reference_or_provenance_only"
+  },
+  {
+    "table":"fluid_lots\/accounting.csv",
+    "field":"remaining_status",
+    "logical_type":"str",
+    "unit":"see_unit_or_clinical_field",
+    "description":"余量的处置\/截断解释，例如censored_at_operation_transition；不得自动生成停输事实。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"reference_or_provenance_only"
+  },
+  {
+    "table":"fluid_segments\/delivered.csv",
+    "field":"start_hour",
+    "logical_type":"numeric",
+    "unit":"hour_from_injury",
+    "description":"分段\/证据区间起点，相对伤时小时，区间左闭右开。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"reference_or_provenance_only"
+  },
+  {
+    "table":"fluid_segments\/delivered.csv",
+    "field":"end_hour",
+    "logical_type":"numeric",
+    "unit":"hour_from_injury",
+    "description":"分段\/证据区间终点，相对伤时小时，右端不把下一小时事件算入前一小时。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"reference_or_provenance_only"
+  },
+  {
+    "table":"fluid_segments\/delivered.csv",
+    "field":"lot_id",
+    "logical_type":"identifier_string",
+    "unit":"see_unit_or_clinical_field",
+    "description":"重建每瓶\/批次的稳定键；同袋成分可分账，不据此推断独立通道。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"reference_or_provenance_only"
+  },
+  {
+    "table":"fluid_segments\/delivered.csv",
+    "field":"input_ml",
+    "logical_type":"numeric",
+    "unit":"mL",
+    "description":"完整住院小时的量参考；仅在无已登记来源\/无未量化线索的明确无记录输入情况下允许补0；其他未知与边界外为NA。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"reference_or_provenance_only"
+  },
+  {
+    "table":"fluid_segments\/delivered.csv",
+    "field":"setting_ml_h",
+    "logical_type":"numeric",
+    "unit":"mL\/h",
+    "description":"该片段文书设备设置mL\/h；未知为NA，不能由实际输入量反算并冒充设备观测。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"reference_or_provenance_only"
+  },
+  {
+    "table":"fluid_segments\/delivered.csv",
+    "field":"estimated_actual_rate_ml_h",
+    "logical_type":"numeric",
+    "unit":"mL\/h",
+    "description":"参考分段input_ml除以段时长；可含完成约束倍率\/均匀分配，不是原设备设置。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"reference_or_provenance_only"
+  },
+  {
+    "table":"fluid_segments\/delivered.csv",
+    "field":"scale",
+    "logical_type":"float64",
+    "unit":"see_unit_or_clinical_field",
+    "description":"完成总量拟合设置积分时使用的倍率；仅回顾性方法参数，不是预测输入。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"reference_or_provenance_only"
+  },
+  {
+    "table":"fluid_segments\/delivered.csv",
+    "field":"rate_fallback",
+    "logical_type":"bool",
+    "unit":"see_unit_or_clinical_field",
+    "description":"分段是否使用设置缺失时的回顾性典型速度；初始设备设置本身仍未知。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"reference_or_provenance_only"
+  },
+  {
+    "table":"fluid_segments\/delivered.csv",
+    "field":"rate_source_id",
+    "logical_type":"identifier_string",
+    "unit":"see_unit_or_clinical_field",
+    "description":"分段文书速度来源ID；回顾性无来源估计时可为空。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"reference_or_provenance_only"
+  },
+  {
+    "table":"fluid_segments\/delivered.csv",
+    "field":"quantity_confidence",
+    "logical_type":"str",
+    "unit":"see_unit_or_clinical_field",
+    "description":"原量提取\/重建方法的证据等级；不是经独立医生标定的概率。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"reference_or_provenance_only"
+  },
+  {
+    "table":"fluid_segments\/delivered.csv",
+    "field":"method",
+    "logical_type":"str",
+    "unit":"see_unit_or_clinical_field",
+    "description":"提取\/估计\/聚合方法代码；事件与分段的具体分支见METHODS.md及冻结recipe。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"reference_or_provenance_only"
+  },
+  {
+    "table":"fluid_segments\/delivered.csv",
+    "field":"patient_id",
+    "logical_type":"identifier_string",
+    "unit":"see_unit_or_clinical_field",
+    "description":"本地患者来源键；用于连接，不是模型数值输入；公开示例使用合成键。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"reference_or_provenance_only"
+  },
+  {
+    "table":"fluid_segments\/delivered.csv",
+    "field":"component",
+    "logical_type":"str",
+    "unit":"see_unit_or_clinical_field",
+    "description":"晶体crystalloid、胶体colloid、水water独立成分；口服另表，不按通道假设划分。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"reference_or_provenance_only"
+  },
+  {
+    "table":"fluid_segments\/delivered.csv",
+    "field":"fallback_method",
+    "logical_type":"str",
+    "unit":"see_unit_or_clinical_field",
+    "description":"典型速度\/手术或前院时长的具体推断方法代码。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"reference_or_provenance_only"
+  },
+  {
+    "table":"fluid_segments\/delivered.csv",
+    "field":"anchor_source_id",
+    "logical_type":"identifier_string",
+    "unit":"see_unit_or_clinical_field",
+    "description":"驱动该分段完成总量\/区间分配的约束来源ID。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"reference_or_provenance_only"
+  },
+  {
+    "table":"fluid_segments\/device_settings.csv",
+    "field":"patient_id",
+    "logical_type":"identifier_string",
+    "unit":"see_unit_or_clinical_field",
+    "description":"本地患者来源键；用于连接，不是模型数值输入；公开示例使用合成键。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"reference_or_provenance_only"
+  },
+  {
+    "table":"fluid_segments\/device_settings.csv",
+    "field":"component",
+    "logical_type":"str",
+    "unit":"see_unit_or_clinical_field",
+    "description":"晶体crystalloid、胶体colloid、水water独立成分；口服另表，不按通道假设划分。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"reference_or_provenance_only"
+  },
+  {
+    "table":"fluid_segments\/device_settings.csv",
+    "field":"start_hour",
+    "logical_type":"numeric",
+    "unit":"hour_from_injury",
+    "description":"分段\/证据区间起点，相对伤时小时，区间左闭右开。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"reference_or_provenance_only"
+  },
+  {
+    "table":"fluid_segments\/device_settings.csv",
+    "field":"end_hour",
+    "logical_type":"numeric",
+    "unit":"hour_from_injury",
+    "description":"分段\/证据区间终点，相对伤时小时，右端不把下一小时事件算入前一小时。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"reference_or_provenance_only"
+  },
+  {
+    "table":"fluid_segments\/device_settings.csv",
+    "field":"setting_ml_h",
+    "logical_type":"numeric",
+    "unit":"mL\/h",
+    "description":"该片段文书设备设置mL\/h；未知为NA，不能由实际输入量反算并冒充设备观测。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"reference_or_provenance_only"
+  },
+  {
+    "table":"fluid_segments\/device_settings.csv",
+    "field":"source_id",
+    "logical_type":"identifier_string",
+    "unit":"see_unit_or_clinical_field",
+    "description":"来源事件ID；按所在表连接到医生、护理、入量或约束账。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"reference_or_provenance_only"
+  },
+  {
+    "table":"fluid_segments\/device_settings.csv",
+    "field":"source",
+    "logical_type":"str",
+    "unit":"see_unit_or_clinical_field",
+    "description":"来源或分段设置的来源类型；doctor_table与explicit_nursing_*是文书来源，不是泵遥测。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"reference_or_provenance_only"
+  },
+  {
+    "table":"fluid_segments\/device_settings.csv",
+    "field":"time_precision",
+    "logical_type":"str",
+    "unit":"see_unit_or_clinical_field",
+    "description":"时钟精度类别；hour_estimate不能解释为真实整点操作，record_seconds也不证明在线录入。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"reference_or_provenance_only"
+  },
+  {
+    "table":"hourly\/iv_fluid.csv",
+    "field":"patient_id",
+    "logical_type":"identifier_string",
+    "unit":"see_unit_or_clinical_field",
+    "description":"本地患者来源键；用于连接，不是模型数值输入；公开示例使用合成键。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"reference_or_provenance_only"
+  },
+  {
+    "table":"hourly\/iv_fluid.csv",
+    "field":"hour_start",
+    "logical_type":"numeric",
+    "unit":"hour_from_injury",
+    "description":"伤后小时区间[h,h+1)的h，取0至71。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"reference_or_provenance_only"
+  },
+  {
+    "table":"hourly\/iv_fluid.csv",
+    "field":"component",
+    "logical_type":"str",
+    "unit":"see_unit_or_clinical_field",
+    "description":"晶体crystalloid、胶体colloid、水water独立成分；口服另表，不按通道假设划分。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"reference_or_provenance_only"
+  },
+  {
+    "table":"hourly\/iv_fluid.csv",
+    "field":"hour_start_local",
+    "logical_type":"str",
+    "unit":"see_unit_or_clinical_field",
+    "description":"伤时加hour_start小时的本地时间，用于核对真实日期与小时。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"reference_or_provenance_only"
+  },
+  {
+    "table":"hourly\/iv_fluid.csv",
+    "field":"full_inpatient_hour",
+    "logical_type":"numeric",
+    "unit":"hour_from_injury",
+    "description":"h>=基线入院小时且h+1<=观察结束保守下界；部分边界小时不列为完整监督。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"reference_or_provenance_only"
+  },
+  {
+    "table":"hourly\/iv_fluid.csv",
+    "field":"reference_reconstructed_input_ml",
+    "logical_type":"numeric",
+    "unit":"mL",
+    "description":"旧时钟修复重建表中的原小时量，原样保留用于版本复核；可能为估计\/边界外参考，不自动可监督。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"reference_or_provenance_only"
+  },
+  {
+    "table":"hourly\/iv_fluid.csv",
+    "field":"input_ml",
+    "logical_type":"numeric",
+    "unit":"mL",
+    "description":"完整住院小时的量参考；仅在无已登记来源\/无未量化线索的明确无记录输入情况下允许补0；其他未知与边界外为NA。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"reference_or_provenance_only"
+  },
+  {
+    "table":"hourly\/iv_fluid.csv",
+    "field":"input_value_status",
+    "logical_type":"str",
+    "unit":"see_unit_or_clinical_field",
+    "description":"estimated_reference、recorded_no_input_zero、unknown、outside_or_partial_boundary四类。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"reference_or_provenance_only"
+  },
+  {
+    "table":"hourly\/iv_fluid.csv",
+    "field":"reference_method",
+    "logical_type":"str",
+    "unit":"see_unit_or_clinical_field",
+    "description":"小时量由哪些原分段方法组成；整点无来源0与分段积分\/完成量拟合区分。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"reference_or_provenance_only"
+  },
+  {
+    "table":"hourly\/iv_fluid.csv",
+    "field":"reference_confidence",
+    "logical_type":"str",
+    "unit":"see_unit_or_clinical_field",
+    "description":"原小时量重建的high\/medium\/low\/not_estimable等级；不是统计置信度。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"reference_or_provenance_only"
+  },
+  {
+    "table":"hourly\/iv_fluid.csv",
+    "field":"reconstructed_is_imputed",
+    "logical_type":"bool",
+    "unit":"see_unit_or_clinical_field",
+    "description":"原小时重建是否涉及推断、单位\/量估计或无记录零值；不表示测量值被重写。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"reference_or_provenance_only"
+  },
+  {
+    "table":"hourly\/iv_fluid.csv",
+    "field":"start_setting_ml_h",
+    "logical_type":"numeric",
+    "unit":"mL\/h",
+    "description":"统一回顾性设置曲线在h生效后的值；无初始设置则NA。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"reference_or_provenance_only"
+  },
+  {
+    "table":"hourly\/iv_fluid.csv",
+    "field":"end_setting_ml_h",
+    "logical_type":"numeric",
+    "unit":"mL\/h",
+    "description":"同一设置曲线在h+1之前的左极限；恰h+1的事件属于下一小时。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"reference_or_provenance_only"
+  },
+  {
+    "table":"hourly\/iv_fluid.csv",
+    "field":"setting_time_integral_ml",
+    "logical_type":"numeric",
+    "unit":"mL",
+    "description":"完整已知设置曲线在[h,h+1)的∑设置×时长；是尝试流量积分，不是实际输入量。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"reference_or_provenance_only"
+  },
+  {
+    "table":"hourly\/iv_fluid.csv",
+    "field":"full_setting_known",
+    "logical_type":"bool",
+    "unit":"see_unit_or_clinical_field",
+    "description":"整小时每个设置片段均已知；未知片段不以0或后一条速度反填。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"reference_or_provenance_only"
+  },
+  {
+    "table":"hourly\/iv_fluid.csv",
+    "field":"conditional_delivered_lower_ml",
+    "logical_type":"numeric",
+    "unit":"mL",
+    "description":"来源账剩余下界与本小时已量化到达、文书设置的条件FIFO输入量；不是临床必然下界。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"reference_or_provenance_only"
+  },
+  {
+    "table":"hourly\/iv_fluid.csv",
+    "field":"conditional_delivered_upper_ml",
+    "logical_type":"numeric",
+    "unit":"mL",
+    "description":"来源账剩余上界与本小时已量化到达、文书设置的条件FIFO输入量；不保证覆盖未登记实际加液。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"reference_or_provenance_only"
+  },
+  {
+    "table":"hourly\/iv_fluid.csv",
+    "field":"setting_reference_eligible",
+    "logical_type":"bool",
+    "unit":"see_unit_or_clinical_field",
+    "description":"完整住院小时且结束前设置有限；严格动作尚需后续实验核对上一可用设置，不能只凭本列。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"reference_or_provenance_only"
+  },
+  {
+    "table":"hourly\/iv_fluid.csv",
+    "field":"quantity_reference_eligible",
+    "logical_type":"bool",
+    "unit":"see_unit_or_clinical_field",
+    "description":"完整住院小时、量值有限且没有既有患者级跨患者量先验依赖；不等于精确临床真值。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"reference_or_provenance_only"
+  },
+  {
+    "table":"hourly\/iv_fluid.csv",
+    "field":"exact_joint_eligible",
+    "logical_type":"bool",
+    "unit":"see_unit_or_clinical_field",
+    "description":"量资格、整小时设置已知、无所列量速冲突\/手术区间不确定性、无未量化来源同时满足。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"reference_or_provenance_only"
+  },
+  {
+    "table":"hourly\/iv_fluid.csv",
+    "field":"average_actual_input_rate_ml_h",
+    "logical_type":"numeric",
+    "unit":"mL\/h",
+    "description":"完整一小时input_ml除以1h；与设备起点\/末点设置分列，边界小时为NA。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"reference_or_provenance_only"
+  },
+  {
+    "table":"hourly\/iv_fluid.csv",
+    "field":"uncertainty_reasons",
+    "logical_type":"str",
+    "unit":"see_unit_or_clinical_field",
+    "description":"本小时重叠证据不确定区间的原因集合；保留参考量，不以模型误差筛选。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"reference_or_provenance_only"
+  },
+  {
+    "table":"hourly\/iv_fluid.csv",
+    "field":"unquantified_source_event_ids",
+    "logical_type":"float64",
+    "unit":"see_unit_or_clinical_field",
+    "description":"原小时表保留的未定量来源ID；不把缺记加液或冲管当作确切0。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"reference_or_provenance_only"
+  },
+  {
+    "table":"hourly\/iv_fluid.csv",
+    "field":"cross_patient_prior_dependency",
+    "logical_type":"bool",
+    "unit":"see_unit_or_clinical_field",
+    "description":"对应患者的跨患者速度先验依赖；从资格元数据连接，禁止用于预测。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"reference_or_provenance_only"
+  },
+  {
+    "table":"hourly\/iv_fluid.csv",
+    "field":"missing_flush_effect_not_imputed",
+    "logical_type":"bool",
+    "unit":"see_unit_or_clinical_field",
+    "description":"缺记冲管未补固定量\/时长的标志；与文书明确冲管量相区分。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"reference_or_provenance_only"
+  },
+  {
+    "table":"hourly\/oral_events.csv",
+    "field":"event_id",
+    "logical_type":"identifier_string",
+    "unit":"see_unit_or_clinical_field",
+    "description":"原始入量组合记录的稳定ID，由患者及同记录键生成。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"reference_or_provenance_only"
+  },
+  {
+    "table":"hourly\/oral_events.csv",
+    "field":"patient_id",
+    "logical_type":"identifier_string",
+    "unit":"see_unit_or_clinical_field",
+    "description":"本地患者来源键；用于连接，不是模型数值输入；公开示例使用合成键。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"reference_or_provenance_only"
+  },
+  {
+    "table":"hourly\/oral_events.csv",
+    "field":"source_form_time_raw",
+    "logical_type":"str",
+    "unit":"see_unit_or_clinical_field",
+    "description":"原FORM_TIME原串，包括原Z及原精度，便于核对。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"reference_or_provenance_only"
+  },
+  {
+    "table":"hourly\/oral_events.csv",
+    "field":"record_time_local",
+    "logical_type":"str",
+    "unit":"see_unit_or_clinical_field",
+    "description":"原记录本地业务钟；FORM_TIME末尾Z按已确定的墙上时钟语义去时区，不另加8小时。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"reference_or_provenance_only"
+  },
+  {
+    "table":"hourly\/oral_events.csv",
+    "field":"event_time_local",
+    "logical_type":"str",
+    "unit":"see_unit_or_clinical_field",
+    "description":"事件本地业务时间；明确原句时刻优先，没有精度证据时保留记录钟\/小时起点近似。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"reference_or_provenance_only"
+  },
+  {
+    "table":"hourly\/oral_events.csv",
+    "field":"time_source",
+    "logical_type":"str",
+    "unit":"see_unit_or_clinical_field",
+    "description":"时钟如何取得的代码，例如doctor_hour_start_approximation、form_record_local_clock。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"reference_or_provenance_only"
+  },
+  {
+    "table":"hourly\/oral_events.csv",
+    "field":"time_precision",
+    "logical_type":"str",
+    "unit":"see_unit_or_clinical_field",
+    "description":"时钟精度类别；hour_estimate不能解释为真实整点操作，record_seconds也不证明在线录入。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"reference_or_provenance_only"
+  },
+  {
+    "table":"hourly\/oral_events.csv",
+    "field":"source_z_interpreted_as_local_clock",
+    "logical_type":"bool",
+    "unit":"see_unit_or_clinical_field",
+    "description":"是否按已确认的源系统墙钟语义处理末尾Z，不另作UTC+8转换。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"reference_or_provenance_only"
+  },
+  {
+    "table":"hourly\/oral_events.csv",
+    "field":"hour_from_injury",
+    "logical_type":"float64",
+    "unit":"see_unit_or_clinical_field",
+    "description":"事件时间减伤时，以小时计，允许小数；相对零点固定。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"reference_or_provenance_only"
+  },
+  {
+    "table":"hourly\/oral_events.csv",
+    "field":"form_id",
+    "logical_type":"identifier_string",
+    "unit":"see_unit_or_clinical_field",
+    "description":"原FORM_ID表单键；与时间和INNER_SEQ联合绑定同一次入\/出量，不跨表单借值。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"reference_or_provenance_only"
+  },
+  {
+    "table":"hourly\/oral_events.csv",
+    "field":"inner_seq",
+    "logical_type":"identifier_string",
+    "unit":"see_unit_or_clinical_field",
+    "description":"原INNER_SEQ同表单子项序号；数量\/名称\/途径\/单位绑定键之一。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"reference_or_provenance_only"
+  },
+  {
+    "table":"hourly\/oral_events.csv",
+    "field":"drug_name_raw",
+    "logical_type":"str",
+    "unit":"see_unit_or_clinical_field",
+    "description":"原始药名，保留人为错字、剂量和包装文本。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"reference_or_provenance_only"
+  },
+  {
+    "table":"hourly\/oral_events.csv",
+    "field":"drug_name_corrected",
+    "logical_type":"str",
+    "unit":"see_unit_or_clinical_field",
+    "description":"规则可唯一纠正的名称；不借另一包装规格修改原瓶容量。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"reference_or_provenance_only"
+  },
+  {
+    "table":"hourly\/oral_events.csv",
+    "field":"category_reference",
+    "logical_type":"str",
+    "unit":"see_unit_or_clinical_field",
+    "description":"历史分类参考表或分类规则返回的中文类别；参考表本身可能有误。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"reference_or_provenance_only"
+  },
+  {
+    "table":"hourly\/oral_events.csv",
+    "field":"component",
+    "logical_type":"str",
+    "unit":"see_unit_or_clinical_field",
+    "description":"晶体crystalloid、胶体colloid、水water独立成分；口服另表，不按通道假设划分。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"reference_or_provenance_only"
+  },
+  {
+    "table":"hourly\/oral_events.csv",
+    "field":"classification_method",
+    "logical_type":"str",
+    "unit":"see_unit_or_clinical_field",
+    "description":"精确参考、规范化、途径别名、受限药族、保守错字等实际分类分支。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"reference_or_provenance_only"
+  },
+  {
+    "table":"hourly\/oral_events.csv",
+    "field":"route_raw",
+    "logical_type":"str",
+    "unit":"see_unit_or_clinical_field",
+    "description":"原给入途径；静脉注射\/静推等排除补液，口服\/鼻饲另计。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"reference_or_provenance_only"
+  },
+  {
+    "table":"hourly\/oral_events.csv",
+    "field":"route_inferred",
+    "logical_type":"bool",
+    "unit":"see_unit_or_clinical_field",
+    "description":"空途径因来源类别使用工作推断的标志，不能声称原表明确记录静滴。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"reference_or_provenance_only"
+  },
+  {
+    "table":"hourly\/oral_events.csv",
+    "field":"amount_raw",
+    "logical_type":"float64",
+    "unit":"see_unit_or_clinical_field",
+    "description":"原数量字符串；是否为单位量、瓶数、负量由volume_method及原单位说明。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"reference_or_provenance_only"
+  },
+  {
+    "table":"hourly\/oral_events.csv",
+    "field":"unit_raw",
+    "logical_type":"str",
+    "unit":"see_unit_or_clinical_field",
+    "description":"原实用量单位字符串，未经静默修正。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"reference_or_provenance_only"
+  },
+  {
+    "table":"hourly\/oral_events.csv",
+    "field":"backup_unit_raw",
+    "logical_type":"str",
+    "unit":"see_unit_or_clinical_field",
+    "description":"同组备用量单位，只有规则允许时用于补充单位证据。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"reference_or_provenance_only"
+  },
+  {
+    "table":"hourly\/oral_events.csv",
+    "field":"backup_amount_raw",
+    "logical_type":"float64",
+    "unit":"see_unit_or_clinical_field",
+    "description":"同组备用量原值；不与另一表单数值拼接。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"reference_or_provenance_only"
+  },
+  {
+    "table":"hourly\/oral_events.csv",
+    "field":"volume_ml",
+    "logical_type":"numeric",
+    "unit":"mL",
+    "description":"按来源单位规则换算的量；可能为整瓶、口服或负量，须结合component\/route\/decision，不是已输入小时量。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"reference_or_provenance_only"
+  },
+  {
+    "table":"hourly\/oral_events.csv",
+    "field":"volume_method",
+    "logical_type":"str",
+    "unit":"see_unit_or_clinical_field",
+    "description":"原数量单位解析分支；explicit_unit与由瓶数×明确包装容量等推断分开。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"reference_or_provenance_only"
+  },
+  {
+    "table":"hourly\/oral_events.csv",
+    "field":"input_kind_raw",
+    "logical_type":"str",
+    "unit":"see_unit_or_clinical_field",
+    "description":"原入量分类\/用途文字；辅助用途筛选须同表单同钟证据佐证。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"reference_or_provenance_only"
+  },
+  {
+    "table":"hourly\/oral_events.csv",
+    "field":"eligible_stock_addition",
+    "logical_type":"bool",
+    "unit":"see_unit_or_clinical_field",
+    "description":"初始来源解析是否可作加液候选；并不覆盖后续重复\/注射\/辅助用途处置。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"reference_or_provenance_only"
+  },
+  {
+    "table":"hourly\/oral_events.csv",
+    "field":"issues",
+    "logical_type":"str",
+    "unit":"see_unit_or_clinical_field",
+    "description":"解析发现的问题代码集合；空表示该解析器未发现问题，不代表已完成临床认证。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"reference_or_provenance_only"
+  },
+  {
+    "table":"hourly\/oral_events.csv",
+    "field":"source_file",
+    "logical_type":"str",
+    "unit":"see_unit_or_clinical_field",
+    "description":"原始来源路径提示；新包原始来源统一按raw\/patient_records定位，旧串原样保留用于追溯。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"reference_or_provenance_only"
+  },
+  {
+    "table":"hourly\/oral_events.csv",
+    "field":"source_record_numbers",
+    "logical_type":"identifier_string",
+    "unit":"see_unit_or_clinical_field",
+    "description":"同组原始数据记录序号集合，从1起不含表头；完整保留名称、量、单位、途径绑定。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"reference_or_provenance_only"
+  },
+  {
+    "table":"hourly\/oral_events.csv",
+    "field":"fields_raw_json",
+    "logical_type":"str",
+    "unit":"see_unit_or_clinical_field",
+    "description":"按原组合项目名称保存NUMBER_VALUE和STRING_VALUE集合的JSON，不静默取一个冲突值。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"reference_or_provenance_only"
+  },
+  {
+    "table":"hourly\/oral_events.csv",
+    "field":"effective_recorded_volume_ml",
+    "logical_type":"numeric",
+    "unit":"mL",
+    "description":"口服负量退回等处置后的登记量，仍未施加固液比例。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"reference_or_provenance_only"
+  },
+  {
+    "table":"hourly\/oral_events.csv",
+    "field":"liquid_fraction_assumed",
+    "logical_type":"float64",
+    "unit":"see_unit_or_clinical_field",
+    "description":"固液混合\/半固体的项目比例假设，非独立测得的水含量。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"reference_or_provenance_only"
+  },
+  {
+    "table":"hourly\/oral_events.csv",
+    "field":"estimated_liquid_ml",
+    "logical_type":"numeric",
+    "unit":"mL",
+    "description":"口服有效登记量或其缺量估计乘固液比例的结果；固体不计液体。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"reference_or_provenance_only"
+  },
+  {
+    "table":"hourly\/oral_events.csv",
+    "field":"oral_method",
+    "logical_type":"str",
+    "unit":"see_unit_or_clinical_field",
+    "description":"口服形态\/退回\/药物带水等规则分支。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"reference_or_provenance_only"
+  },
+  {
+    "table":"hourly\/oral_events.csv",
+    "field":"oral_quantity_method",
+    "logical_type":"str",
+    "unit":"see_unit_or_clinical_field",
+    "description":"口服量来自原单位、患者同名中位数或全队列同名中位数等具体方法。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"reference_or_provenance_only"
+  },
+  {
+    "table":"hourly\/oral_events.csv",
+    "field":"confidence",
+    "logical_type":"str",
+    "unit":"see_unit_or_clinical_field",
+    "description":"当前记录的原方法证据等级，不是预测概率。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"reference_or_provenance_only"
+  },
+  {
+    "table":"hourly\/oral_liquid.csv",
+    "field":"patient_id",
+    "logical_type":"identifier_string",
+    "unit":"see_unit_or_clinical_field",
+    "description":"本地患者来源键；用于连接，不是模型数值输入；公开示例使用合成键。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"reference_or_provenance_only"
+  },
+  {
+    "table":"hourly\/oral_liquid.csv",
+    "field":"hour_start",
+    "logical_type":"numeric",
+    "unit":"hour_from_injury",
+    "description":"伤后小时区间[h,h+1)的h，取0至71。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"reference_or_provenance_only"
+  },
+  {
+    "table":"hourly\/oral_liquid.csv",
+    "field":"full_inpatient_hour",
+    "logical_type":"numeric",
+    "unit":"hour_from_injury",
+    "description":"h>=基线入院小时且h+1<=观察结束保守下界；部分边界小时不列为完整监督。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"reference_or_provenance_only"
+  },
+  {
+    "table":"hourly\/oral_liquid.csv",
+    "field":"oral_liquid_estimate_ml",
+    "logical_type":"numeric",
+    "unit":"mL",
+    "description":"完整住院小时的口服\/鼻饲液体估计，单列不并入三类静脉小时量。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"reference_or_provenance_only"
+  },
+  {
+    "table":"hourly\/oral_liquid.csv",
+    "field":"recorded_oral_event_present",
+    "logical_type":"bool",
+    "unit":"see_unit_or_clinical_field",
+    "description":"该小时是否有原口服记录；无记录与有记录但缺量分开。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"reference_or_provenance_only"
+  },
+  {
+    "table":"hourly\/oral_liquid.csv",
+    "field":"oral_is_imputed",
+    "logical_type":"bool",
+    "unit":"see_unit_or_clinical_field",
+    "description":"该小时口服量或固液比例是否涉及推断。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"reference_or_provenance_only"
+  },
+  {
+    "table":"hourly\/oral_liquid.csv",
+    "field":"missing_quantity_events",
+    "logical_type":"int64",
+    "unit":"see_unit_or_clinical_field",
+    "description":"该小时缺少可辩护液体量的口服事件数；不补固定饮水量。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"reference_or_provenance_only"
+  },
+  {
+    "table":"hourly\/oral_liquid.csv",
+    "field":"oral_methods",
+    "logical_type":"str",
+    "unit":"see_unit_or_clinical_field",
+    "description":"该小时口服估计规则集合，分号连接。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"reference_or_provenance_only"
+  },
+  {
+    "table":"observations\/hourly.csv",
+    "field":"patient_id",
+    "logical_type":"identifier_string",
+    "unit":"see_unit_or_clinical_field",
+    "description":"本地患者来源键；用于连接，不是模型数值输入；公开示例使用合成键。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"conditional_source_requires_availability_filter"
+  },
+  {
+    "table":"observations\/hourly.csv",
+    "field":"hour",
+    "logical_type":"numeric",
+    "unit":"hour_from_injury",
+    "description":"上下文依赖：观测为记录所属整数小时；完成约束为约束结束相对小时，可有小数。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"conditional_source_requires_availability_filter"
+  },
+  {
+    "table":"observations\/hourly.csv",
+    "field":"field",
+    "logical_type":"str",
+    "unit":"see_unit_or_clinical_field",
+    "description":"基线\/观测变量名；每种实际取值另见clinical_fields.csv及方法说明。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"conditional_source_requires_availability_filter"
+  },
+  {
+    "table":"observations\/hourly.csv",
+    "field":"unit",
+    "logical_type":"str",
+    "unit":"see_unit_or_clinical_field",
+    "description":"该field数值的单位\/原记录尺度；unspecified或recorded_*_scale表示未取得明确单位证据。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"conditional_source_requires_availability_filter"
+  },
+  {
+    "table":"observations\/hourly.csv",
+    "field":"qualifier",
+    "logical_type":"str",
+    "unit":"see_unit_or_clinical_field",
+    "description":"精确记录数、上下界、未定单位\/未通过候选等；上下界不能当精确值混合。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"conditional_source_requires_availability_filter"
+  },
+  {
+    "table":"observations\/hourly.csv",
+    "field":"value",
+    "logical_type":"numeric",
+    "unit":"see_unit_or_clinical_field",
+    "description":"该field对应的数值；必须与unit、qualifier、eligible和method一起解释，未知不填0。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"conditional_source_requires_availability_filter"
+  },
+  {
+    "table":"observations\/hourly.csv",
+    "field":"source_records",
+    "logical_type":"str",
+    "unit":"see_unit_or_clinical_field",
+    "description":"该聚合单元所有observation_id，分号连接，保留一对多来源。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"conditional_source_requires_availability_filter"
+  },
+  {
+    "table":"observations\/hourly.csv",
+    "field":"record_count",
+    "logical_type":"int64",
+    "unit":"see_unit_or_clinical_field",
+    "description":"该聚合单元纳入的来源观测数；重复长文段已按规则排除，短重复不自动消除。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"conditional_source_requires_availability_filter"
+  },
+  {
+    "table":"observations\/hourly.csv",
+    "field":"available_at_hour",
+    "logical_type":"numeric",
+    "unit":"hour_from_injury",
+    "description":"基线为入院相对小时；临床观测为记录所在小时结束h+1，消费已完成小时用<=预测起点。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"conditional_source_requires_availability_filter"
+  },
+  {
+    "table":"observations\/records.csv",
+    "field":"patient_id",
+    "logical_type":"identifier_string",
+    "unit":"see_unit_or_clinical_field",
+    "description":"本地患者来源键；用于连接，不是模型数值输入；公开示例使用合成键。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"conditional_source_requires_availability_filter"
+  },
+  {
+    "table":"observations\/records.csv",
+    "field":"observation_id",
+    "logical_type":"identifier_string",
+    "unit":"see_unit_or_clinical_field",
+    "description":"观测稳定键；连接hourly临床聚合中的source_records。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"conditional_source_requires_availability_filter"
+  },
+  {
+    "table":"observations\/records.csv",
+    "field":"source_csv_record",
+    "logical_type":"int64",
+    "unit":"see_unit_or_clinical_field",
+    "description":"CSV逻辑记录号，含表头从1计，数据首条为2；不按含换行文本的物理文本行计数。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"conditional_source_requires_availability_filter"
+  },
+  {
+    "table":"observations\/records.csv",
+    "field":"source_form_id",
+    "logical_type":"identifier_string",
+    "unit":"see_unit_or_clinical_field",
+    "description":"观测对应的原FORM_ID，便于核对同一护理表单。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"conditional_source_requires_availability_filter"
+  },
+  {
+    "table":"observations\/records.csv",
+    "field":"source_sha256",
+    "logical_type":"str",
+    "unit":"see_unit_or_clinical_field",
+    "description":"来源文件或来源父数据的SHA256；根据表内source路径定位。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"conditional_source_requires_availability_filter"
+  },
+  {
+    "table":"observations\/records.csv",
+    "field":"record_time_local",
+    "logical_type":"str",
+    "unit":"see_unit_or_clinical_field",
+    "description":"原记录本地业务钟；FORM_TIME末尾Z按已确定的墙上时钟语义去时区，不另加8小时。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"conditional_source_requires_availability_filter"
+  },
+  {
+    "table":"observations\/records.csv",
+    "field":"record_hour",
+    "logical_type":"numeric",
+    "unit":"hour_from_injury",
+    "description":"原记录业务钟减伤时的小时，保留小数；不证明真实测量或在线录入时间。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"conditional_source_requires_availability_filter"
+  },
+  {
+    "table":"observations\/records.csv",
+    "field":"hour",
+    "logical_type":"numeric",
+    "unit":"hour_from_injury",
+    "description":"上下文依赖：观测为记录所属整数小时；完成约束为约束结束相对小时，可有小数。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"conditional_source_requires_availability_filter"
+  },
+  {
+    "table":"observations\/records.csv",
+    "field":"available_at_hour",
+    "logical_type":"numeric",
+    "unit":"hour_from_injury",
+    "description":"基线为入院相对小时；临床观测为记录所在小时结束h+1，消费已完成小时用<=预测起点。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"conditional_source_requires_availability_filter"
+  },
+  {
+    "table":"observations\/records.csv",
+    "field":"field",
+    "logical_type":"str",
+    "unit":"see_unit_or_clinical_field",
+    "description":"基线\/观测变量名；每种实际取值另见clinical_fields.csv及方法说明。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"conditional_source_requires_availability_filter"
+  },
+  {
+    "table":"observations\/records.csv",
+    "field":"value",
+    "logical_type":"numeric",
+    "unit":"see_unit_or_clinical_field",
+    "description":"该field对应的数值；必须与unit、qualifier、eligible和method一起解释，未知不填0。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"conditional_source_requires_availability_filter"
+  },
+  {
+    "table":"observations\/records.csv",
+    "field":"unit",
+    "logical_type":"str",
+    "unit":"see_unit_or_clinical_field",
+    "description":"该field数值的单位\/原记录尺度；unspecified或recorded_*_scale表示未取得明确单位证据。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"conditional_source_requires_availability_filter"
+  },
+  {
+    "table":"observations\/records.csv",
+    "field":"qualifier",
+    "logical_type":"str",
+    "unit":"see_unit_or_clinical_field",
+    "description":"精确记录数、上下界、未定单位\/未通过候选等；上下界不能当精确值混合。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"conditional_source_requires_availability_filter"
+  },
+  {
+    "table":"observations\/records.csv",
+    "field":"eligible",
+    "logical_type":"bool",
+    "unit":"see_unit_or_clinical_field",
+    "description":"本表所描述记录的规则资格；cohort表指基线入院时间存在，观测\/事件表指该条解析通过相应规则。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"conditional_source_requires_availability_filter"
+  },
+  {
+    "table":"observations\/records.csv",
+    "field":"method",
+    "logical_type":"str",
+    "unit":"see_unit_or_clinical_field",
+    "description":"提取\/估计\/聚合方法代码；事件与分段的具体分支见METHODS.md及冻结recipe。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"conditional_source_requires_availability_filter"
+  },
+  {
+    "table":"observations\/records.csv",
+    "field":"reason",
+    "logical_type":"str",
+    "unit":"see_unit_or_clinical_field",
+    "description":"该条解析、排除、用途、证据资格或不确定性的具体原因代码。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"conditional_source_requires_availability_filter"
+  },
+  {
+    "table":"observations\/records.csv",
+    "field":"raw_match",
+    "logical_type":"str",
+    "unit":"see_unit_or_clinical_field",
+    "description":"数值\/单位匹配的原文本片段；用于规则追溯，不公开真实病例原句。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"conditional_source_requires_availability_filter"
+  },
+  {
+    "table":"observations\/records.csv",
+    "field":"source_field",
+    "logical_type":"str",
+    "unit":"see_unit_or_clinical_field",
+    "description":"来源字段NUMBER_VALUE或STRING_VALUE。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"conditional_source_requires_availability_filter"
+  },
+  {
+    "table":"observations\/records.csv",
+    "field":"measurement_time_verified",
+    "logical_type":"bool",
+    "unit":"see_unit_or_clinical_field",
+    "description":"当前均False：记录钟不等于已验证的测量\/采集钟。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"conditional_source_requires_availability_filter"
+  },
+  {
+    "table":"provenance\/case_decisions.csv",
+    "field":"case_type",
+    "logical_type":"str",
+    "unit":"see_unit_or_clinical_field",
+    "description":"历史人工\/程序推断决策的业务类型（负量、完成、文字量等）。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"reference_or_provenance_only"
+  },
+  {
+    "table":"provenance\/case_decisions.csv",
+    "field":"case_id",
+    "logical_type":"identifier_string",
+    "unit":"see_unit_or_clinical_field",
+    "description":"该处置案例的稳定ID，连接case_decisions或text_decisions。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"reference_or_provenance_only"
+  },
+  {
+    "table":"provenance\/case_decisions.csv",
+    "field":"patient_id",
+    "logical_type":"identifier_string",
+    "unit":"see_unit_or_clinical_field",
+    "description":"本地患者来源键；用于连接，不是模型数值输入；公开示例使用合成键。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"reference_or_provenance_only"
+  },
+  {
+    "table":"provenance\/case_decisions.csv",
+    "field":"component",
+    "logical_type":"str",
+    "unit":"see_unit_or_clinical_field",
+    "description":"晶体crystalloid、胶体colloid、水water独立成分；口服另表，不按通道假设划分。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"reference_or_provenance_only"
+  },
+  {
+    "table":"provenance\/case_decisions.csv",
+    "field":"hour",
+    "logical_type":"numeric",
+    "unit":"hour_from_injury",
+    "description":"上下文依赖：观测为记录所属整数小时；完成约束为约束结束相对小时，可有小数。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"reference_or_provenance_only"
+  },
+  {
+    "table":"provenance\/case_decisions.csv",
+    "field":"decision",
+    "logical_type":"str",
+    "unit":"see_unit_or_clinical_field",
+    "description":"历史提取处置规则结果；保留，不将自动推断称医生复核结论。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"reference_or_provenance_only"
+  },
+  {
+    "table":"provenance\/case_decisions.csv",
+    "field":"target_lot_id",
+    "logical_type":"identifier_string",
+    "unit":"see_unit_or_clinical_field",
+    "description":"约束匹配的目标批次；匹配仍可能是推断，应结合resolution和决策账。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"reference_or_provenance_only"
+  },
+  {
+    "table":"provenance\/case_decisions.csv",
+    "field":"confidence",
+    "logical_type":"str",
+    "unit":"see_unit_or_clinical_field",
+    "description":"当前记录的原方法证据等级，不是预测概率。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"reference_or_provenance_only"
+  },
+  {
+    "table":"provenance\/case_decisions.csv",
+    "field":"evidence",
+    "logical_type":"str",
+    "unit":"see_unit_or_clinical_field",
+    "description":"来源原句或已保存处置证据，仅本地；缺少证据不补一个确定决策。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"reference_or_provenance_only"
+  },
+  {
+    "table":"provenance\/case_decisions.csv",
+    "field":"recorded_negative_ml",
+    "logical_type":"numeric",
+    "unit":"mL",
+    "description":"原始负量原值\/量级，需结合记录定义；实际小时输入量不允许负数。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"reference_or_provenance_only"
+  },
+  {
+    "table":"provenance\/case_decisions.csv",
+    "field":"cancelled_stock_ml",
+    "logical_type":"numeric",
+    "unit":"mL",
+    "description":"该负量处置最终从兼容未用库存取消的量，不能超过可撤库存。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"reference_or_provenance_only"
+  },
+  {
+    "table":"provenance\/case_decisions.csv",
+    "field":"excess_accounting_correction_ml",
+    "logical_type":"numeric",
+    "unit":"mL",
+    "description":"超过可匹配库存的账务更正余量，单列不当作负输注。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"reference_or_provenance_only"
+  },
+  {
+    "table":"provenance\/doctor_members.csv",
+    "field":"patient_id",
+    "logical_type":"identifier_string",
+    "unit":"see_unit_or_clinical_field",
+    "description":"本地患者来源键；用于连接，不是模型数值输入；公开示例使用合成键。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"reference_or_provenance_only"
+  },
+  {
+    "table":"provenance\/doctor_members.csv",
+    "field":"member",
+    "logical_type":"str",
+    "unit":"see_unit_or_clinical_field",
+    "description":"原医生ZIP成员路径，按归档原名保留。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"reference_or_provenance_only"
+  },
+  {
+    "table":"provenance\/doctor_members.csv",
+    "field":"sha256",
+    "logical_type":"str",
+    "unit":"see_unit_or_clinical_field",
+    "description":"该归档成员完整字节SHA256。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"reference_or_provenance_only"
+  },
+  {
+    "table":"provenance\/doctor_members.csv",
+    "field":"rows",
+    "logical_type":"int64",
+    "unit":"see_unit_or_clinical_field",
+    "description":"该原ZIP成员的数据记录数，不含表头。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"reference_or_provenance_only"
+  },
+  {
+    "table":"provenance\/raw_intake_events.csv",
+    "field":"event_id",
+    "logical_type":"identifier_string",
+    "unit":"see_unit_or_clinical_field",
+    "description":"原始入量组合记录的稳定ID，由患者及同记录键生成。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"reference_or_provenance_only"
+  },
+  {
+    "table":"provenance\/raw_intake_events.csv",
+    "field":"patient_id",
+    "logical_type":"identifier_string",
+    "unit":"see_unit_or_clinical_field",
+    "description":"本地患者来源键；用于连接，不是模型数值输入；公开示例使用合成键。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"reference_or_provenance_only"
+  },
+  {
+    "table":"provenance\/raw_intake_events.csv",
+    "field":"source_form_time_raw",
+    "logical_type":"str",
+    "unit":"see_unit_or_clinical_field",
+    "description":"原FORM_TIME原串，包括原Z及原精度，便于核对。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"reference_or_provenance_only"
+  },
+  {
+    "table":"provenance\/raw_intake_events.csv",
+    "field":"record_time_local",
+    "logical_type":"str",
+    "unit":"see_unit_or_clinical_field",
+    "description":"原记录本地业务钟；FORM_TIME末尾Z按已确定的墙上时钟语义去时区，不另加8小时。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"reference_or_provenance_only"
+  },
+  {
+    "table":"provenance\/raw_intake_events.csv",
+    "field":"event_time_local",
+    "logical_type":"str",
+    "unit":"see_unit_or_clinical_field",
+    "description":"事件本地业务时间；明确原句时刻优先，没有精度证据时保留记录钟\/小时起点近似。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"reference_or_provenance_only"
+  },
+  {
+    "table":"provenance\/raw_intake_events.csv",
+    "field":"time_source",
+    "logical_type":"str",
+    "unit":"see_unit_or_clinical_field",
+    "description":"时钟如何取得的代码，例如doctor_hour_start_approximation、form_record_local_clock。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"reference_or_provenance_only"
+  },
+  {
+    "table":"provenance\/raw_intake_events.csv",
+    "field":"time_precision",
+    "logical_type":"str",
+    "unit":"see_unit_or_clinical_field",
+    "description":"时钟精度类别；hour_estimate不能解释为真实整点操作，record_seconds也不证明在线录入。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"reference_or_provenance_only"
+  },
+  {
+    "table":"provenance\/raw_intake_events.csv",
+    "field":"source_z_interpreted_as_local_clock",
+    "logical_type":"bool",
+    "unit":"see_unit_or_clinical_field",
+    "description":"是否按已确认的源系统墙钟语义处理末尾Z，不另作UTC+8转换。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"reference_or_provenance_only"
+  },
+  {
+    "table":"provenance\/raw_intake_events.csv",
+    "field":"hour_from_injury",
+    "logical_type":"float64",
+    "unit":"see_unit_or_clinical_field",
+    "description":"事件时间减伤时，以小时计，允许小数；相对零点固定。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"reference_or_provenance_only"
+  },
+  {
+    "table":"provenance\/raw_intake_events.csv",
+    "field":"form_id",
+    "logical_type":"identifier_string",
+    "unit":"see_unit_or_clinical_field",
+    "description":"原FORM_ID表单键；与时间和INNER_SEQ联合绑定同一次入\/出量，不跨表单借值。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"reference_or_provenance_only"
+  },
+  {
+    "table":"provenance\/raw_intake_events.csv",
+    "field":"inner_seq",
+    "logical_type":"identifier_string",
+    "unit":"see_unit_or_clinical_field",
+    "description":"原INNER_SEQ同表单子项序号；数量\/名称\/途径\/单位绑定键之一。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"reference_or_provenance_only"
+  },
+  {
+    "table":"provenance\/raw_intake_events.csv",
+    "field":"drug_name_raw",
+    "logical_type":"str",
+    "unit":"see_unit_or_clinical_field",
+    "description":"原始药名，保留人为错字、剂量和包装文本。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"reference_or_provenance_only"
+  },
+  {
+    "table":"provenance\/raw_intake_events.csv",
+    "field":"drug_name_corrected",
+    "logical_type":"str",
+    "unit":"see_unit_or_clinical_field",
+    "description":"规则可唯一纠正的名称；不借另一包装规格修改原瓶容量。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"reference_or_provenance_only"
+  },
+  {
+    "table":"provenance\/raw_intake_events.csv",
+    "field":"category_reference",
+    "logical_type":"str",
+    "unit":"see_unit_or_clinical_field",
+    "description":"历史分类参考表或分类规则返回的中文类别；参考表本身可能有误。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"reference_or_provenance_only"
+  },
+  {
+    "table":"provenance\/raw_intake_events.csv",
+    "field":"component",
+    "logical_type":"str",
+    "unit":"see_unit_or_clinical_field",
+    "description":"晶体crystalloid、胶体colloid、水water独立成分；口服另表，不按通道假设划分。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"reference_or_provenance_only"
+  },
+  {
+    "table":"provenance\/raw_intake_events.csv",
+    "field":"classification_method",
+    "logical_type":"str",
+    "unit":"see_unit_or_clinical_field",
+    "description":"精确参考、规范化、途径别名、受限药族、保守错字等实际分类分支。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"reference_or_provenance_only"
+  },
+  {
+    "table":"provenance\/raw_intake_events.csv",
+    "field":"route_raw",
+    "logical_type":"str",
+    "unit":"see_unit_or_clinical_field",
+    "description":"原给入途径；静脉注射\/静推等排除补液，口服\/鼻饲另计。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"reference_or_provenance_only"
+  },
+  {
+    "table":"provenance\/raw_intake_events.csv",
+    "field":"route_inferred",
+    "logical_type":"bool",
+    "unit":"see_unit_or_clinical_field",
+    "description":"空途径因来源类别使用工作推断的标志，不能声称原表明确记录静滴。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"reference_or_provenance_only"
+  },
+  {
+    "table":"provenance\/raw_intake_events.csv",
+    "field":"amount_raw",
+    "logical_type":"float64",
+    "unit":"see_unit_or_clinical_field",
+    "description":"原数量字符串；是否为单位量、瓶数、负量由volume_method及原单位说明。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"reference_or_provenance_only"
+  },
+  {
+    "table":"provenance\/raw_intake_events.csv",
+    "field":"unit_raw",
+    "logical_type":"str",
+    "unit":"see_unit_or_clinical_field",
+    "description":"原实用量单位字符串，未经静默修正。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"reference_or_provenance_only"
+  },
+  {
+    "table":"provenance\/raw_intake_events.csv",
+    "field":"backup_unit_raw",
+    "logical_type":"str",
+    "unit":"see_unit_or_clinical_field",
+    "description":"同组备用量单位，只有规则允许时用于补充单位证据。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"reference_or_provenance_only"
+  },
+  {
+    "table":"provenance\/raw_intake_events.csv",
+    "field":"backup_amount_raw",
+    "logical_type":"float64",
+    "unit":"see_unit_or_clinical_field",
+    "description":"同组备用量原值；不与另一表单数值拼接。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"reference_or_provenance_only"
+  },
+  {
+    "table":"provenance\/raw_intake_events.csv",
+    "field":"volume_ml",
+    "logical_type":"numeric",
+    "unit":"mL",
+    "description":"按来源单位规则换算的量；可能为整瓶、口服或负量，须结合component\/route\/decision，不是已输入小时量。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"reference_or_provenance_only"
+  },
+  {
+    "table":"provenance\/raw_intake_events.csv",
+    "field":"volume_method",
+    "logical_type":"str",
+    "unit":"see_unit_or_clinical_field",
+    "description":"原数量单位解析分支；explicit_unit与由瓶数×明确包装容量等推断分开。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"reference_or_provenance_only"
+  },
+  {
+    "table":"provenance\/raw_intake_events.csv",
+    "field":"input_kind_raw",
+    "logical_type":"str",
+    "unit":"see_unit_or_clinical_field",
+    "description":"原入量分类\/用途文字；辅助用途筛选须同表单同钟证据佐证。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"reference_or_provenance_only"
+  },
+  {
+    "table":"provenance\/raw_intake_events.csv",
+    "field":"eligible_stock_addition",
+    "logical_type":"bool",
+    "unit":"see_unit_or_clinical_field",
+    "description":"初始来源解析是否可作加液候选；并不覆盖后续重复\/注射\/辅助用途处置。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"reference_or_provenance_only"
+  },
+  {
+    "table":"provenance\/raw_intake_events.csv",
+    "field":"issues",
+    "logical_type":"str",
+    "unit":"see_unit_or_clinical_field",
+    "description":"解析发现的问题代码集合；空表示该解析器未发现问题，不代表已完成临床认证。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"reference_or_provenance_only"
+  },
+  {
+    "table":"provenance\/raw_intake_events.csv",
+    "field":"source_file",
+    "logical_type":"str",
+    "unit":"see_unit_or_clinical_field",
+    "description":"原始来源路径提示；新包原始来源统一按raw\/patient_records定位，旧串原样保留用于追溯。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"reference_or_provenance_only"
+  },
+  {
+    "table":"provenance\/raw_intake_events.csv",
+    "field":"source_record_numbers",
+    "logical_type":"identifier_string",
+    "unit":"see_unit_or_clinical_field",
+    "description":"同组原始数据记录序号集合，从1起不含表头；完整保留名称、量、单位、途径绑定。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"reference_or_provenance_only"
+  },
+  {
+    "table":"provenance\/raw_intake_events.csv",
+    "field":"fields_raw_json",
+    "logical_type":"str",
+    "unit":"see_unit_or_clinical_field",
+    "description":"按原组合项目名称保存NUMBER_VALUE和STRING_VALUE集合的JSON，不静默取一个冲突值。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"reference_or_provenance_only"
+  },
+  {
+    "table":"provenance\/source_roles.csv",
+    "field":"patient_id",
+    "logical_type":"identifier_string",
+    "unit":"see_unit_or_clinical_field",
+    "description":"本地患者来源键；用于连接，不是模型数值输入；公开示例使用合成键。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"reference_or_provenance_only"
+  },
+  {
+    "table":"provenance\/source_roles.csv",
+    "field":"event_id",
+    "logical_type":"identifier_string",
+    "unit":"see_unit_or_clinical_field",
+    "description":"原始入量组合记录的稳定ID，由患者及同记录键生成。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"reference_or_provenance_only"
+  },
+  {
+    "table":"provenance\/source_roles.csv",
+    "field":"source_component",
+    "logical_type":"str",
+    "unit":"see_unit_or_clinical_field",
+    "description":"依据原component_original优先的来源分类；不使用未来完成量重分配决定预测输入。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"reference_or_provenance_only"
+  },
+  {
+    "table":"provenance\/source_roles.csv",
+    "field":"source_volume_ml",
+    "logical_type":"numeric",
+    "unit":"mL",
+    "description":"原始来源量（或其明确单位换算）；与effective_volume_ml区分。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"reference_or_provenance_only"
+  },
+  {
+    "table":"provenance\/source_roles.csv",
+    "field":"record_time_local",
+    "logical_type":"str",
+    "unit":"see_unit_or_clinical_field",
+    "description":"原记录本地业务钟；FORM_TIME末尾Z按已确定的墙上时钟语义去时区，不另加8小时。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"reference_or_provenance_only"
+  },
+  {
+    "table":"provenance\/source_roles.csv",
+    "field":"form_id",
+    "logical_type":"identifier_string",
+    "unit":"see_unit_or_clinical_field",
+    "description":"原FORM_ID表单键；与时间和INNER_SEQ联合绑定同一次入\/出量，不跨表单借值。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"reference_or_provenance_only"
+  },
+  {
+    "table":"provenance\/source_roles.csv",
+    "field":"scope",
+    "logical_type":"str",
+    "unit":"see_unit_or_clinical_field",
+    "description":"当前记录可见的用途分类：primary_candidate、辅助载液\/肾替代、uncertain等。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"reference_or_provenance_only"
+  },
+  {
+    "table":"provenance\/source_roles.csv",
+    "field":"reason",
+    "logical_type":"str",
+    "unit":"see_unit_or_clinical_field",
+    "description":"该条解析、排除、用途、证据资格或不确定性的具体原因代码。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"reference_or_provenance_only"
+  },
+  {
+    "table":"provenance\/source_roles.csv",
+    "field":"evidence",
+    "logical_type":"float64",
+    "unit":"see_unit_or_clinical_field",
+    "description":"来源原句或已保存处置证据，仅本地；缺少证据不补一个确定决策。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"reference_or_provenance_only"
+  },
+  {
+    "table":"provenance\/text_decisions.csv",
+    "field":"case_type",
+    "logical_type":"str",
+    "unit":"see_unit_or_clinical_field",
+    "description":"历史人工\/程序推断决策的业务类型（负量、完成、文字量等）。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"reference_or_provenance_only"
+  },
+  {
+    "table":"provenance\/text_decisions.csv",
+    "field":"case_id",
+    "logical_type":"identifier_string",
+    "unit":"see_unit_or_clinical_field",
+    "description":"该处置案例的稳定ID，连接case_decisions或text_decisions。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"reference_or_provenance_only"
+  },
+  {
+    "table":"provenance\/text_decisions.csv",
+    "field":"patient_id",
+    "logical_type":"identifier_string",
+    "unit":"see_unit_or_clinical_field",
+    "description":"本地患者来源键；用于连接，不是模型数值输入；公开示例使用合成键。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"reference_or_provenance_only"
+  },
+  {
+    "table":"provenance\/text_decisions.csv",
+    "field":"decision",
+    "logical_type":"str",
+    "unit":"see_unit_or_clinical_field",
+    "description":"历史提取处置规则结果；保留，不将自动推断称医生复核结论。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"reference_or_provenance_only"
+  },
+  {
+    "table":"provenance\/text_decisions.csv",
+    "field":"inferred_volume_ml",
+    "logical_type":"numeric",
+    "unit":"mL",
+    "description":"文本待核量的历史推断值；仍须结合决策、来源与证据级别。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"reference_or_provenance_only"
+  },
+  {
+    "table":"provenance\/text_decisions.csv",
+    "field":"linked_source_event_ids",
+    "logical_type":"str",
+    "unit":"see_unit_or_clinical_field",
+    "description":"该文本或处置案例关联的一个或多个原来源事件ID。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"reference_or_provenance_only"
+  },
+  {
+    "table":"provenance\/text_decisions.csv",
+    "field":"evidence",
+    "logical_type":"str",
+    "unit":"see_unit_or_clinical_field",
+    "description":"来源原句或已保存处置证据，仅本地；缺少证据不补一个确定决策。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"reference_or_provenance_only"
+  },
+  {
+    "table":"provenance\/text_quantity_receipts.csv",
+    "field":"patient_id",
+    "logical_type":"identifier_string",
+    "unit":"see_unit_or_clinical_field",
+    "description":"本地患者来源键；用于连接，不是模型数值输入；公开示例使用合成键。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"reference_or_provenance_only"
+  },
+  {
+    "table":"provenance\/text_quantity_receipts.csv",
+    "field":"hour",
+    "logical_type":"numeric",
+    "unit":"hour_from_injury",
+    "description":"上下文依赖：观测为记录所属整数小时；完成约束为约束结束相对小时，可有小数。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"reference_or_provenance_only"
+  },
+  {
+    "table":"provenance\/text_quantity_receipts.csv",
+    "field":"available_hour",
+    "logical_type":"numeric",
+    "unit":"hour_from_injury",
+    "description":"该来源记录业务钟相对伤时小时；事件和记录钟均严格早于起点才能进因果状态。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"reference_or_provenance_only"
+  },
+  {
+    "table":"provenance\/text_quantity_receipts.csv",
+    "field":"kind",
+    "logical_type":"str",
+    "unit":"see_unit_or_clinical_field",
+    "description":"来源事件或约束的种类；addition\/setting与回顾性完成类严格分开。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"reference_or_provenance_only"
+  },
+  {
+    "table":"provenance\/text_quantity_receipts.csv",
+    "field":"value",
+    "logical_type":"numeric",
+    "unit":"see_unit_or_clinical_field",
+    "description":"该field对应的数值；必须与unit、qualifier、eligible和method一起解释，未知不填0。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"reference_or_provenance_only"
+  },
+  {
+    "table":"provenance\/text_quantity_receipts.csv",
+    "field":"component",
+    "logical_type":"str",
+    "unit":"see_unit_or_clinical_field",
+    "description":"晶体crystalloid、胶体colloid、水water独立成分；口服另表，不按通道假设划分。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"reference_or_provenance_only"
+  },
+  {
+    "table":"provenance\/text_quantity_receipts.csv",
+    "field":"source_id",
+    "logical_type":"identifier_string",
+    "unit":"see_unit_or_clinical_field",
+    "description":"来源事件ID；按所在表连接到医生、护理、入量或约束账。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"reference_or_provenance_only"
+  },
+  {
+    "table":"provenance\/text_quantity_receipts.csv",
+    "field":"quantity_source",
+    "logical_type":"str",
+    "unit":"see_unit_or_clinical_field",
+    "description":"来源量恢复的方法；same_clock_form_actual_mention要求同表单同钟、唯一同族记录和实际输注原句。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"reference_or_provenance_only"
+  },
+  {
+    "table":"validation\/source_checks.csv",
+    "field":"patient_id",
+    "logical_type":"identifier_string",
+    "unit":"see_unit_or_clinical_field",
+    "description":"本地患者来源键；用于连接，不是模型数值输入；公开示例使用合成键。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"reference_or_provenance_only"
+  },
+  {
+    "table":"validation\/source_checks.csv",
+    "field":"source_sha256",
+    "logical_type":"str",
+    "unit":"see_unit_or_clinical_field",
+    "description":"来源文件或来源父数据的SHA256；根据表内source路径定位。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"reference_or_provenance_only"
+  },
+  {
+    "table":"validation\/source_checks.csv",
+    "field":"raw_rows",
+    "logical_type":"int64",
+    "unit":"see_unit_or_clinical_field",
+    "description":"原始患者CSV数据记录条数（不含表头）。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"reference_or_provenance_only"
+  },
+  {
+    "table":"validation\/source_checks.csv",
+    "field":"original_intake_events_reextracted",
+    "logical_type":"int64",
+    "unit":"see_unit_or_clinical_field",
+    "description":"本次按原始同表单\/同钟\/同序号重新组合得到的入量事件数。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"reference_or_provenance_only"
+  },
+  {
+    "table":"validation\/source_checks.csv",
+    "field":"eligible",
+    "logical_type":"bool",
+    "unit":"see_unit_or_clinical_field",
+    "description":"本表所描述记录的规则资格；cohort表指基线入院时间存在，观测\/事件表指该条解析通过相应规则。",
+    "source":"See table lineage in METHODS.md; source IDs\/record offsets retained in this table or linked ledgers",
+    "missing_and_zero":"CSV空字段为未知\/不适用；数值0仅按该字段明确规则生成，不由通用填补产生",
+    "permitted_use":"reference_or_provenance_only"
+  }
+]

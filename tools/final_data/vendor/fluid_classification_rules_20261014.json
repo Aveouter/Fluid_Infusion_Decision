@@ -1,0 +1,25 @@
+{
+  "version": "2026-10-14-foundation-audit",
+  "scope": "Classification only; never infer volume from a drug name or units of blood product.",
+  "route_aliases": {"泵静滴": "输液泵静滴"},
+  "reviewed_names": {
+    "低分子右旋糖酐氨基酸注射液": {
+      "category": "胶体",
+      "rule_id": "official_dextran40_amino_synonym",
+      "basis": "国家医保局名单列明右旋糖酐40氨基酸注射液与低分子右旋糖酐氨基酸注射液为同义名；现有分类表右旋糖酐40氨基酸归胶体。",
+      "source_url": "https://wx.nhsa.gov.cn/Sites/Uploaded/File/2020/09/186373606428101745335713913.pdf"
+    },
+    "复方氯化钠注射液": {
+      "category": "晶体",
+      "rule_id": "reviewed_compound_electrolyte_solution",
+      "basis": "生产商列明氯化钠、氯化钾、氯化钙的基础输液；据电解质溶液组成归入晶体。本规则是分类推断，不代表具体厂家或剂量推断。",
+      "source_url": "https://cisen-pharma.com/index/shows?catid=42&id=67"
+    }
+  },
+  "reference_family_rules": [
+    {"pattern": "红细胞", "category": "胶体", "rule_id": "unanimous_red_cell_reference_family", "require_reference_categories": ["胶体"]}
+  ],
+  "non_target_reference_families": [
+    {"pattern": "^小儿复方氨基酸注射液", "rule_id": "reference_pediatric_amino_acid_outside_target_scope"}
+  ]
+}

@@ -1,0 +1,22 @@
+{
+  "status": "passed",
+  "scope": "Two full raw-source extractions produced byte-identical core numeric tables. Earlier candidate stopped at an unused-tool metadata guard and was not released; clean rebuild completed. Oral/cohort/clock provenance curation separately versioned.",
+  "tables": {
+    "hourly/iv_fluid.csv": {
+      "sha256": "a918ccf3b8cd7db6e9acfcff2041fd0ef49b4a0635fffdbf0ee3558d8c515508",
+      "same_as_earlier_numeric_tables": true
+    },
+    "causal_history/states.csv": {
+      "sha256": "c6c7d3c8345c26226350776764317758a50d4289e2d316af7366c1a3ade73bf2",
+      "same_as_earlier_numeric_tables": true
+    },
+    "observations/records.csv": {
+      "sha256": "fffb19b794b02d3f4cd0c5b5fc8dcd1e2bb7d6cd2c932574bca9ef45e269476b",
+      "same_as_earlier_numeric_tables": true
+    },
+    "observations/hourly.csv": {
+      "sha256": "5b8bc865537c4c77042d7f12f531c5768465c95f09a1f47b328bad63b68d8ff6",
+      "same_as_earlier_numeric_tables": true
+    }
+  }
+}

@@ -1,0 +1,331 @@
+[
+  {
+    "field":"cvp",
+    "unit":"recorded_CVP_scale",
+    "qualifier":"exact_recorded_scalar",
+    "method":"typed_CVP_blank_NUMBER_bare_STRING",
+    "aggregation":"same patient\/hour\/field\/unit\/qualifier median; urine recorded amounts sum only within matching units; residual urine separate"
+  },
+  {
+    "field":"diastolic_bp",
+    "unit":"recorded_BP_scale",
+    "qualifier":"exact_recorded_scalar",
+    "method":"typed_NUMBER_VALUE_legacy_range",
+    "aggregation":"same patient\/hour\/field\/unit\/qualifier median; urine recorded amounts sum only within matching units; residual urine separate"
+  },
+  {
+    "field":"diastolic_bp",
+    "unit":"recorded_BP_scale",
+    "qualifier":"recorded_scalar_outside_guard",
+    "method":"typed_NUMBER_VALUE_legacy_range",
+    "aggregation":"same patient\/hour\/field\/unit\/qualifier median; urine recorded amounts sum only within matching units; residual urine separate"
+  },
+  {
+    "field":"glucose_recorded_value",
+    "unit":"recorded_glucose_scale",
+    "qualifier":"exact_recorded_scalar",
+    "method":"typed_NUMBER_VALUE_legacy_range",
+    "aggregation":"same patient\/hour\/field\/unit\/qualifier median; urine recorded amounts sum only within matching units; residual urine separate"
+  },
+  {
+    "field":"heart_rate",
+    "unit":"beats\/min",
+    "qualifier":"exact_recorded_scalar",
+    "method":"typed_NUMBER_VALUE_legacy_range",
+    "aggregation":"same patient\/hour\/field\/unit\/qualifier median; urine recorded amounts sum only within matching units; residual urine separate"
+  },
+  {
+    "field":"heart_rate",
+    "unit":"beats\/min",
+    "qualifier":"recorded_scalar_outside_guard",
+    "method":"typed_NUMBER_VALUE_legacy_range",
+    "aggregation":"same patient\/hour\/field\/unit\/qualifier median; urine recorded amounts sum only within matching units; residual urine separate"
+  },
+  {
+    "field":"pulse",
+    "unit":"beats\/min",
+    "qualifier":"exact_recorded_scalar",
+    "method":"typed_NUMBER_VALUE_legacy_range",
+    "aggregation":"same patient\/hour\/field\/unit\/qualifier median; urine recorded amounts sum only within matching units; residual urine separate"
+  },
+  {
+    "field":"pulse",
+    "unit":"beats\/min",
+    "qualifier":"recorded_scalar_outside_guard",
+    "method":"typed_NUMBER_VALUE_legacy_range",
+    "aggregation":"same patient\/hour\/field\/unit\/qualifier median; urine recorded amounts sum only within matching units; residual urine separate"
+  },
+  {
+    "field":"reported_calcium_mmol_l",
+    "unit":"mmol\/L",
+    "qualifier":"exact",
+    "method":"explicit_reported_chemistry",
+    "aggregation":"same patient\/hour\/field\/unit\/qualifier median; urine recorded amounts sum only within matching units; residual urine separate"
+  },
+  {
+    "field":"reported_glucose_mmol_l",
+    "unit":"mmol\/L",
+    "qualifier":"exact",
+    "method":"explicit_reported_chemistry",
+    "aggregation":"same patient\/hour\/field\/unit\/qualifier median; urine recorded amounts sum only within matching units; residual urine separate"
+  },
+  {
+    "field":"reported_hematocrit_lower_bound_percent",
+    "unit":"%",
+    "qualifier":"lower",
+    "method":"explicit_reported_chemistry",
+    "aggregation":"same patient\/hour\/field\/unit\/qualifier median; urine recorded amounts sum only within matching units; residual urine separate"
+  },
+  {
+    "field":"reported_hematocrit_percent",
+    "unit":"%",
+    "qualifier":"exact",
+    "method":"explicit_reported_chemistry",
+    "aggregation":"same patient\/hour\/field\/unit\/qualifier median; urine recorded amounts sum only within matching units; residual urine separate"
+  },
+  {
+    "field":"reported_lactate_lower_bound_mmol_l",
+    "unit":"mmol\/L",
+    "qualifier":"lower",
+    "method":"explicit_reported_chemistry",
+    "aggregation":"same patient\/hour\/field\/unit\/qualifier median; urine recorded amounts sum only within matching units; residual urine separate"
+  },
+  {
+    "field":"reported_potassium_mmol_l",
+    "unit":"mmol\/L",
+    "qualifier":"exact",
+    "method":"explicit_reported_chemistry",
+    "aggregation":"same patient\/hour\/field\/unit\/qualifier median; urine recorded amounts sum only within matching units; residual urine separate"
+  },
+  {
+    "field":"reported_sodium_mmol_l",
+    "unit":"mmol\/L",
+    "qualifier":"exact",
+    "method":"explicit_reported_chemistry",
+    "aggregation":"same patient\/hour\/field\/unit\/qualifier median; urine recorded amounts sum only within matching units; residual urine separate"
+  },
+  {
+    "field":"reported_total_hemoglobin_g_l",
+    "unit":"g\/L",
+    "qualifier":"exact",
+    "method":"explicit_reported_chemistry",
+    "aggregation":"same patient\/hour\/field\/unit\/qualifier median; urine recorded amounts sum only within matching units; residual urine separate"
+  },
+  {
+    "field":"residual_urine_recorded_amount_unspecified_unit",
+    "unit":"unspecified",
+    "qualifier":"recorded_collection_amount",
+    "method":"same_FORM_ID_FORM_TIME_INNER_SEQ_name_amount",
+    "aggregation":"same patient\/hour\/field\/unit\/qualifier median; urine recorded amounts sum only within matching units; residual urine separate"
+  },
+  {
+    "field":"respiratory_rate",
+    "unit":"breaths\/min",
+    "qualifier":"exact_recorded_scalar",
+    "method":"typed_NUMBER_VALUE_legacy_range",
+    "aggregation":"same patient\/hour\/field\/unit\/qualifier median; urine recorded amounts sum only within matching units; residual urine separate"
+  },
+  {
+    "field":"respiratory_rate",
+    "unit":"breaths\/min",
+    "qualifier":"recorded_scalar_outside_guard",
+    "method":"typed_NUMBER_VALUE_legacy_range",
+    "aggregation":"same patient\/hour\/field\/unit\/qualifier median; urine recorded amounts sum only within matching units; residual urine separate"
+  },
+  {
+    "field":"spo2",
+    "unit":"percent",
+    "qualifier":"exact_recorded_scalar",
+    "method":"typed_NUMBER_VALUE_legacy_range",
+    "aggregation":"same patient\/hour\/field\/unit\/qualifier median; urine recorded amounts sum only within matching units; residual urine separate"
+  },
+  {
+    "field":"spo2",
+    "unit":"percent",
+    "qualifier":"recorded_scalar_outside_guard",
+    "method":"typed_NUMBER_VALUE_legacy_range",
+    "aggregation":"same patient\/hour\/field\/unit\/qualifier median; urine recorded amounts sum only within matching units; residual urine separate"
+  },
+  {
+    "field":"systolic_bp",
+    "unit":"recorded_BP_scale",
+    "qualifier":"exact_recorded_scalar",
+    "method":"typed_NUMBER_VALUE_legacy_range",
+    "aggregation":"same patient\/hour\/field\/unit\/qualifier median; urine recorded amounts sum only within matching units; residual urine separate"
+  },
+  {
+    "field":"temperature",
+    "unit":"degC",
+    "qualifier":"exact_recorded_scalar",
+    "method":"typed_NUMBER_VALUE_legacy_range",
+    "aggregation":"same patient\/hour\/field\/unit\/qualifier median; urine recorded amounts sum only within matching units; residual urine separate"
+  },
+  {
+    "field":"temperature",
+    "unit":"degC",
+    "qualifier":"recorded_scalar_outside_guard",
+    "method":"typed_NUMBER_VALUE_legacy_range",
+    "aggregation":"same patient\/hour\/field\/unit\/qualifier median; urine recorded amounts sum only within matching units; residual urine separate"
+  },
+  {
+    "field":"text_base_excess_mmol_l",
+    "unit":"mmol\/L",
+    "qualifier":"exact_reported_value",
+    "method":"explicit_unit_text",
+    "aggregation":"same patient\/hour\/field\/unit\/qualifier median; urine recorded amounts sum only within matching units; residual urine separate"
+  },
+  {
+    "field":"text_bicarbonate_mmol_l",
+    "unit":"mmol\/L",
+    "qualifier":"exact_reported_value",
+    "method":"explicit_unit_text",
+    "aggregation":"same patient\/hour\/field\/unit\/qualifier median; urine recorded amounts sum only within matching units; residual urine separate"
+  },
+  {
+    "field":"text_blood_ph",
+    "unit":"unitless",
+    "qualifier":"exact_reported_value",
+    "method":"explicit_unit_text",
+    "aggregation":"same patient\/hour\/field\/unit\/qualifier median; urine recorded amounts sum only within matching units; residual urine separate"
+  },
+  {
+    "field":"text_cardiac_index_l_min_m2",
+    "unit":"L\/min\/m2",
+    "qualifier":"exact_reported_value",
+    "method":"explicit_unit_text",
+    "aggregation":"same patient\/hour\/field\/unit\/qualifier median; urine recorded amounts sum only within matching units; residual urine separate"
+  },
+  {
+    "field":"text_cardiac_index_l_min_m2",
+    "unit":"L\/min\/m2",
+    "qualifier":"exact_reported_value",
+    "method":"literal_unit_alias",
+    "aggregation":"same patient\/hour\/field\/unit\/qualifier median; urine recorded amounts sum only within matching units; residual urine separate"
+  },
+  {
+    "field":"text_elwi_ml_kg",
+    "unit":"mL\/kg",
+    "qualifier":"exact_reported_value",
+    "method":"explicit_unit_text",
+    "aggregation":"same patient\/hour\/field\/unit\/qualifier median; urine recorded amounts sum only within matching units; residual urine separate"
+  },
+  {
+    "field":"text_gedi_ml_m2",
+    "unit":"mL\/m2",
+    "qualifier":"exact_reported_value",
+    "method":"explicit_unit_text",
+    "aggregation":"same patient\/hour\/field\/unit\/qualifier median; urine recorded amounts sum only within matching units; residual urine separate"
+  },
+  {
+    "field":"text_gedi_ml_m2",
+    "unit":"mL\/m2",
+    "qualifier":"exact_reported_value",
+    "method":"literal_unit_alias",
+    "aggregation":"same patient\/hour\/field\/unit\/qualifier median; urine recorded amounts sum only within matching units; residual urine separate"
+  },
+  {
+    "field":"text_hemoglobin_g_l",
+    "unit":"g\/L",
+    "qualifier":"exact_reported_value",
+    "method":"explicit_unit_text",
+    "aggregation":"same patient\/hour\/field\/unit\/qualifier median; urine recorded amounts sum only within matching units; residual urine separate"
+  },
+  {
+    "field":"text_lactate_mmol_l",
+    "unit":"mmol\/L",
+    "qualifier":"exact_reported_value",
+    "method":"explicit_unit_text",
+    "aggregation":"same patient\/hour\/field\/unit\/qualifier median; urine recorded amounts sum only within matching units; residual urine separate"
+  },
+  {
+    "field":"text_norepinephrine_pump_ml_h",
+    "unit":"mL\/h",
+    "qualifier":"exact_reported_value",
+    "method":"explicit_unit_text",
+    "aggregation":"same patient\/hour\/field\/unit\/qualifier median; urine recorded amounts sum only within matching units; residual urine separate"
+  },
+  {
+    "field":"text_paco2_mmhg",
+    "unit":"mmHg",
+    "qualifier":"exact_reported_value",
+    "method":"explicit_unit_text",
+    "aggregation":"same patient\/hour\/field\/unit\/qualifier median; urine recorded amounts sum only within matching units; residual urine separate"
+  },
+  {
+    "field":"text_pao2_mmhg",
+    "unit":"mmHg",
+    "qualifier":"exact_reported_value",
+    "method":"explicit_unit_text",
+    "aggregation":"same patient\/hour\/field\/unit\/qualifier median; urine recorded amounts sum only within matching units; residual urine separate"
+  },
+  {
+    "field":"unqualified_BE",
+    "unit":"unknown",
+    "qualifier":"unqualified",
+    "method":"unqualified_text_candidate",
+    "aggregation":"same patient\/hour\/field\/unit\/qualifier median; urine recorded amounts sum only within matching units; residual urine separate"
+  },
+  {
+    "field":"unqualified_ELWI",
+    "unit":"unknown",
+    "qualifier":"unqualified",
+    "method":"unqualified_text_candidate",
+    "aggregation":"same patient\/hour\/field\/unit\/qualifier median; urine recorded amounts sum only within matching units; residual urine separate"
+  },
+  {
+    "field":"unqualified_GEDI",
+    "unit":"unknown",
+    "qualifier":"unqualified",
+    "method":"unqualified_text_candidate",
+    "aggregation":"same patient\/hour\/field\/unit\/qualifier median; urine recorded amounts sum only within matching units; residual urine separate"
+  },
+  {
+    "field":"unqualified_HCO3",
+    "unit":"unknown",
+    "qualifier":"unqualified",
+    "method":"unqualified_text_candidate",
+    "aggregation":"same patient\/hour\/field\/unit\/qualifier median; urine recorded amounts sum only within matching units; residual urine separate"
+  },
+  {
+    "field":"unqualified_HCO3-",
+    "unit":"unknown",
+    "qualifier":"unqualified",
+    "method":"unqualified_text_candidate",
+    "aggregation":"same patient\/hour\/field\/unit\/qualifier median; urine recorded amounts sum only within matching units; residual urine separate"
+  },
+  {
+    "field":"unqualified_Lac",
+    "unit":"unknown",
+    "qualifier":"unqualified",
+    "method":"unqualified_text_candidate",
+    "aggregation":"same patient\/hour\/field\/unit\/qualifier median; urine recorded amounts sum only within matching units; residual urine separate"
+  },
+  {
+    "field":"unqualified_PCCI",
+    "unit":"unknown",
+    "qualifier":"unqualified",
+    "method":"unqualified_text_candidate",
+    "aggregation":"same patient\/hour\/field\/unit\/qualifier median; urine recorded amounts sum only within matching units; residual urine separate"
+  },
+  {
+    "field":"unqualified_SVRI",
+    "unit":"unknown",
+    "qualifier":"unqualified",
+    "method":"unqualified_text_candidate",
+    "aggregation":"same patient\/hour\/field\/unit\/qualifier median; urine recorded amounts sum only within matching units; residual urine separate"
+  },
+  {
+    "field":"unqualified_lac",
+    "unit":"unknown",
+    "qualifier":"unqualified",
+    "method":"unqualified_text_candidate",
+    "aggregation":"same patient\/hour\/field\/unit\/qualifier median; urine recorded amounts sum only within matching units; residual urine separate"
+  },
+  {
+    "field":"urine_recorded_amount_unspecified_unit",
+    "unit":"unspecified",
+    "qualifier":"recorded_collection_amount",
+    "method":"same_FORM_ID_FORM_TIME_INNER_SEQ_name_amount",
+    "aggregation":"same patient\/hour\/field\/unit\/qualifier median; urine recorded amounts sum only within matching units; residual urine separate"
+  }
+]
