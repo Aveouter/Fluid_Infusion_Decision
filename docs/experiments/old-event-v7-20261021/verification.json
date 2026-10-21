@@ -6,6 +6,10 @@
   "history_ablation_sha256": "f878fe2c7a5b9ed14c970e1919d6d30ddfc3c3b96137a38b631fea490dbd1b53",
   "cohort_cumulative_sha256": "bb10bcf8eacb4fe9130073222f169eee7731f9cfca5e8c1904a6dad4bd9c54b2",
   "issue81_style_sha256": "f1c7a7610a7c256b2033435eac72201931c8871ee6ecb81e25ea18f23f5bc929",
+  "mean05_issue81_sha256": "62f2d823d1dbd30e3d770daa0b38616189939cacc89a78706df118f13882f201",
+  "mean_frontier_sha256": "bb150f4064234e6f97daed125994d35f997c4a15286b60a73763031e70f85b9f",
+  "calibration_sha256": "4cdc059e9de65d95cb11755733cda603a9594c78f72ebe79e13c5a22abfaed16",
+  "class_calibration_sha256": "2ad955dbba2121a9ccefe868be4647b671215dbcf1fd9b230132e9a703d533ec",
   "seeds": [
     20261015,
     20261016,

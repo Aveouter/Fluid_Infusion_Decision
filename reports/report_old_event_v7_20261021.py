@@ -462,6 +462,14 @@ def main():
                                        if (REPORT / "cohort_cumulative.json").exists() else None),
              issue81_style_sha256=(sha(REPORT / "issue81_style.json")
                                    if (REPORT / "issue81_style.json").exists() else None),
+             mean05_issue81_sha256=(sha(REPORT / "mean05_issue81.json")
+                                    if (REPORT / "mean05_issue81.json").exists() else None),
+             mean_frontier_sha256=(sha(REPORT / "mean_frontier.json")
+                                   if (REPORT / "mean_frontier.json").exists() else None),
+             calibration_sha256=(sha(REPORT / "calibration.json")
+                                 if (REPORT / "calibration.json").exists() else None),
+             class_calibration_sha256=(sha(REPORT / "class_calibration.json")
+                                       if (REPORT / "class_calibration.json").exists() else None),
              seeds=data["seeds"], splits=["development", "historical_test"],
              patient_level_predictions_published=False), indent=2), encoding="utf-8")
     print(f"[written] {REPORT/'README.md'}")
