@@ -293,6 +293,17 @@ def main():
                   f"V7.1 的事件 F1 为 {payload['summaries']['V7_prev_base']['event_f1']:.3f}，"
                   f"原模型为 {payload['summaries']['original_BurnResu_rate']['event_f1']:.3f}，略低；"
                   "但严格动作 F1、总体 MAE 与零流精确率显著更好。", ""]
+        cohort = REPORT / "cohort_cumulative.json"
+        if cohort.exists():
+            cohort_data = json.loads(cohort.read_text(encoding="utf-8"))
+            rows = []
+            for name in ("V7_prev_base", "original_BurnResu_rate", "persistence", "moving_average_k3"):
+                row = cohort_data[name]["72"]
+                rows.append([METHOD_LABELS.get(name, name), fmt(row["total_mae"], 1),
+                             fmt(row["bias"], 1), fmt(row["tol200"], 3), fmt(row["tol10"], 3), row["n"]])
+            lines += ["同队列 72h 累计设置暴露（P1，总量口径）：", "",
+                      table(["方法", "总量 MAE", "偏置", "±200 mL", "±10%", "患者"], rows), "",
+                      "V7.1 的总量累计误差大于原模型；P1 未通过。分液体平均 MAE 不是总量，不能替代本表。", ""]
 
     history = REPORT / "history_ablation.json"
     if history.exists():
@@ -390,6 +401,10 @@ def main():
                                    if (REPORT / "prev_variants.json").exists() else None),
              history_ablation_sha256=(sha(REPORT / "history_ablation.json")
                                       if (REPORT / "history_ablation.json").exists() else None),
+             cohort_cumulative_sha256=(sha(REPORT / "cohort_cumulative.json")
+                                       if (REPORT / "cohort_cumulative.json").exists() else None),
+             issue81_style_sha256=(sha(REPORT / "issue81_style.json")
+                                   if (REPORT / "issue81_style.json").exists() else None),
              seeds=data["seeds"], splits=["development", "historical_test"],
              patient_level_predictions_published=False), indent=2), encoding="utf-8")
     print(f"[written] {REPORT/'README.md'}")
