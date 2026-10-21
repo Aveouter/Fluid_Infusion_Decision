@@ -1,0 +1,37 @@
+{
+  "protocol": "old-event-v7-cum-selection-20261021",
+  "note": "Fold 0 outer-development only, seed 20261015, one fit per setting. Used only to choose the V7.3 cumulative weight; the historical test was not read. P1 is the 72 h three-fluid total MAE (mL).",
+  "fold": 0,
+  "seed": 20261015,
+  "reference": {
+    "v71": {"p1_72": 5021.8, "setting_mae": 48.37, "strict_action_f1": 0.385},
+    "v71_mean_0.5": {"p1_72": 3608.9, "setting_mae": 51.80, "strict_action_f1": 0.384}
+  },
+  "positive_mean": [
+    {"weight": 0.25, "p1_72": 4185.7, "setting_mae": 50.55, "strict_action_f1": 0.373},
+    {"weight": 0.5, "p1_72": 3880.1, "setting_mae": 53.50, "strict_action_f1": 0.363},
+    {"weight": 1.0, "p1_72": 3633.7, "setting_mae": 59.93, "strict_action_f1": 0.355},
+    {"weight": 2.0, "p1_72": 4686.9, "setting_mae": 69.02, "strict_action_f1": 0.353}
+  ],
+  "positive_quantile": [
+    {"q": 0.60, "p1_72": 4903.1, "setting_mae": 49.38, "strict_action_f1": 0.374},
+    {"q": 0.65, "p1_72": 4762.9, "setting_mae": 49.13, "strict_action_f1": 0.375},
+    {"q": 0.70, "p1_72": 4893.0, "setting_mae": 48.75, "strict_action_f1": 0.377},
+    {"q": 0.75, "p1_72": 4940.4, "setting_mae": 49.03, "strict_action_f1": 0.375}
+  ],
+  "quantile_plus_mean": [
+    {"q": 0.65, "mean_weight": 0.25, "p1_72": 4299.3, "setting_mae": 49.36, "strict_action_f1": 0.379},
+    {"q": 0.65, "mean_weight": 0.5, "p1_72": 3311.7, "setting_mae": 52.68, "strict_action_f1": 0.367},
+    {"q": 0.70, "mean_weight": 0.25, "p1_72": 4211.3, "setting_mae": 49.45, "strict_action_f1": 0.373},
+    {"q": 0.60, "mean_weight": 0.5, "p1_72": 3251.3, "setting_mae": 52.81, "strict_action_f1": 0.365}
+  ],
+  "cumulative": [
+    {"cumulative_weight": 0.2, "p1_72": 2081.6, "setting_mae": 60.31, "strict_action_f1": 0.355},
+    {"cumulative_weight": 0.5, "p1_72": 2623.3},
+    {"cumulative_weight": 1.0, "p1_72": 3496.1},
+    {"cumulative_weight": 0.2, "mean_weight": 0.25, "p1_72": 2688.3},
+    {"cumulative_weight": 0.2, "mean_weight": 0.5, "p1_72": 2539.7}
+  ],
+  "selected": {"cumulative_weight": 0.2, "reason": "lowest fold-0 P1 among tested cumulative/positive/quantile settings, with the stated MAE/F1 cost"},
+  "boundaries": "Fold-0 selection is not an outer estimate; the 5-fold OOF and historical test are reported separately. Single seed."
+}

@@ -1,0 +1,58 @@
+{
+  "protocol": "old-event-v7-prev-neg15-20261021",
+  "history": 24,
+  "seeds": [
+    20261015,
+    20261016,
+    20261017
+  ],
+  "folds": [
+    0,
+    1,
+    2,
+    3,
+    4
+  ],
+  "configuration": {
+    "hidden": 64,
+    "dropout": 0.1,
+    "epochs": 60,
+    "batch_size": 512,
+    "learning_rate": 0.002,
+    "weight_decay": 0.01,
+    "gradient_clip": 5.0,
+    "event_weight": 0.5,
+    "direction_weight": 0.5,
+    "magnitude_weight": 0.2,
+    "active_weight": 0.2,
+    "delta_weight": 0.1,
+    "horizon_weight": 0.2,
+    "absolute_weight": 0.5,
+    "balanced_event": false,
+    "use_delta": false,
+    "use_horizon": false,
+    "min_change": 50.0,
+    "detach_actions": false,
+    "hold_mode": "previous",
+    "event_negative_weight": 1.5,
+    "event_fbeta_weight": 0.0,
+    "event_fbeta_beta": 1.0,
+    "mode": "two_branch"
+  },
+  "data_sha256": {
+    "data/all_combined_data.csv": "ccaeabf2f97e9d6e08cb7c99d6c1b0c615c67ab18e54523088d00d10c07d1bd5",
+    "data/baseline_processed.csv": "2c927283f6862ee828eac6104a14be6b739a5c5cbb7ce36ab8c37cd9b25bab7d",
+    "data/train_split.csv": "cca8361b98185cdcf08ce648d9a23da37340239cc6253c5c19821b95b848c3f3",
+    "data/test_split.csv": "80d25f267882ca2b853323bd9b946d131324485c3bf571356d21592b6753de28",
+    "docs/label_protocol.md": "60f89f9accbc7b048b6dfe82a467f182b63c4b97a254186e8e720802d35aa09e",
+    "utils/eval_protocol.py": "0924f39ec7ab914a54614af51c9468bbe1e10f0f3172f063d504023a519c0da1"
+  },
+  "code_sha256": {
+    "utils/old_fluid_data_v1.py": "16f9463cd0c8476c4c0ea443bb30aed994fae0f3cd7134aa9bd1926c787f8b7a",
+    "utils/old_event_model_v1.py": "b1e41480868d1f3b89480a5ea1654056a1a8051e51c3ceefd8b359c8ef3e9fe3",
+    "utils/old_event_training_v1.py": "1e99dcb681ba62002d66c9277d879bd22a263a1a8b5311b1d807adaff179b0c6",
+    "reports/train_old_event_prev_neg15_20261021.py": "54c29c22c83b6466a937a87df8c322b7feb17abec9e3d036376887d195427c61"
+  },
+  "output": ".audit/old_event_v7_prev_neg15",
+  "note": "Hold candidate is the observed previous setting, not the absolute rate head. Everything else matches the registered V7 two-branch arm."
+}

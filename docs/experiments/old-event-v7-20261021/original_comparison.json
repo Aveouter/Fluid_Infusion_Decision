@@ -1,0 +1,938 @@
+{
+  "source": ".audit/eval_v2/bundle_original_epoch15.npz",
+  "predictions": ".audit/old_event_original_cohort",
+  "windows": 3622,
+  "patients": 55,
+  "step_hour": [
+    1,
+    71
+  ],
+  "note": "Paired on the original model's 55-patient test cohort. V7 is fitted on the other 308 old-cohort patients. The original model's rate is the action-decoded rate, not its speed head.",
+  "summaries": {
+    "original_BurnResu_rate": {
+      "method": "original_BurnResu_rate",
+      "setting_mae": 78.92502049853235,
+      "setting_mae_by_fluid": [
+        94.4255112173294,
+        56.08277218103147,
+        86.26677809723617
+      ],
+      "setting_bias": 11.651539519218018,
+      "strict_action_f1": 0.23834027693629753,
+      "strict_action_f1_by_fluid": [
+        0.24572514249525015,
+        0.2087821043910522,
+        0.2605135839225903
+      ],
+      "event_f1": 0.4874326013717381,
+      "event_f1_by_fluid": [
+        0.51931602279924,
+        0.46810273405136704,
+        0.4748790472646074
+      ],
+      "zero_flow_accuracy": 0.0,
+      "positive_flow_smape": 0.6102349420651804,
+      "false_change_rate": 0.4189986196511482,
+      "change_hour_mae": 139.07770438419772,
+      "hold_hour_mae": 53.62562292312376,
+      "per_class": {
+        "crystal": {
+          "hold": {
+            "support": 2503,
+            "predicted": 1583,
+            "tp": 1284,
+            "fp": 299,
+            "fn": 1219,
+            "precision": 0.8111181301326595,
+            "recall": 0.512984418697563,
+            "f1": 0.6284875183553598
+          },
+          "start": {
+            "support": 499,
+            "predicted": 911,
+            "tp": 309,
+            "fp": 602,
+            "fn": 190,
+            "precision": 0.3391877058177827,
+            "recall": 0.6192384769539078,
+            "f1": 0.43829787234042555
+          },
+          "stop": {
+            "support": 471,
+            "predicted": 0,
+            "tp": 0,
+            "fp": 0,
+            "fn": 471,
+            "precision": null,
+            "recall": 0.0,
+            "f1": 0.0
+          },
+          "up": {
+            "support": 58,
+            "predicted": 3,
+            "tp": 1,
+            "fp": 2,
+            "fn": 57,
+            "precision": 0.3333333333333333,
+            "recall": 0.017241379310344827,
+            "f1": 0.03278688524590164
+          },
+          "down": {
+            "support": 91,
+            "predicted": 1125,
+            "tp": 78,
+            "fp": 1047,
+            "fn": 13,
+            "precision": 0.06933333333333333,
+            "recall": 0.8571428571428571,
+            "f1": 0.12828947368421054
+          }
+        },
+        "colloid": {
+          "hold": {
+            "support": 2707,
+            "predicted": 2123,
+            "tp": 1773,
+            "fp": 350,
+            "fn": 934,
+            "precision": 0.8351389543099388,
+            "recall": 0.6549685999261174,
+            "f1": 0.7341614906832298
+          },
+          "start": {
+            "support": 419,
+            "predicted": 552,
+            "tp": 200,
+            "fp": 352,
+            "fn": 219,
+            "precision": 0.36231884057971014,
+            "recall": 0.477326968973747,
+            "f1": 0.411946446961895
+          },
+          "stop": {
+            "support": 399,
+            "predicted": 0,
+            "tp": 0,
+            "fp": 0,
+            "fn": 399,
+            "precision": null,
+            "recall": 0.0,
+            "f1": 0.0
+          },
+          "up": {
+            "support": 32,
+            "predicted": 0,
+            "tp": 0,
+            "fp": 0,
+            "fn": 32,
+            "precision": null,
+            "recall": 0.0,
+            "f1": 0.0
+          },
+          "down": {
+            "support": 65,
+            "predicted": 947,
+            "tp": 52,
+            "fp": 895,
+            "fn": 13,
+            "precision": 0.054910242872228086,
+            "recall": 0.8,
+            "f1": 0.10276679841897234
+          }
+        },
+        "water": {
+          "hold": {
+            "support": 2759,
+            "predicted": 1798,
+            "tp": 1573,
+            "fp": 225,
+            "fn": 1186,
+            "precision": 0.874860956618465,
+            "recall": 0.5701341065603479,
+            "f1": 0.6903664691683125
+          },
+          "start": {
+            "support": 413,
+            "predicted": 1338,
+            "tp": 327,
+            "fp": 1011,
+            "fn": 86,
+            "precision": 0.24439461883408073,
+            "recall": 0.7917675544794189,
+            "f1": 0.37350085665334093
+          },
+          "stop": {
+            "support": 400,
+            "predicted": 0,
+            "tp": 0,
+            "fp": 0,
+            "fn": 400,
+            "precision": null,
+            "recall": 0.0,
+            "f1": 0.0
+          },
+          "up": {
+            "support": 20,
+            "predicted": 4,
+            "tp": 1,
+            "fp": 3,
+            "fn": 19,
+            "precision": 0.25,
+            "recall": 0.05,
+            "f1": 0.08333333333333333
+          },
+          "down": {
+            "support": 30,
+            "predicted": 482,
+            "tp": 22,
+            "fp": 460,
+            "fn": 8,
+            "precision": 0.04564315352697095,
+            "recall": 0.7333333333333333,
+            "f1": 0.0859375
+          }
+        }
+      }
+    },
+    "persistence": {
+      "method": "persistence",
+      "setting_mae": 61.52897555845351,
+      "setting_mae_by_fluid": [
+        76.76356533008138,
+        43.079746866715766,
+        64.74361447856337
+      ],
+      "setting_bias": -0.9281244248113382,
+      "strict_action_f1": 0.0,
+      "strict_action_f1_by_fluid": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "event_f1": 0.0,
+      "event_f1_by_fluid": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "zero_flow_accuracy": 0.7919494139420111,
+      "positive_flow_smape": 0.8221907411253279,
+      "false_change_rate": 0.0,
+      "change_hour_mae": 223.6434242319641,
+      "hold_hour_mae": 0.8194252729326139,
+      "per_class": {
+        "crystal": {
+          "hold": {
+            "support": 2503,
+            "predicted": 3622,
+            "tp": 2503,
+            "fp": 1119,
+            "fn": 0,
+            "precision": 0.6910546659304252,
+            "recall": 1.0,
+            "f1": 0.8173061224489796
+          },
+          "start": {
+            "support": 499,
+            "predicted": 0,
+            "tp": 0,
+            "fp": 0,
+            "fn": 499,
+            "precision": null,
+            "recall": 0.0,
+            "f1": 0.0
+          },
+          "stop": {
+            "support": 471,
+            "predicted": 0,
+            "tp": 0,
+            "fp": 0,
+            "fn": 471,
+            "precision": null,
+            "recall": 0.0,
+            "f1": 0.0
+          },
+          "up": {
+            "support": 58,
+            "predicted": 0,
+            "tp": 0,
+            "fp": 0,
+            "fn": 58,
+            "precision": null,
+            "recall": 0.0,
+            "f1": 0.0
+          },
+          "down": {
+            "support": 91,
+            "predicted": 0,
+            "tp": 0,
+            "fp": 0,
+            "fn": 91,
+            "precision": null,
+            "recall": 0.0,
+            "f1": 0.0
+          }
+        },
+        "colloid": {
+          "hold": {
+            "support": 2707,
+            "predicted": 3622,
+            "tp": 2707,
+            "fp": 915,
+            "fn": 0,
+            "precision": 0.7473771397018222,
+            "recall": 1.0,
+            "f1": 0.8554273976931585
+          },
+          "start": {
+            "support": 419,
+            "predicted": 0,
+            "tp": 0,
+            "fp": 0,
+            "fn": 419,
+            "precision": null,
+            "recall": 0.0,
+            "f1": 0.0
+          },
+          "stop": {
+            "support": 399,
+            "predicted": 0,
+            "tp": 0,
+            "fp": 0,
+            "fn": 399,
+            "precision": null,
+            "recall": 0.0,
+            "f1": 0.0
+          },
+          "up": {
+            "support": 32,
+            "predicted": 0,
+            "tp": 0,
+            "fp": 0,
+            "fn": 32,
+            "precision": null,
+            "recall": 0.0,
+            "f1": 0.0
+          },
+          "down": {
+            "support": 65,
+            "predicted": 0,
+            "tp": 0,
+            "fp": 0,
+            "fn": 65,
+            "precision": null,
+            "recall": 0.0,
+            "f1": 0.0
+          }
+        },
+        "water": {
+          "hold": {
+            "support": 2759,
+            "predicted": 3622,
+            "tp": 2759,
+            "fp": 863,
+            "fn": 0,
+            "precision": 0.7617338487023744,
+            "recall": 1.0,
+            "f1": 0.8647547406362639
+          },
+          "start": {
+            "support": 413,
+            "predicted": 0,
+            "tp": 0,
+            "fp": 0,
+            "fn": 413,
+            "precision": null,
+            "recall": 0.0,
+            "f1": 0.0
+          },
+          "stop": {
+            "support": 400,
+            "predicted": 0,
+            "tp": 0,
+            "fp": 0,
+            "fn": 400,
+            "precision": null,
+            "recall": 0.0,
+            "f1": 0.0
+          },
+          "up": {
+            "support": 20,
+            "predicted": 0,
+            "tp": 0,
+            "fp": 0,
+            "fn": 20,
+            "precision": null,
+            "recall": 0.0,
+            "f1": 0.0
+          },
+          "down": {
+            "support": 30,
+            "predicted": 0,
+            "tp": 0,
+            "fp": 0,
+            "fn": 30,
+            "precision": null,
+            "recall": 0.0,
+            "f1": 0.0
+          }
+        }
+      }
+    },
+    "moving_average_k3": {
+      "method": "moving_average_k3",
+      "setting_mae": 65.46163075470452,
+      "setting_mae_by_fluid": [
+        82.74178700243647,
+        45.23462244958931,
+        68.40848281208778
+      ],
+      "setting_bias": -1.8234251808027482,
+      "strict_action_f1": 0.2301915209075794,
+      "strict_action_f1_by_fluid": [
+        0.2656967840735069,
+        0.23686818632309217,
+        0.1880095923261391
+      ],
+      "event_f1": 0.5053529301249952,
+      "event_f1_by_fluid": [
+        0.5252679938744257,
+        0.5044598612487612,
+        0.48633093525179855
+      ],
+      "zero_flow_accuracy": 0.5902220851326342,
+      "positive_flow_smape": 0.7893733687491459,
+      "false_change_rate": 0.2655289245827582,
+      "change_hour_mae": 158.87699915649236,
+      "hold_hour_mae": 29.11323042295257,
+      "per_class": {
+        "crystal": {
+          "hold": {
+            "support": 2503,
+            "predicted": 2129,
+            "tp": 1696,
+            "fp": 433,
+            "fn": 807,
+            "precision": 0.796618130577736,
+            "recall": 0.6775868957251299,
+            "f1": 0.7322970639032815
+          },
+          "start": {
+            "support": 499,
+            "predicted": 640,
+            "tp": 288,
+            "fp": 352,
+            "fn": 211,
+            "precision": 0.45,
+            "recall": 0.5771543086172345,
+            "f1": 0.5057067603160668
+          },
+          "stop": {
+            "support": 471,
+            "predicted": 0,
+            "tp": 0,
+            "fp": 0,
+            "fn": 471,
+            "precision": null,
+            "recall": 0.0,
+            "f1": 0.0
+          },
+          "up": {
+            "support": 58,
+            "predicted": 62,
+            "tp": 5,
+            "fp": 57,
+            "fn": 53,
+            "precision": 0.08064516129032258,
+            "recall": 0.08620689655172414,
+            "f1": 0.08333333333333333
+          },
+          "down": {
+            "support": 91,
+            "predicted": 791,
+            "tp": 54,
+            "fp": 737,
+            "fn": 37,
+            "precision": 0.06826801517067003,
+            "recall": 0.5934065934065934,
+            "f1": 0.12244897959183673
+          }
+        },
+        "colloid": {
+          "hold": {
+            "support": 2707,
+            "predicted": 2519,
+            "tp": 2113,
+            "fp": 406,
+            "fn": 594,
+            "precision": 0.8388249305279873,
+            "recall": 0.7805688954562247,
+            "f1": 0.8086490623804057
+          },
+          "start": {
+            "support": 419,
+            "predicted": 439,
+            "tp": 211,
+            "fp": 228,
+            "fn": 208,
+            "precision": 0.4806378132118451,
+            "recall": 0.5035799522673031,
+            "f1": 0.49184149184149184
+          },
+          "stop": {
+            "support": 399,
+            "predicted": 0,
+            "tp": 0,
+            "fp": 0,
+            "fn": 399,
+            "precision": null,
+            "recall": 0.0,
+            "f1": 0.0
+          },
+          "up": {
+            "support": 32,
+            "predicted": 20,
+            "tp": 2,
+            "fp": 18,
+            "fn": 30,
+            "precision": 0.1,
+            "recall": 0.0625,
+            "f1": 0.07692307692307693
+          },
+          "down": {
+            "support": 65,
+            "predicted": 644,
+            "tp": 26,
+            "fp": 618,
+            "fn": 39,
+            "precision": 0.040372670807453416,
+            "recall": 0.4,
+            "f1": 0.07334273624823695
+          }
+        },
+        "water": {
+          "hold": {
+            "support": 2759,
+            "predicted": 2400,
+            "tp": 2044,
+            "fp": 356,
+            "fn": 715,
+            "precision": 0.8516666666666667,
+            "recall": 0.74084813338166,
+            "f1": 0.7924016282225237
+          },
+          "start": {
+            "support": 413,
+            "predicted": 605,
+            "tp": 171,
+            "fp": 434,
+            "fn": 242,
+            "precision": 0.28264462809917357,
+            "recall": 0.41404358353510895,
+            "f1": 0.33595284872298625
+          },
+          "stop": {
+            "support": 400,
+            "predicted": 0,
+            "tp": 0,
+            "fp": 0,
+            "fn": 400,
+            "precision": null,
+            "recall": 0.0,
+            "f1": 0.0
+          },
+          "up": {
+            "support": 20,
+            "predicted": 9,
+            "tp": 0,
+            "fp": 9,
+            "fn": 20,
+            "precision": 0.0,
+            "recall": 0.0,
+            "f1": 0.0
+          },
+          "down": {
+            "support": 30,
+            "predicted": 608,
+            "tp": 25,
+            "fp": 583,
+            "fn": 5,
+            "precision": 0.04111842105263158,
+            "recall": 0.8333333333333334,
+            "f1": 0.07836990595611286
+          }
+        }
+      }
+    },
+    "V7_prev_base": {
+      "method": "V7_prev_base",
+      "setting_mae": 54.218286512665266,
+      "setting_mae_by_fluid": [
+        69.61814892353244,
+        39.238920543383614,
+        53.79779007107975
+      ],
+      "setting_bias": -29.347156722484627,
+      "strict_action_f1": 0.42167712046753975,
+      "strict_action_f1_by_fluid": [
+        0.43024494142705005,
+        0.4167237834132968,
+        0.4180626365622724
+      ],
+      "event_f1": 0.4689708102401073,
+      "event_f1_by_fluid": [
+        0.4994675186368477,
+        0.4427690198766278,
+        0.4646758922068463
+      ],
+      "zero_flow_accuracy": 0.9033004318322023,
+      "positive_flow_smape": 1.1052408504353022,
+      "false_change_rate": 0.08809135399673736,
+      "change_hour_mae": 139.79877335110902,
+      "hold_hour_mae": 20.968605504638504,
+      "per_class": {
+        "crystal": {
+          "hold": {
+            "support": 2503,
+            "predicted": 2863,
+            "tp": 2213,
+            "fp": 650,
+            "fn": 290,
+            "precision": 0.7729654208871812,
+            "recall": 0.8841390331602077,
+            "f1": 0.8248229593738352
+          },
+          "start": {
+            "support": 499,
+            "predicted": 132,
+            "tp": 86,
+            "fp": 46,
+            "fn": 413,
+            "precision": 0.6515151515151515,
+            "recall": 0.17234468937875752,
+            "f1": 0.27258320126782887
+          },
+          "stop": {
+            "support": 471,
+            "predicted": 590,
+            "tp": 313,
+            "fp": 277,
+            "fn": 158,
+            "precision": 0.5305084745762711,
+            "recall": 0.6645435244161358,
+            "f1": 0.590009425070688
+          },
+          "up": {
+            "support": 58,
+            "predicted": 7,
+            "tp": 0,
+            "fp": 7,
+            "fn": 58,
+            "precision": 0.0,
+            "recall": 0.0,
+            "f1": 0.0
+          },
+          "down": {
+            "support": 91,
+            "predicted": 30,
+            "tp": 5,
+            "fp": 25,
+            "fn": 86,
+            "precision": 0.16666666666666666,
+            "recall": 0.054945054945054944,
+            "f1": 0.08264462809917356
+          }
+        },
+        "colloid": {
+          "hold": {
+            "support": 2707,
+            "predicted": 3078,
+            "tp": 2486,
+            "fp": 592,
+            "fn": 221,
+            "precision": 0.8076673164392463,
+            "recall": 0.9183598079054304,
+            "f1": 0.8594641313742437
+          },
+          "start": {
+            "support": 419,
+            "predicted": 122,
+            "tp": 79,
+            "fp": 43,
+            "fn": 340,
+            "precision": 0.6475409836065574,
+            "recall": 0.18854415274463007,
+            "f1": 0.2920517560073937
+          },
+          "stop": {
+            "support": 399,
+            "predicted": 406,
+            "tp": 223,
+            "fp": 183,
+            "fn": 176,
+            "precision": 0.5492610837438424,
+            "recall": 0.5588972431077694,
+            "f1": 0.5540372670807453
+          },
+          "up": {
+            "support": 32,
+            "predicted": 2,
+            "tp": 0,
+            "fp": 2,
+            "fn": 32,
+            "precision": 0.0,
+            "recall": 0.0,
+            "f1": 0.0
+          },
+          "down": {
+            "support": 65,
+            "predicted": 14,
+            "tp": 2,
+            "fp": 12,
+            "fn": 63,
+            "precision": 0.14285714285714285,
+            "recall": 0.03076923076923077,
+            "f1": 0.05063291139240506
+          }
+        },
+        "water": {
+          "hold": {
+            "support": 2759,
+            "predicted": 3112,
+            "tp": 2568,
+            "fp": 544,
+            "fn": 191,
+            "precision": 0.8251928020565553,
+            "recall": 0.9307720188474085,
+            "f1": 0.8748083801737353
+          },
+          "start": {
+            "support": 413,
+            "predicted": 36,
+            "tp": 22,
+            "fp": 14,
+            "fn": 391,
+            "precision": 0.6111111111111112,
+            "recall": 0.053268765133171914,
+            "f1": 0.09799554565701558
+          },
+          "stop": {
+            "support": 400,
+            "predicted": 462,
+            "tp": 264,
+            "fp": 198,
+            "fn": 136,
+            "precision": 0.5714285714285714,
+            "recall": 0.66,
+            "f1": 0.6125290023201856
+          },
+          "up": {
+            "support": 20,
+            "predicted": 3,
+            "tp": 0,
+            "fp": 3,
+            "fn": 20,
+            "precision": 0.0,
+            "recall": 0.0,
+            "f1": 0.0
+          },
+          "down": {
+            "support": 30,
+            "predicted": 9,
+            "tp": 1,
+            "fp": 8,
+            "fn": 29,
+            "precision": 0.1111111111111111,
+            "recall": 0.03333333333333333,
+            "f1": 0.05128205128205128
+          }
+        }
+      }
+    },
+    "V7_hold_absolute": {
+      "method": "V7_hold_absolute",
+      "setting_mae": 58.19204704518333,
+      "setting_mae_by_fluid": [
+        74.66962428439639,
+        43.058093714287175,
+        56.848423136866415
+      ],
+      "setting_bias": -23.590939671168687,
+      "strict_action_f1": 0.4286717309133177,
+      "strict_action_f1_by_fluid": [
+        0.460788297440065,
+        0.44004171011470283,
+        0.3851851851851852
+      ],
+      "event_f1": 0.545015076220222,
+      "event_f1_by_fluid": [
+        0.5745631856968711,
+        0.5328467153284672,
+        0.5276353276353276
+      ],
+      "zero_flow_accuracy": 0.8439235040098705,
+      "positive_flow_smape": 1.0770640736418546,
+      "false_change_rate": 0.1952566194001757,
+      "change_hour_mae": 116.20937281046648,
+      "hold_hour_mae": 34.12885780923264,
+      "per_class": {
+        "crystal": {
+          "hold": {
+            "support": 2503,
+            "predicted": 2280,
+            "tp": 1868,
+            "fp": 412,
+            "fn": 635,
+            "precision": 0.8192982456140351,
+            "recall": 0.7463044346783859,
+            "f1": 0.781099728204056
+          },
+          "start": {
+            "support": 499,
+            "predicted": 419,
+            "tp": 234,
+            "fp": 185,
+            "fn": 265,
+            "precision": 0.5584725536992841,
+            "recall": 0.46893787575150303,
+            "f1": 0.5098039215686274
+          },
+          "stop": {
+            "support": 471,
+            "predicted": 557,
+            "tp": 297,
+            "fp": 260,
+            "fn": 174,
+            "precision": 0.533213644524237,
+            "recall": 0.6305732484076433,
+            "f1": 0.5778210116731517
+          },
+          "up": {
+            "support": 58,
+            "predicted": 95,
+            "tp": 9,
+            "fp": 86,
+            "fn": 49,
+            "precision": 0.09473684210526316,
+            "recall": 0.15517241379310345,
+            "f1": 0.11764705882352941
+          },
+          "down": {
+            "support": 91,
+            "predicted": 271,
+            "tp": 27,
+            "fp": 244,
+            "fn": 64,
+            "precision": 0.0996309963099631,
+            "recall": 0.2967032967032967,
+            "f1": 0.14917127071823205
+          }
+        },
+        "colloid": {
+          "hold": {
+            "support": 2707,
+            "predicted": 2619,
+            "tp": 2215,
+            "fp": 404,
+            "fn": 492,
+            "precision": 0.8457426498663612,
+            "recall": 0.8182489841152567,
+            "f1": 0.8317686819376643
+          },
+          "start": {
+            "support": 419,
+            "predicted": 302,
+            "tp": 178,
+            "fp": 124,
+            "fn": 241,
+            "precision": 0.5894039735099338,
+            "recall": 0.42482100238663484,
+            "f1": 0.49375866851595007
+          },
+          "stop": {
+            "support": 399,
+            "predicted": 400,
+            "tp": 218,
+            "fp": 182,
+            "fn": 181,
+            "precision": 0.545,
+            "recall": 0.5463659147869674,
+            "f1": 0.5456821026282853
+          },
+          "up": {
+            "support": 32,
+            "predicted": 40,
+            "tp": 1,
+            "fp": 39,
+            "fn": 31,
+            "precision": 0.025,
+            "recall": 0.03125,
+            "f1": 0.027777777777777776
+          },
+          "down": {
+            "support": 65,
+            "predicted": 261,
+            "tp": 25,
+            "fp": 236,
+            "fn": 40,
+            "precision": 0.09578544061302682,
+            "recall": 0.38461538461538464,
+            "f1": 0.15337423312883436
+          }
+        },
+        "water": {
+          "hold": {
+            "support": 2759,
+            "predicted": 2730,
+            "tp": 2330,
+            "fp": 400,
+            "fn": 429,
+            "precision": 0.8534798534798534,
+            "recall": 0.844508880028996,
+            "f1": 0.8489706686099472
+          },
+          "start": {
+            "support": 413,
+            "predicted": 158,
+            "tp": 75,
+            "fp": 83,
+            "fn": 338,
+            "precision": 0.47468354430379744,
+            "recall": 0.18159806295399517,
+            "f1": 0.2626970227670753
+          },
+          "stop": {
+            "support": 400,
+            "predicted": 452,
+            "tp": 253,
+            "fp": 199,
+            "fn": 147,
+            "precision": 0.5597345132743363,
+            "recall": 0.6325,
+            "f1": 0.5938967136150235
+          },
+          "up": {
+            "support": 20,
+            "predicted": 32,
+            "tp": 2,
+            "fp": 30,
+            "fn": 18,
+            "precision": 0.0625,
+            "recall": 0.1,
+            "f1": 0.07692307692307693
+          },
+          "down": {
+            "support": 30,
+            "predicted": 250,
+            "tp": 8,
+            "fp": 242,
+            "fn": 22,
+            "precision": 0.032,
+            "recall": 0.26666666666666666,
+            "f1": 0.05714285714285714
+          }
+        }
+      }
+    }
+  }
+}

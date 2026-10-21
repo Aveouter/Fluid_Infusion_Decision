@@ -1,5 +1,10 @@
 # Target Label Protocol (v1)
 
+> Historical six-column protocol for the existing dataset. For the rebuilt
+> `final_v2_20261014` data, use [volume-first model data](fluid_volume_model_data.md).
+> A recorded setting is not a delivered hourly average; do not run the new
+> source settings through the legacy rate-to-volume conversion below.
+
 Single source of truth for what BurnResu predicts. Machine-checkable definitions
 live in [`utils/label_protocol.py`](../utils/label_protocol.py); the invariants are
 enforced by [`tests/test_label_protocol.py`](../tests/test_label_protocol.py).

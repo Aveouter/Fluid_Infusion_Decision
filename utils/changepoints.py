@@ -268,13 +268,10 @@ def patient_level_stratification(pred_rates: np.ndarray, true_rates: np.ndarray,
 # 预测变点在 {9, 10}。贪心先配 10→10（距离 0），剩下的 11 无处可配 → 1 个 TP；
 # 最大基数是 2（10→9, 11→10）。
 #
-# 为什么可以用线性贪心
-# --------------------
-# 同一通道内的真实/预测变点都落在一条直线上，相容关系是 |Δt| <= tolerance，
-# 构成**凸二部图**。对这类图，"按真实变点递增处理、每次配给窗口内**最早**
-# 的可用预测变点"即可得到最大基数。该结论由
-# ``tests/test_secondary_endpoints.py`` 用穷举最大匹配在随机小实例上交叉验证，
-# 不是靠断言。
+# 协议还要求最大基数中的总绝对时间偏差最小。最早匹配贪心只满足基数，
+# 例如真实 {5}、预测 {4,5} 会错误选择 4。按有序前缀动态规划，同时优化
+# (匹配数, -总偏差)。一维绝对距离存在不交叉最优匹配，因此前缀递推完备。
+# tests/test_event_matching_offset.py 以穷举独立验证两个目标。
 
 
 def match_events(true_cp: np.ndarray, pred_cp: np.ndarray, *,
@@ -303,22 +300,26 @@ def match_events(true_cp: np.ndarray, pred_cp: np.ndarray, *,
         n_true += len(true_ts)
         n_pred += len(pred_ts)
 
-        used = set()
-        ch_matches = []
-        for t in true_ts:                       # 递增处理真实变点
-            lo, hi = t - tolerance, t + tolerance
-            pick = None
-            for u in pred_ts:                   # 窗口内**最早**的可用预测变点
-                if u < lo:
-                    continue
-                if u > hi:
-                    break
-                if u not in used:
-                    pick = u
-                    break
-            if pick is not None:
-                used.add(pick)
-                ch_matches.append((int(t), int(pick), int(pick - t)))
+        rows,cols=len(true_ts),len(pred_ts)
+        scores=[[(0,0) for _ in range(cols+1)] for _ in range(rows+1)]
+        parent=np.zeros((rows+1,cols+1),dtype=np.uint8)
+        for i in range(1,rows+1):
+            for j in range(1,cols+1):
+                options=[(scores[i-1][j],1),(scores[i][j-1],2)]
+                offset=abs(int(true_ts[i-1])-int(pred_ts[j-1]))
+                if offset<=tolerance:
+                    count,cost=scores[i-1][j-1]
+                    options.append(((count+1,cost-offset),3))
+                scores[i][j],parent[i,j]=max(options,key=lambda item:item[0])
+        ch_matches=[];i=rows;j=cols
+        while i and j:
+            action=parent[i,j]
+            if action==3:
+                t,u=int(true_ts[i-1]),int(pred_ts[j-1])
+                ch_matches.append((t,u,u-t));i-=1;j-=1
+            elif action==1:i-=1
+            else:j-=1
+        ch_matches.reverse()
 
         per_channel[c] = {
             "n_true": len(true_ts), "n_pred": len(pred_ts),

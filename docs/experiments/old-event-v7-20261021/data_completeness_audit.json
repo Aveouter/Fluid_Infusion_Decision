@@ -1,0 +1,1015 @@
+{
+  "protocol": "old-data-completeness-audit-20261021",
+  "note": "Aggregate only; raw patient rows stay local. '时间' is the only hour anchor; there is no independent injury/admission timestamp in the old table. Empty time rows are unrecorded, never zero. Rate is the label; status bits are not.",
+  "cohort": {
+    "patients": 363,
+    "rows": 26136,
+    "valid_rows": 25267,
+    "empty_rows": 869,
+    "train_patients": 291,
+    "test_patients": 72
+  },
+  "time": {
+    "start_not_1": 0,
+    "duplicates": 0,
+    "non_integer": 0,
+    "gaps": 0,
+    "interior_empty_patients": 0,
+    "trailing_empty_patients": 27,
+    "empty_rows": 869,
+    "patients_full72": 336,
+    "patients_partial": 27,
+    "valid_hours_min": 9,
+    "valid_hours_max": 72,
+    "length_histogram": {
+      "9": 1,
+      "14": 1,
+      "18": 1,
+      "20": 1,
+      "22": 1,
+      "26": 1,
+      "27": 1,
+      "29": 1,
+      "32": 1,
+      "33": 1,
+      "34": 1,
+      "35": 1,
+      "36": 1,
+      "40": 1,
+      "41": 1,
+      "44": 1,
+      "46": 1,
+      "47": 2,
+      "49": 1,
+      "53": 1,
+      "57": 1,
+      "59": 1,
+      "62": 1,
+      "64": 2,
+      "67": 1,
+      "72": 336
+    }
+  },
+  "labels": {
+    "max_abs_diff": 0.0,
+    "bit_rate_mismatch": 0,
+    "rows": 25267,
+    "length_mismatch": 0,
+    "status_conflicts": {
+      "crystal": {
+        "status1_rate0": 410,
+        "status0_rate_pos": 4704
+      },
+      "colloid": {
+        "status1_rate0": 511,
+        "status0_rate_pos": 2596
+      },
+      "water": {
+        "status1_rate0": 410,
+        "status0_rate_pos": 2903
+      }
+    },
+    "interpretation": "Label rates equal the raw rate columns exactly; bits are derived from rate. status=1 with rate=0 and status=0 with rate>0 are source-semantics conflicts; the label protocol uses rate."
+  },
+  "missingness": {
+    "heart_rate": {
+      "0-24": {
+        "patients": 363,
+        "median": 0.5416666666666666,
+        "q25": 0.4166666666666667,
+        "q75": 0.6666666666666666,
+        "mean_patient_fraction": 0.5700946895161771,
+        "full_missing": 30
+      },
+      "24-48": {
+        "patients": 358,
+        "median": 0.4166666666666667,
+        "q25": 0.2916666666666667,
+        "q75": 0.5,
+        "mean_patient_fraction": 0.3837126561085862,
+        "full_missing": 2
+      },
+      "48-72": {
+        "patients": 344,
+        "median": 0.5,
+        "q25": 0.4166666666666667,
+        "q75": 0.5,
+        "mean_patient_fraction": 0.4519576502478889,
+        "full_missing": 2
+      },
+      "0-48": {
+        "patients": 363,
+        "median": 0.4791666666666667,
+        "q25": 0.375,
+        "q75": 0.5625,
+        "mean_patient_fraction": 0.47966986715136034,
+        "full_missing": 2
+      },
+      "0-72": {
+        "patients": 363,
+        "median": 0.4722222222222222,
+        "q25": 0.3888888888888889,
+        "q75": 0.5416666666666666,
+        "mean_patient_fraction": 0.4706637583701411,
+        "full_missing": 1
+      },
+      "24-72": {
+        "patients": 358,
+        "median": 0.4375,
+        "q25": 0.3541666666666667,
+        "q75": 0.5,
+        "mean_patient_fraction": 0.41398492434734574,
+        "full_missing": 1
+      }
+    },
+    "sbp": {
+      "0-24": {
+        "patients": 363,
+        "median": 0.625,
+        "q25": 0.3333333333333333,
+        "q75": 0.875,
+        "mean_patient_fraction": 0.6021724525856756,
+        "full_missing": 56
+      },
+      "24-48": {
+        "patients": 358,
+        "median": 0.4166666666666667,
+        "q25": 0.0,
+        "q75": 0.75,
+        "mean_patient_fraction": 0.4044213080525929,
+        "full_missing": 35
+      },
+      "48-72": {
+        "patients": 344,
+        "median": 0.4583333333333333,
+        "q25": 0.0,
+        "q75": 0.8333333333333334,
+        "mean_patient_fraction": 0.43873674010607916,
+        "full_missing": 34
+      },
+      "0-48": {
+        "patients": 363,
+        "median": 0.5416666666666666,
+        "q25": 0.20833333333333334,
+        "q75": 0.75,
+        "mean_patient_fraction": 0.5048537392331519,
+        "full_missing": 30
+      },
+      "0-72": {
+        "patients": 363,
+        "median": 0.5,
+        "q25": 0.1527777777777778,
+        "q75": 0.7638888888888888,
+        "mean_patient_fraction": 0.4821669230623467,
+        "full_missing": 28
+      },
+      "24-72": {
+        "patients": 358,
+        "median": 0.4166666666666667,
+        "q25": 0.020833333333333332,
+        "q75": 0.75,
+        "mean_patient_fraction": 0.416896474455006,
+        "full_missing": 31
+      }
+    },
+    "dbp": {
+      "0-24": {
+        "patients": 363,
+        "median": 0.625,
+        "q25": 0.3333333333333333,
+        "q75": 0.875,
+        "mean_patient_fraction": 0.6021724525856756,
+        "full_missing": 56
+      },
+      "24-48": {
+        "patients": 358,
+        "median": 0.4166666666666667,
+        "q25": 0.0,
+        "q75": 0.75,
+        "mean_patient_fraction": 0.4044213080525929,
+        "full_missing": 35
+      },
+      "48-72": {
+        "patients": 344,
+        "median": 0.4583333333333333,
+        "q25": 0.0,
+        "q75": 0.8333333333333334,
+        "mean_patient_fraction": 0.43885786413708683,
+        "full_missing": 34
+      },
+      "0-48": {
+        "patients": 363,
+        "median": 0.5416666666666666,
+        "q25": 0.20833333333333334,
+        "q75": 0.75,
+        "mean_patient_fraction": 0.5048537392331519,
+        "full_missing": 30
+      },
+      "0-72": {
+        "patients": 363,
+        "median": 0.5,
+        "q25": 0.1527777777777778,
+        "q75": 0.7638888888888888,
+        "mean_patient_fraction": 0.48220518446424454,
+        "full_missing": 28
+      },
+      "24-72": {
+        "patients": 358,
+        "median": 0.4166666666666667,
+        "q25": 0.020833333333333332,
+        "q75": 0.75,
+        "mean_patient_fraction": 0.4169546681235349,
+        "full_missing": 31
+      }
+    },
+    "spo2": {
+      "0-24": {
+        "patients": 363,
+        "median": 0.5416666666666666,
+        "q25": 0.4583333333333333,
+        "q75": 0.6666666666666666,
+        "mean_patient_fraction": 0.5839606215639274,
+        "full_missing": 30
+      },
+      "24-48": {
+        "patients": 358,
+        "median": 0.4166666666666667,
+        "q25": 0.3333333333333333,
+        "q75": 0.5,
+        "mean_patient_fraction": 0.40358322992603024,
+        "full_missing": 2
+      },
+      "48-72": {
+        "patients": 344,
+        "median": 0.5,
+        "q25": 0.4166666666666667,
+        "q75": 0.5,
+        "mean_patient_fraction": 0.4609208285424625,
+        "full_missing": 2
+      },
+      "0-48": {
+        "patients": 363,
+        "median": 0.5,
+        "q25": 0.3958333333333333,
+        "q75": 0.5625,
+        "mean_patient_fraction": 0.49665184199309026,
+        "full_missing": 2
+      },
+      "0-72": {
+        "patients": 363,
+        "median": 0.5,
+        "q25": 0.4166666666666667,
+        "q75": 0.5416666666666666,
+        "mean_patient_fraction": 0.48526363936682726,
+        "full_missing": 1
+      },
+      "24-72": {
+        "patients": 358,
+        "median": 0.4583333333333333,
+        "q25": 0.375,
+        "q75": 0.5,
+        "mean_patient_fraction": 0.428748205280116,
+        "full_missing": 1
+      }
+    },
+    "urine_output": {
+      "0-24": {
+        "patients": 363,
+        "median": 0.25,
+        "q25": 0.16666666666666666,
+        "q75": 0.4583333333333333,
+        "mean_patient_fraction": 0.3648107402239633,
+        "full_missing": 30
+      },
+      "24-48": {
+        "patients": 358,
+        "median": 0.0,
+        "q25": 0.0,
+        "q75": 0.0,
+        "mean_patient_fraction": 0.03887337057728119,
+        "full_missing": 2
+      },
+      "48-72": {
+        "patients": 344,
+        "median": 0.0,
+        "q25": 0.0,
+        "q75": 0.041666666666666664,
+        "mean_patient_fraction": 0.04985210118319053,
+        "full_missing": 2
+      },
+      "0-48": {
+        "patients": 363,
+        "median": 0.14583333333333334,
+        "q25": 0.08333333333333333,
+        "q75": 0.2708333333333333,
+        "mean_patient_fraction": 0.2055686572868135,
+        "full_missing": 2
+      },
+      "0-72": {
+        "patients": 363,
+        "median": 0.1111111111111111,
+        "q25": 0.06944444444444445,
+        "q75": 0.19722222222222224,
+        "mean_patient_fraction": 0.15725266220880899,
+        "full_missing": 1
+      },
+      "24-72": {
+        "patients": 358,
+        "median": 0.0,
+        "q25": 0.0,
+        "q75": 0.0625,
+        "mean_patient_fraction": 0.043417890087046905,
+        "full_missing": 1
+      }
+    },
+    "cvp": {
+      "0-24": {
+        "patients": 363,
+        "median": 1.0,
+        "q25": 1.0,
+        "q75": 1.0,
+        "mean_patient_fraction": 0.9836902078637617,
+        "full_missing": 295
+      },
+      "24-48": {
+        "patients": 358,
+        "median": 1.0,
+        "q25": 0.9583333333333334,
+        "q75": 1.0,
+        "mean_patient_fraction": 0.9660359317286656,
+        "full_missing": 264
+      },
+      "48-72": {
+        "patients": 344,
+        "median": 1.0,
+        "q25": 0.9479166666666667,
+        "q75": 1.0,
+        "mean_patient_fraction": 0.9676079734219271,
+        "full_missing": 251
+      },
+      "0-48": {
+        "patients": 363,
+        "median": 1.0,
+        "q25": 0.9791666666666666,
+        "q75": 1.0,
+        "mean_patient_fraction": 0.9753323009645924,
+        "full_missing": 265
+      },
+      "0-72": {
+        "patients": 363,
+        "median": 1.0,
+        "q25": 0.9583333333333334,
+        "q75": 1.0,
+        "mean_patient_fraction": 0.9722408351060549,
+        "full_missing": 251
+      },
+      "24-72": {
+        "patients": 358,
+        "median": 1.0,
+        "q25": 0.9375,
+        "q75": 1.0,
+        "mean_patient_fraction": 0.9651386466164437,
+        "full_missing": 250
+      }
+    },
+    "temperature": {
+      "0-24": {
+        "patients": 363,
+        "median": 0.6666666666666666,
+        "q25": 0.5416666666666666,
+        "q75": 0.7916666666666666,
+        "mean_patient_fraction": 0.6655859062883855,
+        "full_missing": 30
+      },
+      "24-48": {
+        "patients": 358,
+        "median": 0.5833333333333334,
+        "q25": 0.4166666666666667,
+        "q75": 0.75,
+        "mean_patient_fraction": 0.5468474438118776,
+        "full_missing": 2
+      },
+      "48-72": {
+        "patients": 344,
+        "median": 0.7083333333333334,
+        "q25": 0.5833333333333334,
+        "q75": 0.75,
+        "mean_patient_fraction": 0.6506742322684794,
+        "full_missing": 3
+      },
+      "0-48": {
+        "patients": 363,
+        "median": 0.625,
+        "q25": 0.4791666666666667,
+        "q75": 0.75,
+        "mean_patient_fraction": 0.6083690255245361,
+        "full_missing": 2
+      },
+      "0-72": {
+        "patients": 363,
+        "median": 0.6527777777777778,
+        "q25": 0.514520202020202,
+        "q75": 0.7361111111111112,
+        "mean_patient_fraction": 0.6202348558199413,
+        "full_missing": 1
+      },
+      "24-72": {
+        "patients": 358,
+        "median": 0.625,
+        "q25": 0.5,
+        "q75": 0.7291666666666666,
+        "mean_patient_fraction": 0.5930389424273816,
+        "full_missing": 1
+      }
+    },
+    "respiratory_rate": {
+      "0-24": {
+        "patients": 363,
+        "median": 0.5416666666666666,
+        "q25": 0.4166666666666667,
+        "q75": 0.6666666666666666,
+        "mean_patient_fraction": 0.5672250843738448,
+        "full_missing": 30
+      },
+      "24-48": {
+        "patients": 358,
+        "median": 0.4166666666666667,
+        "q25": 0.2916666666666667,
+        "q75": 0.5,
+        "mean_patient_fraction": 0.38243239540095114,
+        "full_missing": 2
+      },
+      "48-72": {
+        "patients": 344,
+        "median": 0.5,
+        "q25": 0.4166666666666667,
+        "q75": 0.5,
+        "mean_patient_fraction": 0.4509886579998269,
+        "full_missing": 2
+      },
+      "0-48": {
+        "patients": 363,
+        "median": 0.4791666666666667,
+        "q25": 0.375,
+        "q75": 0.5539772727272727,
+        "mean_patient_fraction": 0.4775799831169695,
+        "full_missing": 2
+      },
+      "0-72": {
+        "patients": 363,
+        "median": 0.4722222222222222,
+        "q25": 0.3888888888888889,
+        "q75": 0.5416666666666666,
+        "mean_patient_fraction": 0.4689373576537789,
+        "full_missing": 1
+      },
+      "24-72": {
+        "patients": 358,
+        "median": 0.4375,
+        "q25": 0.3541666666666667,
+        "q75": 0.5,
+        "mean_patient_fraction": 0.4128792446452972,
+        "full_missing": 1
+      }
+    },
+    "pulse": {
+      "0-24": {
+        "patients": 363,
+        "median": 1.0,
+        "q25": 1.0,
+        "q75": 1.0,
+        "mean_patient_fraction": 0.9949877563513927,
+        "full_missing": 324
+      },
+      "24-48": {
+        "patients": 358,
+        "median": 1.0,
+        "q25": 1.0,
+        "q75": 1.0,
+        "mean_patient_fraction": 0.9983705772811917,
+        "full_missing": 353
+      },
+      "48-72": {
+        "patients": 344,
+        "median": 1.0,
+        "q25": 1.0,
+        "q75": 1.0,
+        "mean_patient_fraction": 0.9987887596899226,
+        "full_missing": 338
+      },
+      "0-48": {
+        "patients": 363,
+        "median": 1.0,
+        "q25": 1.0,
+        "q75": 1.0,
+        "mean_patient_fraction": 0.9964686256872203,
+        "full_missing": 320
+      },
+      "0-72": {
+        "patients": 363,
+        "median": 1.0,
+        "q25": 1.0,
+        "q75": 1.0,
+        "mean_patient_fraction": 0.9970808081175847,
+        "full_missing": 315
+      },
+      "24-72": {
+        "patients": 358,
+        "median": 1.0,
+        "q25": 1.0,
+        "q75": 1.0,
+        "mean_patient_fraction": 0.9986033519553073,
+        "full_missing": 348
+      }
+    }
+  },
+  "composite_missingness": {
+    "0-24": {
+      "patients": 363,
+      "median": 0.5166666666666667,
+      "q25": 0.3666666666666667,
+      "q75": 0.675,
+      "mean_patient_fraction": 0.5446421912950838,
+      "full_missing": 30
+    },
+    "24-48": {
+      "patients": 358,
+      "median": 0.29166666666666663,
+      "q25": 0.16666666666666669,
+      "q75": 0.49791666666666656,
+      "mean_patient_fraction": 0.32700237454341674,
+      "full_missing": 2
+    },
+    "48-72": {
+      "patients": 344,
+      "median": 0.3666666666666666,
+      "q25": 0.2,
+      "q75": 0.5465909090909091,
+      "mean_patient_fraction": 0.36806503684334163,
+      "full_missing": 2
+    },
+    "0-48": {
+      "patients": 363,
+      "median": 0.4541666666666667,
+      "q25": 0.27708333333333335,
+      "q75": 0.575,
+      "mean_patient_fraction": 0.4383195689795136,
+      "full_missing": 2
+    },
+    "0-72": {
+      "patients": 363,
+      "median": 0.425,
+      "q25": 0.2611111111111111,
+      "q75": 0.55,
+      "mean_patient_fraction": 0.41551043349447364,
+      "full_missing": 1
+    },
+    "24-72": {
+      "patients": 358,
+      "median": 0.31875,
+      "q25": 0.19166666666666668,
+      "q75": 0.5083333333333333,
+      "mean_patient_fraction": 0.34400043245860984,
+      "full_missing": 1
+    }
+  },
+  "missingness_strata": {
+    "0-24": {
+      "all_patients": {
+        "<=0.10": 1,
+        "0.10-0.30": 55,
+        ">0.30": 277,
+        "all-missing": 30
+      },
+      "quartiles": {
+        "bounds": [
+          0.3666666666666667,
+          0.5166666666666667,
+          0.675
+        ],
+        "counts": [
+          92,
+          97,
+          85,
+          89
+        ]
+      }
+    },
+    "24-48": {
+      "all_patients": {
+        "<=0.10": 42,
+        "0.10-0.30": 142,
+        ">0.30": 172,
+        "all-missing": 2
+      },
+      "quartiles": {
+        "bounds": [
+          0.16666666666666669,
+          0.29166666666666663,
+          0.49791666666666656
+        ],
+        "counts": [
+          93,
+          88,
+          87,
+          90
+        ]
+      }
+    },
+    "48-72": {
+      "all_patients": {
+        "<=0.10": 8,
+        "0.10-0.30": 144,
+        ">0.30": 190,
+        "all-missing": 2
+      },
+      "quartiles": {
+        "bounds": [
+          0.2,
+          0.3666666666666666,
+          0.5465909090909091
+        ],
+        "counts": [
+          108,
+          64,
+          86,
+          86
+        ]
+      }
+    },
+    "0-48": {
+      "all_patients": {
+        "<=0.10": 1,
+        "0.10-0.30": 106,
+        ">0.30": 254,
+        "all-missing": 2
+      },
+      "quartiles": {
+        "bounds": [
+          0.27708333333333335,
+          0.4541666666666667,
+          0.575
+        ],
+        "counts": [
+          91,
+          91,
+          91,
+          90
+        ]
+      }
+    },
+    "0-72": {
+      "all_patients": {
+        "<=0.10": 0,
+        "0.10-0.30": 121,
+        ">0.30": 241,
+        "all-missing": 1
+      },
+      "quartiles": {
+        "bounds": [
+          0.2611111111111111,
+          0.425,
+          0.55
+        ],
+        "counts": [
+          93,
+          89,
+          91,
+          90
+        ]
+      },
+      "eligible_72h": {
+        "n": 336,
+        "proposed": {
+          "<=0.10": 0,
+          "0.10-0.30": 112,
+          ">0.30": 223,
+          "all-missing": 1
+        },
+        "quartiles": {
+          "bounds": [
+            0.2611111111111111,
+            0.42777777777777776,
+            0.5506944444444445
+          ],
+          "counts": [
+            86,
+            82,
+            84,
+            84
+          ]
+        },
+        "by_split": {
+          "train": {
+            "<=0.10": 0,
+            "0.10-0.30": 96,
+            ">0.30": 178,
+            "all-missing": 0
+          },
+          "test": {
+            "<=0.10": 0,
+            "0.10-0.30": 16,
+            ">0.30": 45,
+            "all-missing": 1
+          }
+        },
+        "by_fold": {
+          "0": {
+            "<=0.10": 0,
+            "0.10-0.30": 18,
+            ">0.30": 39,
+            "all-missing": 0
+          },
+          "1": {
+            "<=0.10": 0,
+            "0.10-0.30": 22,
+            ">0.30": 32,
+            "all-missing": 0
+          },
+          "2": {
+            "<=0.10": 0,
+            "0.10-0.30": 20,
+            ">0.30": 33,
+            "all-missing": 0
+          },
+          "3": {
+            "<=0.10": 0,
+            "0.10-0.30": 16,
+            ">0.30": 40,
+            "all-missing": 0
+          },
+          "4": {
+            "<=0.10": 0,
+            "0.10-0.30": 20,
+            ">0.30": 34,
+            "all-missing": 0
+          }
+        }
+      }
+    },
+    "24-72": {
+      "all_patients": {
+        "<=0.10": 19,
+        "0.10-0.30": 156,
+        ">0.30": 182,
+        "all-missing": 1
+      },
+      "quartiles": {
+        "bounds": [
+          0.19166666666666668,
+          0.31875,
+          0.5083333333333333
+        ],
+        "counts": [
+          91,
+          88,
+          92,
+          87
+        ]
+      }
+    }
+  },
+  "setting_missing": {
+    "0-24": 0,
+    "24-48": 0,
+    "48-72": 0
+  },
+  "segment_rows": {
+    "0-24": 8675,
+    "24-48": 8437,
+    "48-72": 8155
+  },
+  "eligibility": {
+    "0-24": {
+      "total": 363,
+      "eligible": 358,
+      "train": [
+        291,
+        287
+      ],
+      "test": [
+        72,
+        71
+      ],
+      "fold": {
+        "0": [
+          59,
+          59
+        ],
+        "1": [
+          58,
+          57
+        ],
+        "2": [
+          58,
+          56
+        ],
+        "3": [
+          58,
+          58
+        ],
+        "4": [
+          58,
+          57
+        ]
+      }
+    },
+    "0-48": {
+      "total": 363,
+      "eligible": 344,
+      "train": [
+        291,
+        279
+      ],
+      "test": [
+        72,
+        65
+      ],
+      "fold": {
+        "0": [
+          59,
+          57
+        ],
+        "1": [
+          58,
+          56
+        ],
+        "2": [
+          58,
+          55
+        ],
+        "3": [
+          58,
+          57
+        ],
+        "4": [
+          58,
+          54
+        ]
+      }
+    },
+    "0-72": {
+      "total": 363,
+      "eligible": 336,
+      "train": [
+        291,
+        274
+      ],
+      "test": [
+        72,
+        62
+      ],
+      "fold": {
+        "0": [
+          59,
+          57
+        ],
+        "1": [
+          58,
+          54
+        ],
+        "2": [
+          58,
+          53
+        ],
+        "3": [
+          58,
+          56
+        ],
+        "4": [
+          58,
+          54
+        ]
+      }
+    },
+    "24-48": {
+      "total": 363,
+      "eligible": 344,
+      "train": [
+        291,
+        279
+      ],
+      "test": [
+        72,
+        65
+      ],
+      "fold": {
+        "0": [
+          59,
+          57
+        ],
+        "1": [
+          58,
+          56
+        ],
+        "2": [
+          58,
+          55
+        ],
+        "3": [
+          58,
+          57
+        ],
+        "4": [
+          58,
+          54
+        ]
+      }
+    },
+    "48-72": {
+      "total": 363,
+      "eligible": 336,
+      "train": [
+        291,
+        274
+      ],
+      "test": [
+        72,
+        62
+      ],
+      "fold": {
+        "0": [
+          59,
+          57
+        ],
+        "1": [
+          58,
+          54
+        ],
+        "2": [
+          58,
+          53
+        ],
+        "3": [
+          58,
+          56
+        ],
+        "4": [
+          58,
+          54
+        ]
+      }
+    },
+    "24-72": {
+      "total": 363,
+      "eligible": 336,
+      "train": [
+        291,
+        274
+      ],
+      "test": [
+        72,
+        62
+      ],
+      "fold": {
+        "0": [
+          59,
+          57
+        ],
+        "1": [
+          58,
+          54
+        ],
+        "2": [
+          58,
+          53
+        ],
+        "3": [
+          58,
+          56
+        ],
+        "4": [
+          58,
+          54
+        ]
+      }
+    }
+  },
+  "exclusion_comparison": {
+    "年龄": {
+      "full_median": 45.0,
+      "partial_median": 45.0,
+      "p": 0.15511316652152238
+    },
+    "烧伤总面积": {
+      "full_median": 45.0,
+      "partial_median": 46.0,
+      "p": 0.5664838879076874
+    },
+    "合计Ⅲ°": {
+      "full_median": 16.0,
+      "partial_median": 35.0,
+      "p": 0.0009245917507058412
+    },
+    "合计深Ⅱ°": {
+      "full_median": 24.0,
+      "partial_median": 14.0,
+      "p": 0.005430853281636601
+    },
+    "合计浅Ⅱ°": {
+      "full_median": 7.0,
+      "partial_median": 2.0,
+      "p": 0.01064355598852928
+    }
+  }
+}
