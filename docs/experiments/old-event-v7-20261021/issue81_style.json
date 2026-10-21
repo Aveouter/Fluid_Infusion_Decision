@@ -1,0 +1,444 @@
+{
+  "protocol": "issue81-style-v7-20261021",
+  "note": "P1/P2 are cumulative documented setting exposure (rate x 1 h), not a reconstructed delivered dose. Evaluation is one-step observed history; cumulative is the observed first hour plus one-step predictions, not a rollout. Development folds 1-4 also selected prev_base vs prev_neg15; the historical test is the independent check.",
+  "development": {
+    "label": "development_folds1to4",
+    "audit": {
+      "patients": 232,
+      "windows": 15971,
+      "positive_rate": [
+        0.5412309811533405,
+        0.4273370484002254,
+        0.2910274873207689
+      ],
+      "all_zero_hour_rate": 0.23674159413937762,
+      "full_horizon_patients": {
+        "24": 228,
+        "48": 222,
+        "72": 217
+      }
+    },
+    "cumulative": {
+      "24": {
+        "patients": 228,
+        "total_mae": 2412.555848004525,
+        "total_mae_ci": [
+          2120.7145461429627,
+          2740.2667066126537
+        ],
+        "total_bias": -2395.702876542744,
+        "fluid_mae": [
+          1024.441362196939,
+          430.47940940187686,
+          1192.9859542010124
+        ],
+        "tolerance_200": 0.14473684210526316,
+        "tolerance_10": 0.05314009661835749,
+        "relative_n_patients": 207,
+        "zero_dose_patients": 21,
+        "zero_dose_correct": 21,
+        "zero_dose_accuracy": 1.0
+      },
+      "48": {
+        "patients": 222,
+        "total_mae": 4485.473580008154,
+        "total_mae_ci": [
+          4035.115500708314,
+          4924.047846929447
+        ],
+        "total_bias": -4485.473580008154,
+        "fluid_mae": [
+          1816.424332678855,
+          842.6932255169293,
+          2140.782448880307
+        ],
+        "tolerance_200": 0.02702702702702703,
+        "tolerance_10": 0.07239819004524888,
+        "relative_n_patients": 221,
+        "zero_dose_patients": 1,
+        "zero_dose_correct": 1,
+        "zero_dose_accuracy": 1.0
+      },
+      "72": {
+        "patients": 217,
+        "total_mae": 5630.923355506862,
+        "total_mae_ci": [
+          5061.762053729202,
+          6205.424869681063
+        ],
+        "total_bias": -5630.923355506862,
+        "fluid_mae": [
+          2283.7434478267546,
+          1124.7474459459156,
+          2517.624551852178
+        ],
+        "tolerance_200": 0.004608294930875576,
+        "tolerance_10": 0.06912442396313365,
+        "relative_n_patients": 217,
+        "zero_dose_patients": 0,
+        "zero_dose_correct": 0,
+        "zero_dose_accuracy": null
+      }
+    },
+    "activity": {
+      "macro_f1": 0.6404094558297201,
+      "macro_f1_ci": [
+        0.6201843363876158,
+        0.6589605099862919
+      ],
+      "micro_f1": 0.669356684981685,
+      "per_class": {
+        "crystal": {
+          "support": 8644,
+          "precision": 0.8350715137067938,
+          "recall": 0.6484266543267005,
+          "f1": 0.7300078145350352
+        },
+        "colloid": {
+          "support": 6825,
+          "precision": 0.7811931611495089,
+          "recall": 0.6293040293040293,
+          "f1": 0.6970705185425626
+        },
+        "water": {
+          "support": 4648,
+          "precision": 0.6858998853649216,
+          "recall": 0.38618760757314974,
+          "f1": 0.4941500344115623
+        }
+      },
+      "calibration": {
+        "crystal": {
+          "brier": 0.17554338057731012,
+          "ece": 0.041061588407561606
+        },
+        "colloid": {
+          "brier": 0.1607947537242247,
+          "ece": 0.023858468840840457
+        },
+        "water": {
+          "brier": 0.16049393490156502,
+          "ece": 0.033014227201082526
+        }
+      }
+    },
+    "event_calibration": {
+      "crystal": {
+        "brier": 0.34995367552552553,
+        "ece": 0.2743995848584612
+      },
+      "colloid": {
+        "brier": 0.26513710193150275,
+        "ece": 0.1973662655904816
+      },
+      "water": {
+        "brier": 0.1882439156605129,
+        "ece": 0.08828091258501804
+      }
+    },
+    "secondary": {
+      "all_hours_mae": 54.62579326712032,
+      "all_hours_mae_by_fluid": [
+        68.08401616002348,
+        39.29008398588707,
+        56.50327965545044
+      ],
+      "all_hours_rmse": 108.25428422967339,
+      "all_hours_rmse_by_fluid": [
+        129.38625860219594,
+        78.9529217166341,
+        116.42367237019018
+      ],
+      "positive_flow_mae": 117.6669816043219,
+      "positive_flow_mae_by_fluid": [
+        109.83501717974407,
+        80.92254527343216,
+        162.24338235978945
+      ],
+      "positive_flow_smape": 1.06397517352103,
+      "positive_flow_smape_by_fluid": [
+        0.8723222148814136,
+        0.9952488217158176,
+        1.324354483965859
+      ],
+      "zero_flow_mae": 26.783675966406268,
+      "zero_flow_mae_by_fluid": [
+        37.29477858950142,
+        27.342065858950445,
+        15.714183450766942
+      ],
+      "zero_flow_exact": 0.8873219168225644,
+      "tv_true_mean": 4064.2744252873563,
+      "tv_pred_mean": 2536.414136382355,
+      "tv_absolute_difference": 1741.216199239095
+    },
+    "changepoints": {
+      "crystal": {
+        "exact": {
+          "n_true": 4801,
+          "n_pred": 4002,
+          "n_matched": 1634,
+          "f1": 0.371237078268772
+        },
+        "pm1": {
+          "n_true": 4801,
+          "n_pred": 4002,
+          "n_matched": 3223,
+          "f1": 0.7322503691923208
+        }
+      },
+      "colloid": {
+        "exact": {
+          "n_true": 4228,
+          "n_pred": 2973,
+          "n_matched": 1239,
+          "f1": 0.34411887237883626
+        },
+        "pm1": {
+          "n_true": 4228,
+          "n_pred": 2973,
+          "n_matched": 2363,
+          "f1": 0.6562977364254965
+        }
+      },
+      "water": {
+        "exact": {
+          "n_true": 3982,
+          "n_pred": 2372,
+          "n_matched": 909,
+          "f1": 0.28611898016997167
+        },
+        "pm1": {
+          "n_true": 3982,
+          "n_pred": 2372,
+          "n_matched": 1993,
+          "f1": 0.6273213723638653
+        }
+      },
+      "macro": {
+        "exact": 0.3338249769391933,
+        "pm1": 0.6719564926605609
+      }
+    }
+  },
+  "historical_test": {
+    "label": "historical_test",
+    "audit": {
+      "patients": 72,
+      "windows": 4829,
+      "positive_rate": [
+        0.5150134603437565,
+        0.3594947194036032,
+        0.27065645061089255
+      ],
+      "all_zero_hour_rate": 0.2600952578173535,
+      "full_horizon_patients": {
+        "24": 71,
+        "48": 65,
+        "72": 62
+      }
+    },
+    "cumulative": {
+      "24": {
+        "patients": 71,
+        "total_mae": 2298.790463434139,
+        "total_mae_ci": [
+          1932.9610041813112,
+          2678.390883062255
+        ],
+        "total_bias": -2298.790463434139,
+        "fluid_mae": [
+          1002.6009855136066,
+          494.0781683048732,
+          964.138090939589
+        ],
+        "tolerance_200": 0.056338028169014086,
+        "tolerance_10": 0.029850746268656716,
+        "relative_n_patients": 67,
+        "zero_dose_patients": 4,
+        "zero_dose_correct": 4,
+        "zero_dose_accuracy": 1.0
+      },
+      "48": {
+        "patients": 65,
+        "total_mae": 3824.368031134972,
+        "total_mae_ci": [
+          3197.417392188586,
+          4518.326113013488
+        ],
+        "total_bias": -3824.368031134972,
+        "fluid_mae": [
+          1559.126868380033,
+          885.6276044992301,
+          1521.1623571542593
+        ],
+        "tolerance_200": 0.03076923076923077,
+        "tolerance_10": 0.0625,
+        "relative_n_patients": 64,
+        "zero_dose_patients": 1,
+        "zero_dose_correct": 1,
+        "zero_dose_accuracy": 1.0
+      },
+      "72": {
+        "patients": 62,
+        "total_mae": 5070.287297033495,
+        "total_mae_ci": [
+          4132.655211655555,
+          5993.170514503602
+        ],
+        "total_bias": -5070.287297033495,
+        "fluid_mae": [
+          2132.514159479449,
+          1206.4163170476113,
+          1855.1685825470954
+        ],
+        "tolerance_200": 0.016129032258064516,
+        "tolerance_10": 0.06557377049180328,
+        "relative_n_patients": 61,
+        "zero_dose_patients": 1,
+        "zero_dose_correct": 1,
+        "zero_dose_accuracy": 1.0
+      }
+    },
+    "activity": {
+      "macro_f1": 0.6160072031918836,
+      "macro_f1_ci": [
+        0.5736454650263055,
+        0.6533489120043068
+      ],
+      "micro_f1": 0.6404350607805502,
+      "per_class": {
+        "crystal": {
+          "support": 2487,
+          "precision": 0.823051948051948,
+          "recall": 0.6115802171290712,
+          "f1": 0.7017301038062284
+        },
+        "colloid": {
+          "support": 1736,
+          "precision": 0.7660910518053375,
+          "recall": 0.5622119815668203,
+          "f1": 0.6485049833887043
+        },
+        "water": {
+          "support": 1307,
+          "precision": 0.696969696969697,
+          "recall": 0.3871461361897475,
+          "f1": 0.49778652238071813
+        }
+      },
+      "calibration": {
+        "crystal": {
+          "brier": 0.17757961325311608,
+          "ece": 0.04622579820019797
+        },
+        "colloid": {
+          "brier": 0.15617457413937033,
+          "ece": 0.0316710455839164
+        },
+        "water": {
+          "brier": 0.15406757080675182,
+          "ece": 0.03487541223447063
+        }
+      }
+    },
+    "event_calibration": {
+      "crystal": {
+        "brier": 0.3435761644876571,
+        "ece": 0.26761187720086466
+      },
+      "colloid": {
+        "brier": 0.22823414727765895,
+        "ece": 0.14024341689214628
+      },
+      "water": {
+        "brier": 0.17930187456836744,
+        "ece": 0.07620642650875363
+      }
+    },
+    "secondary": {
+      "all_hours_mae": 50.167197505409,
+      "all_hours_mae_by_fluid": [
+        62.20425418935643,
+        37.444463365358615,
+        50.85287496151194
+      ],
+      "all_hours_rmse": 101.05292043726685,
+      "all_hours_rmse_by_fluid": [
+        119.90668953793553,
+        77.21005961366893,
+        106.0420121601961
+      ],
+      "positive_flow_mae": 119.53575340331663,
+      "positive_flow_mae_by_fluid": [
+        106.845862672075,
+        93.33032573632055,
+        158.4310718015544
+      ],
+      "positive_flow_smape": 1.1453886232512742,
+      "positive_flow_smape_by_fluid": [
+        0.9400196815535828,
+        1.1424981826114857,
+        1.353648005588754
+      ],
+      "zero_flow_mae": 22.589017264366586,
+      "zero_flow_mae_by_fluid": [
+        32.37660851834482,
+        23.370368820351995,
+        12.020074454402948
+      ],
+      "zero_flow_exact": 0.9056603773584906,
+      "tv_true_mean": 3613.171296296296,
+      "tv_pred_mean": 2072.427618009073,
+      "tv_absolute_difference": 1596.7855226905258
+    },
+    "changepoints": {
+      "crystal": {
+        "exact": {
+          "n_true": 1475,
+          "n_pred": 1129,
+          "n_matched": 478,
+          "f1": 0.3671274961597542
+        },
+        "pm1": {
+          "n_true": 1475,
+          "n_pred": 1129,
+          "n_matched": 938,
+          "f1": 0.7204301075268817
+        }
+      },
+      "colloid": {
+        "exact": {
+          "n_true": 1242,
+          "n_pred": 697,
+          "n_matched": 299,
+          "f1": 0.3084063950489943
+        },
+        "pm1": {
+          "n_true": 1242,
+          "n_pred": 697,
+          "n_matched": 581,
+          "f1": 0.5992779783393501
+        }
+      },
+      "water": {
+        "exact": {
+          "n_true": 1125,
+          "n_pred": 669,
+          "n_matched": 255,
+          "f1": 0.2842809364548495
+        },
+        "pm1": {
+          "n_true": 1125,
+          "n_pred": 669,
+          "n_matched": 583,
+          "f1": 0.6499442586399108
+        }
+      },
+      "macro": {
+        "exact": 0.319938275887866,
+        "pm1": 0.6565507815020476
+      }
+    }
+  }
+}

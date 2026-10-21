@@ -264,8 +264,15 @@ def cumulative_summary(entries):
     mae = np.abs(error)
     total_true = true.sum(1)
     total_pred = pred.sum(1)
-    zero = np.abs(total_true) <= 1e-6
+    total_error = np.abs(total_pred - total_true)
+    relative = np.abs(total_true) > 1e-6
+    zero = ~relative
     return dict(patients=len(entries),
+                total_mae=float(total_error.mean()),
+                total_bias=float(np.mean(total_pred - total_true)),
+                total_tolerance_200=float((total_error <= 200.0).mean()),
+                total_tolerance_10=float((total_error[relative] <= 0.10 * np.abs(total_true[relative])).mean())
+                if relative.any() else None,
                 mae=float(mae.mean()), bias=float(error.mean()),
                 mae_by_fluid=mae.mean(0).tolist(),
                 tolerance_200=float((mae <= 200.0).mean()),
