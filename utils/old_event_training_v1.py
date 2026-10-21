@@ -18,7 +18,40 @@ DEFAULT_CONFIG = dict(hidden=64, dropout=0.1, epochs=60, batch_size=512,
                       use_horizon=False, min_change=50.0, detach_actions=False,
                       hold_mode="previous", magnitude_source="guarded",
                       event_negative_weight=1.0, event_fbeta_weight=0.0, event_fbeta_beta=1.0,
-                      mean_weight=0.0, positive_mean_weight=0.0)
+                      mean_weight=0.0, positive_mean_weight=0.0,
+                      rate_quantile=0.5, quantile_positive_only=True,
+                      cumulative_weight=0.0, cumulative_scale=1000.0)
+
+
+def _patient_batches(patient_rows, batch_size, rng):
+    """Yield batches that keep each patient's rows together."""
+    patients = list(patient_rows)
+    rng.shuffle(patients)
+    batch, count = [], 0
+    for pid in patients:
+        rows = patient_rows[pid]
+        if batch and count + len(rows) > batch_size:
+            yield np.concatenate(batch)
+            batch, count = [], 0
+        batch.append(rows)
+        count += len(rows)
+    if batch:
+        yield np.concatenate(batch)
+
+
+def _cumulative_groups(rows, train):
+    """Patient -> [(horizon, global row indices)] with complete 2..H coverage."""
+    groups = {}
+    for pid in np.unique(rows["patient"][train]):
+        idx = np.flatnonzero(train & (rows["patient"] == pid))
+        hours = rows["hour"][idx]
+        for horizon in (24, 48, 72):
+            inside = (hours >= 2) & (hours <= horizon)
+            if (int(inside.sum()) == horizon - 1
+                    and int(hours[inside].min()) == 2
+                    and int(hours[inside].max()) == horizon):
+                groups.setdefault(int(pid), []).append((horizon, idx[inside]))
+    return groups
 
 
 def _class_weights(action, mask, train, *, exponent, cap, minimum):
@@ -68,6 +101,8 @@ def fit(windows, rows, train, config, seed, *, progress=None):
     active = torch.as_tensor(rows["target_active"], dtype=torch.float32, device=device)
     action = torch.as_tensor(rows["action"], device=device)
     action_mask = torch.as_tensor(rows["action_mask"], device=device)
+    patient_all = torch.as_tensor(rows["patient"], device=device)
+    hour_all = torch.as_tensor(rows["hour"], device=device)
     cum_target = torch.as_tensor(np.nan_to_num(rows["cum_target"]), dtype=torch.float32, device=device)
     cum_mask = torch.as_tensor(rows["cum_mask"], device=device)
 
@@ -101,15 +136,31 @@ def fit(windows, rows, train, config, seed, *, progress=None):
     schedule = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, config["epochs"], eta_min=1e-4)
     rng = np.random.default_rng(seed)
     indices = np.flatnonzero(train)
+    cumulative = float(config.get("cumulative_weight", 0.0)) > 0
+    patient_rows = ({int(pid): np.flatnonzero(train & (rows["patient"] == pid))
+                     for pid in np.unique(rows["patient"][train])}
+                    if cumulative else None)
+    cumulative_groups = _cumulative_groups(rows, train) if cumulative else {}
     trace = []
     for epoch in range(config["epochs"]):
         model.train()
         losses = []
-        for batch in np.array_split(rng.permutation(indices),
-                                    max(1, int(np.ceil(len(indices) / config["batch_size"])))):
+        batches = (_patient_batches(patient_rows, config["batch_size"], rng)
+                   if cumulative else
+                   np.array_split(rng.permutation(indices),
+                                  max(1, int(np.ceil(len(indices) / config["batch_size"])))))
+        for batch in batches:
             at = torch.as_tensor(batch, device=device)
             output = model(tensors["sequence"][at], tensors["static"][at], previous[at])
-            rate_loss = ((output["rate_ml_h"] - target[at]).abs() / 100.0 * weights["rate"][at]).mean()
+            error = output["rate_ml_h"] - target[at]
+            quantile = float(config.get("rate_quantile", 0.5))
+            if quantile != 0.5:
+                pinball = torch.maximum(quantile * error, (quantile - 1.0) * error)
+                element = (torch.where(target[at] > 0, pinball, error.abs())
+                           if config.get("quantile_positive_only", True) else pinball)
+            else:
+                element = error.abs()
+            rate_loss = (element / 100.0 * weights["rate"][at]).mean()
             active_logit = (output.get("active_logit", output.get("rate_branch_logit")) if mode in ("absolute", "two_branch")
                             else torch.logit(output["active_probability"].clamp(1e-6, 1 - 1e-6)))
             active_loss = (F.binary_cross_entropy_with_logits(
@@ -128,6 +179,19 @@ def fit(windows, rows, train, config, seed, *, progress=None):
                         terms.append(residual ** 2)
                 if terms:
                     loss = loss + config["positive_mean_weight"] * torch.stack(terms).mean()
+            if cumulative:
+                position = {int(row): i for i, row in enumerate(batch)}
+                patient_set = {int(pid) for pid in np.unique(rows["patient"][batch])}
+                terms = []
+                for pid in patient_set:
+                    for horizon, global_rows in cumulative_groups.get(pid, ()):
+                        local = torch.as_tensor([position[int(row)] for row in global_rows],
+                                                device=device)
+                        residual = (output["rate_ml_h"][local]
+                                    - target[at][local]).sum(0).sum()
+                        terms.append(residual.abs() / float(config["cumulative_scale"]))
+                if terms:
+                    loss = loss + config["cumulative_weight"] * torch.stack(terms).mean()
             if mode in ("hybrid", "guarded", "two_branch"):
                 absolute_loss = ((output["absolute_rate_ml_h"] - target[at]).abs()
                                  / 100.0 * weights["rate"][at]).mean()

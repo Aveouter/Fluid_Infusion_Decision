@@ -1,0 +1,67 @@
+{
+  "protocol": "old-event-v7-cum-20261021",
+  "history": 24,
+  "seeds": [
+    20261015,
+    20261016,
+    20261017
+  ],
+  "folds": [
+    0,
+    1,
+    2,
+    3,
+    4
+  ],
+  "arms": {
+    "two_branch": {
+      "hidden": 64,
+      "dropout": 0.1,
+      "epochs": 60,
+      "batch_size": 512,
+      "learning_rate": 0.002,
+      "weight_decay": 0.01,
+      "gradient_clip": 5.0,
+      "event_weight": 0.5,
+      "direction_weight": 0.5,
+      "magnitude_weight": 0.2,
+      "active_weight": 0.2,
+      "delta_weight": 0.1,
+      "horizon_weight": 0.2,
+      "absolute_weight": 0.5,
+      "balanced_event": false,
+      "use_delta": false,
+      "use_horizon": false,
+      "min_change": 50.0,
+      "detach_actions": false,
+      "hold_mode": "previous",
+      "magnitude_source": "guarded",
+      "event_negative_weight": 1.0,
+      "event_fbeta_weight": 0.0,
+      "event_fbeta_beta": 1.0,
+      "mean_weight": 0.0,
+      "positive_mean_weight": 0.0,
+      "rate_quantile": 0.5,
+      "quantile_positive_only": true,
+      "cumulative_weight": 0.2,
+      "cumulative_scale": 1000.0,
+      "mode": "two_branch"
+    }
+  },
+  "data_sha256": {
+    "data/all_combined_data.csv": "ccaeabf2f97e9d6e08cb7c99d6c1b0c615c67ab18e54523088d00d10c07d1bd5",
+    "data/baseline_processed.csv": "2c927283f6862ee828eac6104a14be6b739a5c5cbb7ce36ab8c37cd9b25bab7d",
+    "data/train_split.csv": "cca8361b98185cdcf08ce648d9a23da37340239cc6253c5c19821b95b848c3f3",
+    "data/test_split.csv": "80d25f267882ca2b853323bd9b946d131324485c3bf571356d21592b6753de28",
+    "docs/label_protocol.md": "60f89f9accbc7b048b6dfe82a467f182b63c4b97a254186e8e720802d35aa09e",
+    "utils/eval_protocol.py": "0924f39ec7ab914a54614af51c9468bbe1e10f0f3172f063d504023a519c0da1"
+  },
+  "code_sha256": {
+    "utils/old_fluid_data_v1.py": "b6053a195ecdddd453b07edca9feb1b2bbf8d77939a992c62ffa2db24b73ce3b",
+    "utils/old_event_model_v1.py": "b1e41480868d1f3b89480a5ea1654056a1a8051e51c3ceefd8b359c8ef3e9fe3",
+    "utils/old_event_training_v1.py": "f1adeb80c5732df5ac08633b9f81e4645df312f1ebe0b3a054c48877d08e86fb",
+    "reports/train_old_event_cum_20261021.py": "ac6b8929fe35e6e8545dc2a939ba5c19c65d59efbd8d0f33d0d312a7423cba9e"
+  },
+  "output": ".audit/old_event_v7_cum",
+  "note": "V7.3-CUM selected on fold 0 only: whole-patient batches plus a patient-level 24/48/72 h cumulative L1 term. Zeros, activity gate, action head and decoder are unchanged. Historical test is not used for selection."
+}
