@@ -16,8 +16,9 @@ DEFAULT_CONFIG = dict(hidden=64, dropout=0.1, epochs=60, batch_size=512,
                       active_weight=0.2, delta_weight=0.1, horizon_weight=0.2,
                       absolute_weight=0.5, balanced_event=False, use_delta=False,
                       use_horizon=False, min_change=50.0, detach_actions=False,
-                      hold_mode="previous", event_negative_weight=1.0,
-                      event_fbeta_weight=0.0, event_fbeta_beta=1.0)
+                      hold_mode="previous", magnitude_source="guarded",
+                      event_negative_weight=1.0, event_fbeta_weight=0.0, event_fbeta_beta=1.0,
+                      mean_weight=0.0, positive_mean_weight=0.0)
 
 
 def _class_weights(action, mask, train, *, exponent, cap, minimum):
@@ -53,7 +54,8 @@ def fit(windows, rows, train, config, seed, *, progress=None):
                                 hidden=config["hidden"], dropout=config["dropout"],
                                 horizons=rows["cum_target"].shape[1],
                                 min_change=config["min_change"],
-                                hold_mode=config.get("hold_mode", "previous")).to(device)
+                                hold_mode=config.get("hold_mode", "previous"),
+                                magnitude_source=config.get("magnitude_source", "guarded")).to(device)
     else:
         model = OldEventNet(transformed["sequence"].shape[-1], transformed["static"].shape[-1],
                             hidden=config["hidden"], dropout=config["dropout"], mode=mode,
@@ -113,6 +115,19 @@ def fit(windows, rows, train, config, seed, *, progress=None):
             active_loss = (F.binary_cross_entropy_with_logits(
                 active_logit, active[at], reduction="none") * weights["active"][at]).mean()
             loss = rate_loss + config["active_weight"] * active_loss
+            if config["mean_weight"] > 0:
+                total_residual = ((output["rate_ml_h"] - target[at]).sum(1) / 100.0).mean()
+                loss = loss + config["mean_weight"] * total_residual ** 2
+            if config["positive_mean_weight"] > 0:
+                positive_rows = target[at] > 0
+                terms = []
+                for c in range(3):
+                    if positive_rows[:, c].any():
+                        residual = ((output["rate_ml_h"][positive_rows[:, c], c]
+                                     - target[at][positive_rows[:, c], c]) / 100.0).mean()
+                        terms.append(residual ** 2)
+                if terms:
+                    loss = loss + config["positive_mean_weight"] * torch.stack(terms).mean()
             if mode in ("hybrid", "guarded", "two_branch"):
                 absolute_loss = ((output["absolute_rate_ml_h"] - target[at]).abs()
                                  / 100.0 * weights["rate"][at]).mean()
@@ -131,8 +146,10 @@ def fit(windows, rows, train, config, seed, *, progress=None):
                                     (action[at, c] - 1).clamp_min(0), weight=type_weights[c, 1:],
                                     reduction="none") for c in range(3)], -1)
                 direction = (direction * weights["direction"][at]).mean()
-                chosen = output["rate_candidates_ml_h"].gather(
-                    -1, action[at].clamp(0, 4).unsqueeze(-1)).squeeze(-1)
+                source = (output.get("action_candidates_ml_h", output["rate_candidates_ml_h"])
+                          if config.get("magnitude_source", "guarded") == "action"
+                          else output["rate_candidates_ml_h"])
+                chosen = source.gather(-1, action[at].clamp(0, 4).unsqueeze(-1)).squeeze(-1)
                 magnitude = ((chosen - target[at]).abs() / 100.0 * weights["magnitude"][at]).mean()
                 loss = loss + config["event_weight"] * event + config["direction_weight"] * direction
                 loss = loss + config["magnitude_weight"] * magnitude
@@ -174,6 +191,7 @@ def fit(windows, rows, train, config, seed, *, progress=None):
                                   min_change=config["min_change"],
                                   detach_actions=config.get("detach_actions", False),
                                   hold_mode=config.get("hold_mode", "previous"),
+                                  magnitude_source=config.get("magnitude_source", "guarded"),
                                   kind=("two_branch" if mode == "two_branch" else "single")),
                 state={k: v.detach().cpu().clone() for k, v in model.state_dict().items()},
                 scaler=scaler, config=copy.deepcopy(config), trace=trace,
@@ -189,6 +207,7 @@ def predict(bundle, windows, rows, selection=None, *, event_threshold=0.5):
         kwargs.pop("detach_actions", None)
     else:
         kwargs.pop("hold_mode", None)
+        kwargs.pop("magnitude_source", None)
     model = (OldTwoBranchNet if kind == "two_branch" else OldEventNet)(**kwargs).to(device)
     model.load_state_dict(bundle["state"])
     model.eval()

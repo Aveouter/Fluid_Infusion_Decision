@@ -61,8 +61,12 @@ class _ActionBranch(nn.Module):
         probability[..., self.direction + 1] = self.event
         direction = torch.zeros((shape[0], 3, 4), dtype=previous_rate.dtype)
         direction[..., self.direction] = 1.0
+        candidates = torch.zeros((shape[0], 3, 5), dtype=previous_rate.dtype)
+        candidates[..., 0] = previous_rate
+        candidates[..., 1] = 1.0
         return dict(event_probability=event, action_probability=probability,
                     direction_probability=direction,
+                    rate_candidates_ml_h=candidates,
                     event_logit=torch.logit(event.clamp(1e-6, 1 - 1e-6)),
                     delta_ml_h=torch.zeros_like(previous_rate),
                     horizon_ml=torch.ones((shape[0], 3, 3), dtype=previous_rate.dtype))

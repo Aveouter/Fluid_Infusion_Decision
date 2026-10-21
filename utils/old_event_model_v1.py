@@ -140,11 +140,15 @@ class OldTwoBranchNet(nn.Module):
     """
 
     def __init__(self, sequence_channels, static_channels, *, hidden=64, dropout=0.1,
-                 horizons=3, min_change=MIN_CHANGE_ML_H, hold_mode="previous"):
+                 horizons=3, min_change=MIN_CHANGE_ML_H, hold_mode="previous",
+                 magnitude_source="guarded"):
         super().__init__()
         if hold_mode not in ("previous", "absolute"):
             raise ValueError("hold_mode must be 'previous' or 'absolute'")
+        if magnitude_source not in ("guarded", "action"):
+            raise ValueError("magnitude_source must be 'guarded' or 'action'")
         self.hold_mode = hold_mode
+        self.magnitude_source = magnitude_source
         self.rate_branch = OldEventNet(sequence_channels, static_channels, hidden=hidden,
                                        dropout=dropout, mode="absolute", horizons=horizons,
                                        min_change=min_change)
@@ -168,7 +172,9 @@ class OldTwoBranchNet(nn.Module):
                             torch.maximum(absolute, torch.ones_like(base)))
         down = torch.where(base > self.min_change, below, torch.zeros_like(base))
         hold = base if self.hold_mode == "previous" else absolute
-        candidates = torch.stack([hold, start, torch.zeros_like(base), above, down], -1)
+        guarded = torch.stack([hold, start, torch.zeros_like(base), above, down], -1)
+        action_candidates = action["rate_candidates_ml_h"]
+        candidates = action_candidates if self.magnitude_source == "action" else guarded
         index = torch.where(gate, direction, torch.zeros_like(direction))
         hard_rate = torch.gather(candidates, -1, index.unsqueeze(-1)).squeeze(-1)
         probabilities = action["action_probability"].detach()
@@ -187,6 +193,7 @@ class OldTwoBranchNet(nn.Module):
                     action_probability=action["action_probability"],
                     direction_probability=action["direction_probability"],
                     rate_candidates_ml_h=candidates,
+                    action_candidates_ml_h=action_candidates,
                     active_probability=activity_probability,
                     absolute_rate_ml_h=absolute,
                     rate_branch_logit=rate_branch["active_logit"],

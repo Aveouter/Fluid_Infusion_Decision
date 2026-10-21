@@ -1,0 +1,574 @@
+{
+  "protocol": "old-event-v7-calibration-20261021",
+  "note": "Offsets are fitted on positive predictions only, on the calibration folds; no outer/test rows enter the fit. This is a post-hoc calibrated variant, not a retrained model.",
+  "development": {
+    "0": {
+      "delta": [
+        93.0,
+        11.0,
+        30.0
+      ],
+      "calibration_objective": 4258.987802233015,
+      "raw_p1_72": {
+        "patients": 57,
+        "total_mae": 4576.979401304011,
+        "total_mae_ci": [
+          3753.20884703586,
+          5425.586599637751
+        ],
+        "total_bias": -4576.979401304011,
+        "fluid_mae": [
+          1566.7515689782929,
+          1137.9497951039098,
+          2109.2578198616966
+        ],
+        "tolerance_200": 0.017543859649122806,
+        "tolerance_10": 0.07017543859649122,
+        "relative_n_patients": 57,
+        "zero_dose_patients": 0,
+        "zero_dose_correct": 0,
+        "zero_dose_accuracy": null
+      },
+      "calibrated_p1_72": {
+        "patients": 57,
+        "total_mae": 3116.340037964938,
+        "total_mae_ci": [
+          2465.7107207214626,
+          3806.6854079095942
+        ],
+        "total_bias": -1254.2776469180458,
+        "fluid_mae": [
+          1945.4258527253803,
+          1061.745591013055,
+          1771.3316938166033
+        ],
+        "tolerance_200": 0.03508771929824561,
+        "tolerance_10": 0.2807017543859649,
+        "relative_n_patients": 57,
+        "zero_dose_patients": 0,
+        "zero_dose_correct": 0,
+        "zero_dose_accuracy": null
+      }
+    },
+    "1": {
+      "delta": [
+        93.0,
+        8.0,
+        21.5
+      ],
+      "calibration_objective": 3843.6016096115113,
+      "raw_p1_72": {
+        "patients": 54,
+        "total_mae": 6326.05501570525,
+        "total_mae_ci": [
+          5218.938377738881,
+          7506.238936616755
+        ],
+        "total_bias": -6326.05501570525,
+        "fluid_mae": [
+          2442.098956214057,
+          1375.446336534288,
+          2899.9635467529297
+        ],
+        "tolerance_200": 0.0,
+        "tolerance_10": 0.05555555555555555,
+        "relative_n_patients": 54,
+        "zero_dose_patients": 0,
+        "zero_dose_correct": 0,
+        "zero_dose_accuracy": null
+      },
+      "calibrated_p1_72": {
+        "patients": 54,
+        "total_mae": 4732.592972366898,
+        "total_mae_ci": [
+          3768.8524984183136,
+          5803.511446020338
+        ],
+        "total_bias": -3118.1568675571016,
+        "fluid_mae": [
+          2205.2976974204735,
+          1371.091271577058,
+          2707.3061393455223
+        ],
+        "tolerance_200": 0.0,
+        "tolerance_10": 0.2222222222222222,
+        "relative_n_patients": 54,
+        "zero_dose_patients": 0,
+        "zero_dose_correct": 0,
+        "zero_dose_accuracy": null
+      }
+    },
+    "2": {
+      "delta": [
+        97.5,
+        11.5,
+        5.5
+      ],
+      "calibration_objective": 3965.8195229267103,
+      "raw_p1_72": {
+        "patients": 53,
+        "total_mae": 5566.99324625843,
+        "total_mae_ci": [
+          4533.572277150064,
+          6676.128715790443
+        ],
+        "total_bias": -5566.99324625843,
+        "fluid_mae": [
+          2464.359355494661,
+          1098.4304360443691,
+          2404.8556136365205
+        ],
+        "tolerance_200": 0.0,
+        "tolerance_10": 0.07547169811320754,
+        "relative_n_patients": 53,
+        "zero_dose_patients": 0,
+        "zero_dose_correct": 0,
+        "zero_dose_accuracy": null
+      },
+      "calibrated_p1_72": {
+        "patients": 53,
+        "total_mae": 4376.31159368551,
+        "total_mae_ci": [
+          3577.65306646419,
+          5325.3332578371155
+        ],
+        "total_bias": -2356.8611707867317,
+        "fluid_mae": [
+          2440.7122223332244,
+          1106.879883676205,
+          2347.138632504445
+        ],
+        "tolerance_200": 0.018867924528301886,
+        "tolerance_10": 0.09433962264150944,
+        "relative_n_patients": 53,
+        "zero_dose_patients": 0,
+        "zero_dose_correct": 0,
+        "zero_dose_accuracy": null
+      }
+    },
+    "3": {
+      "delta": [
+        92.0,
+        11.5,
+        18.5
+      ],
+      "calibration_objective": 4023.139616922501,
+      "raw_p1_72": {
+        "patients": 56,
+        "total_mae": 5439.156824384417,
+        "total_mae_ci": [
+          4310.508108804906,
+          6749.833076012131
+        ],
+        "total_bias": -5439.156824384417,
+        "fluid_mae": [
+          2068.2027407373703,
+          1020.1499440329416,
+          2531.2581385884964
+        ],
+        "tolerance_200": 0.017857142857142856,
+        "tolerance_10": 0.07142857142857142,
+        "relative_n_patients": 56,
+        "zero_dose_patients": 0,
+        "zero_dose_correct": 0,
+        "zero_dose_accuracy": null
+      },
+      "calibrated_p1_72": {
+        "patients": 56,
+        "total_mae": 3998.2814959117345,
+        "total_mae_ci": [
+          3003.178693156583,
+          5207.448385334014
+        ],
+        "total_bias": -2376.674681527274,
+        "fluid_mae": [
+          2353.26517030171,
+          1029.6502163750786,
+          2350.874210017068
+        ],
+        "tolerance_200": 0.017857142857142856,
+        "tolerance_10": 0.2857142857142857,
+        "relative_n_patients": 56,
+        "zero_dose_patients": 0,
+        "zero_dose_correct": 0,
+        "zero_dose_accuracy": null
+      }
+    },
+    "4": {
+      "delta": [
+        100.0,
+        32.0,
+        37.0
+      ],
+      "calibration_objective": 4030.310343655673,
+      "raw_p1_72": {
+        "patients": 54,
+        "total_mae": 5197.406908882989,
+        "total_mae_ci": [
+          4109.865985691989,
+          6496.379675605561
+        ],
+        "total_bias": -5197.406908882989,
+        "fluid_mae": [
+          2171.640467043276,
+          1008.3496966891819,
+          2231.8276471032036
+        ],
+        "tolerance_200": 0.0,
+        "tolerance_10": 0.07407407407407407,
+        "relative_n_patients": 54,
+        "zero_dose_patients": 0,
+        "zero_dose_correct": 0,
+        "zero_dose_accuracy": null
+      },
+      "calibrated_p1_72": {
+        "patients": 54,
+        "total_mae": 4431.910613519174,
+        "total_mae_ci": [
+          3569.511330479163,
+          5447.219457530976
+        ],
+        "total_bias": -501.592094068174,
+        "fluid_mae": [
+          3098.9889404862015,
+          1139.3913359465423,
+          1877.7165359920925
+        ],
+        "tolerance_200": 0.0,
+        "tolerance_10": 0.18518518518518517,
+        "relative_n_patients": 54,
+        "zero_dose_patients": 0,
+        "zero_dose_correct": 0,
+        "zero_dose_accuracy": null
+      }
+    },
+    "all": {
+      "delta": [
+        97.5,
+        11.5,
+        16.5
+      ],
+      "calibration_objective": 4040.62550193898,
+      "raw_p1_72": {
+        "patients": 274,
+        "total_mae": 5411.672240946415,
+        "total_mae_ci": [
+          4906.925512892312,
+          5925.932295125071
+        ],
+        "total_bias": -5411.672240946415,
+        "fluid_mae": [
+          2134.5882029568193,
+          1127.4939200408267,
+          2432.6723484818954
+        ],
+        "tolerance_200": 0.0072992700729927005,
+        "tolerance_10": 0.06934306569343066,
+        "relative_n_patients": 274,
+        "zero_dose_patients": 0,
+        "zero_dose_correct": 0,
+        "zero_dose_accuracy": null
+      },
+      "calibrated_p1_72": {
+        "patients": 274,
+        "total_mae": 4040.62550193898,
+        "total_mae_ci": [
+          3619.0433726836295,
+          4479.699016342372
+        ],
+        "total_bias": -2021.0499781726921,
+        "fluid_mae": [
+          2436.1316751354802,
+          1103.2076385108223,
+          2263.472387954266
+        ],
+        "tolerance_200": 0.0364963503649635,
+        "tolerance_10": 0.23357664233576642,
+        "relative_n_patients": 274,
+        "zero_dose_patients": 0,
+        "zero_dose_correct": 0,
+        "zero_dose_accuracy": null
+      }
+    }
+  },
+  "historical_test": {
+    "raw": {
+      "setting_mae": 50.167197505409,
+      "strict_action_f1": 0.4177813557995878,
+      "zero_flow_accuracy": 0.9056603773584906,
+      "false_change_rate": 0.08586190699859089,
+      "change_hour_mae": 127.55284017724708
+    },
+    "calibrated": {
+      "setting_mae": 63.02877701869587,
+      "strict_action_f1": 0.36809329917017614,
+      "zero_flow_accuracy": 0.9056603773584906,
+      "false_change_rate": 0.21052137153593237,
+      "change_hour_mae": 136.6052513276457
+    },
+    "raw_p1": {
+      "24": {
+        "patients": 71,
+        "total_mae": 2298.790463434139,
+        "total_mae_ci": [
+          1932.9610041813112,
+          2678.390883062255
+        ],
+        "total_bias": -2298.790463434139,
+        "fluid_mae": [
+          1002.6009855136066,
+          494.0781683048732,
+          964.138090939589
+        ],
+        "tolerance_200": 0.056338028169014086,
+        "tolerance_10": 0.029850746268656716,
+        "relative_n_patients": 67,
+        "zero_dose_patients": 4,
+        "zero_dose_correct": 4,
+        "zero_dose_accuracy": 1.0
+      },
+      "48": {
+        "patients": 65,
+        "total_mae": 3824.368031134972,
+        "total_mae_ci": [
+          3197.417392188586,
+          4518.326113013488
+        ],
+        "total_bias": -3824.368031134972,
+        "fluid_mae": [
+          1559.126868380033,
+          885.6276044992301,
+          1521.1623571542593
+        ],
+        "tolerance_200": 0.03076923076923077,
+        "tolerance_10": 0.0625,
+        "relative_n_patients": 64,
+        "zero_dose_patients": 1,
+        "zero_dose_correct": 1,
+        "zero_dose_accuracy": 1.0
+      },
+      "72": {
+        "patients": 62,
+        "total_mae": 5070.287297033495,
+        "total_mae_ci": [
+          4132.655211655555,
+          5993.170514503602
+        ],
+        "total_bias": -5070.287297033495,
+        "fluid_mae": [
+          2132.514159479449,
+          1206.4163170476113,
+          1855.1685825470954
+        ],
+        "tolerance_200": 0.016129032258064516,
+        "tolerance_10": 0.06557377049180328,
+        "relative_n_patients": 61,
+        "zero_dose_patients": 1,
+        "zero_dose_correct": 1,
+        "zero_dose_accuracy": 1.0
+      }
+    },
+    "calibrated_p1": {
+      "24": {
+        "patients": 71,
+        "total_mae": 1709.109521919573,
+        "total_mae_ci": [
+          1389.020119864504,
+          2063.6646487350195
+        ],
+        "total_bias": -1544.9876465327304,
+        "fluid_mae": [
+          848.8392601013184,
+          473.82702840885645,
+          942.2366824888848
+        ],
+        "tolerance_200": 0.09859154929577464,
+        "tolerance_10": 0.13432835820895522,
+        "relative_n_patients": 67,
+        "zero_dose_patients": 4,
+        "zero_dose_correct": 4,
+        "zero_dose_accuracy": 1.0
+      },
+      "48": {
+        "patients": 65,
+        "total_mae": 2843.7332417414736,
+        "total_mae_ci": [
+          2298.3741630084696,
+          3454.6947202257006
+        ],
+        "total_bias": -1896.091108058049,
+        "fluid_mae": [
+          1422.777467580942,
+          859.3185002840482,
+          1444.177741769644
+        ],
+        "tolerance_200": 0.03076923076923077,
+        "tolerance_10": 0.1875,
+        "relative_n_patients": 64,
+        "zero_dose_patients": 1,
+        "zero_dose_correct": 1,
+        "zero_dose_accuracy": 1.0
+      },
+      "72": {
+        "patients": 62,
+        "total_mae": 3861.688598571285,
+        "total_mae_ci": [
+          3042.2992922352205,
+          4673.791281188687
+        ],
+        "total_bias": -2092.924393807688,
+        "fluid_mae": [
+          2077.333744233654,
+          1131.8415463970553,
+          1713.1389318281604
+        ],
+        "tolerance_200": 0.03225806451612903,
+        "tolerance_10": 0.18032786885245902,
+        "relative_n_patients": 61,
+        "zero_dose_patients": 1,
+        "zero_dose_correct": 1,
+        "zero_dose_accuracy": 1.0
+      }
+    }
+  },
+  "development_folds1to4": {
+    "raw": {
+      "setting_mae": 54.62579326712032,
+      "strict_action_f1": 0.41117164730578387,
+      "zero_flow_accuracy": 0.8873219168225644,
+      "false_change_rate": 0.09523809523809523,
+      "change_hour_mae": 136.86705359711874
+    },
+    "calibrated": {
+      "setting_mae": 68.71527614408855,
+      "strict_action_f1": 0.34856691636495113,
+      "zero_flow_accuracy": 0.8873219168225644,
+      "false_change_rate": 0.2478081485301702,
+      "change_hour_mae": 145.8536215071106
+    },
+    "raw_p1": {
+      "24": {
+        "patients": 228,
+        "total_mae": 2412.555848004525,
+        "total_mae_ci": [
+          2120.7145461429627,
+          2740.2667066126537
+        ],
+        "total_bias": -2395.702876542744,
+        "fluid_mae": [
+          1024.441362196939,
+          430.47940940187686,
+          1192.9859542010124
+        ],
+        "tolerance_200": 0.14473684210526316,
+        "tolerance_10": 0.05314009661835749,
+        "relative_n_patients": 207,
+        "zero_dose_patients": 21,
+        "zero_dose_correct": 21,
+        "zero_dose_accuracy": 1.0
+      },
+      "48": {
+        "patients": 222,
+        "total_mae": 4485.473580008154,
+        "total_mae_ci": [
+          4035.115500708314,
+          4924.047846929447
+        ],
+        "total_bias": -4485.473580008154,
+        "fluid_mae": [
+          1816.424332678855,
+          842.6932255169293,
+          2140.782448880307
+        ],
+        "tolerance_200": 0.02702702702702703,
+        "tolerance_10": 0.07239819004524888,
+        "relative_n_patients": 221,
+        "zero_dose_patients": 1,
+        "zero_dose_correct": 1,
+        "zero_dose_accuracy": 1.0
+      },
+      "72": {
+        "patients": 217,
+        "total_mae": 5630.923355506862,
+        "total_mae_ci": [
+          5061.762053729202,
+          6205.424869681063
+        ],
+        "total_bias": -5630.923355506862,
+        "fluid_mae": [
+          2283.7434478267546,
+          1124.7474459459156,
+          2517.624551852178
+        ],
+        "tolerance_200": 0.004608294930875576,
+        "tolerance_10": 0.06912442396313365,
+        "relative_n_patients": 217,
+        "zero_dose_patients": 0,
+        "zero_dose_correct": 0,
+        "zero_dose_accuracy": null
+      }
+    },
+    "calibrated_p1": {
+      "24": {
+        "patients": 228,
+        "total_mae": 1865.3851017533686,
+        "total_mae_ci": [
+          1597.8768567244213,
+          2154.4543719036533
+        ],
+        "total_bias": -1510.3388414550245,
+        "fluid_mae": [
+          921.7273655105056,
+          413.38674377976804,
+          1164.5713785238434
+        ],
+        "tolerance_200": 0.16666666666666666,
+        "tolerance_10": 0.1497584541062802,
+        "relative_n_patients": 207,
+        "zero_dose_patients": 21,
+        "zero_dose_correct": 21,
+        "zero_dose_accuracy": 1.0
+      },
+      "48": {
+        "patients": 222,
+        "total_mae": 3427.708460885125,
+        "total_mae_ci": [
+          3048.0302777294637,
+          3804.7817720817015
+        ],
+        "total_bias": -2208.8114178459923,
+        "fluid_mae": [
+          1770.5587430902428,
+          868.5046728323172,
+          2040.6338002316586
+        ],
+        "tolerance_200": 0.03153153153153153,
+        "tolerance_10": 0.19004524886877827,
+        "relative_n_patients": 221,
+        "zero_dose_patients": 1,
+        "zero_dose_correct": 1,
+        "zero_dose_accuracy": 1.0
+      },
+      "72": {
+        "patients": 217,
+        "total_mae": 4381.251022461922,
+        "total_mae_ci": [
+          3910.259992083536,
+          4889.899827926829
+        ],
+        "total_bias": -2089.741327857092,
+        "fluid_mae": [
+          2523.373621048466,
+          1160.7885104060722,
+          2320.914874432823
+        ],
+        "tolerance_200": 0.009216589861751152,
+        "tolerance_10": 0.19815668202764977,
+        "relative_n_patients": 217,
+        "zero_dose_patients": 0,
+        "zero_dose_correct": 0,
+        "zero_dose_accuracy": null
+      }
+    }
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "protocol": "old-event-v7-mean-frontier-20261021",
+  "note": "Fold 0 outer-development only; the total-residual mean-matching weight was scanned here. These are development points, not the historical test.",
+  "fold": 0,
+  "points": [
+    {"mean_weight": 0.0, "p1_72_ml": 5021.8, "bias_ml": -5021.8, "setting_mae": 48.37, "change_hour_mae": 121.00, "strict_action_f1": 0.385, "zero_flow_accuracy": 0.887},
+    {"mean_weight": 0.25, "p1_72_ml": 4481.7, "bias_ml": -4481.7, "setting_mae": 48.34, "change_hour_mae": 120.16, "strict_action_f1": 0.395, "zero_flow_accuracy": 0.889},
+    {"mean_weight": 0.5, "p1_72_ml": 3608.9, "bias_ml": -3608.9, "setting_mae": 51.80, "change_hour_mae": 127.85, "strict_action_f1": 0.384, "zero_flow_accuracy": 0.885},
+    {"mean_weight": 0.75, "p1_72_ml": 2710.2, "bias_ml": -2689.7, "setting_mae": 55.50, "change_hour_mae": 138.58, "strict_action_f1": 0.368, "zero_flow_accuracy": 0.879},
+    {"mean_weight": 1.0, "p1_72_ml": 2560.8, "bias_ml": -2127.1, "setting_mae": 58.20, "change_hour_mae": 147.98, "strict_action_f1": 0.360, "zero_flow_accuracy": 0.880}
+  ]
+}

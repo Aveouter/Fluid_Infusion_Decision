@@ -82,6 +82,16 @@ def main():
              "本报告同时给出两个 hold 候选：**hold=绝对速率**（动作优先，§2–3 为消融）与 "
              "**hold=上一小时 + 普通事件 BCE**（V7.1，总体误差优先，主结果见 §3.1）。"
              "前者在真实变化小时更准，后者在总体 MAE 与动作 F1 之间更平衡；两者与持续性的配对区间分别报告，不拼接。", ""]
+    mean_path = REPORT / "mean05_issue81.json"
+    if mean_path.exists():
+        mean_data = json.loads(mean_path.read_text(encoding="utf-8"))
+        dev = mean_data["results"]["development_folds1to4"]["mean05"]
+        test = mean_data["results"]["historical_test"]["mean05"]
+        lines += [f"**P1 改进尝试**：mean-matching 0.5 把 72h 总量 MAE 从 5,630.9/5,070.3 降到 "
+                  f"{dev['cumulative']['72']['total_mae']:.1f}/{test['cumulative']['72']['total_mae']:.1f} mL，"
+                  f"但设置 MAE 从 54.63/50.17 升到 {dev['secondary']['all_hours_mae']:.2f}/"
+                  f"{test['secondary']['all_hours_mae']:.2f}；P1 仍高于原模型 2,699.7 与持续性 164.1，"
+                  "不是无代价改进。见 §3.2。", ""]
 
     for split, title in (("development", "2. 开发集 5 折 OOF"), ("historical_test", "3. 历史留出（72 人）")):
         block = data["results"][split]
@@ -275,6 +285,53 @@ def main():
                   "P1 未通过；分液体平均 MAE（约 1,975/1,731）不是总量。变点精确/±1h 仍差于持续性，如实保留。", "",
                   "V7.1 的事件概率未单独拟合校准器；§2 主表 hold=绝对速率的事件 ECE 为 0.09–0.27，"
                   "事件概率不能当作可靠风险概率。活动门控的 ECE 为 0.01–0.03，校准较好。", ""]
+
+    mean_file = REPORT / "mean05_issue81.json"
+    frontier_file = REPORT / "mean_frontier.json"
+    if frontier_file.exists():
+        frontier = json.loads(frontier_file.read_text(encoding="utf-8"))
+        lines += ["## 3.2 P1 改进尝试：mean-matching 训练损失", "",
+                  "原始 V7.1 的逐小时 L1 是条件中位数，系统性低估累计暴露。给训练损失加入总量残差均值匹配项"
+                  "（`mean_weight * (mean(pred-true)/100)^2`）后，在 fold 0 开发外折上得到以下折中曲线；"
+                  "这不是无代价改进，也不是历史留出结果。", ""]
+        rows = [[point["mean_weight"], fmt(point["p1_72_ml"], 1), fmt(point["bias_ml"], 1),
+                 fmt(point["setting_mae"], 2), fmt(point["change_hour_mae"], 2),
+                 fmt(point["strict_action_f1"], 3)] for point in frontier["points"]]
+        lines += [table(["mean_weight", "P1 72h 总量 MAE", "偏置", "设置 MAE", "变化小时 MAE",
+                         "严格动作 F1"], rows), ""]
+        if mean_file.exists():
+            mean_data = json.loads(mean_file.read_text(encoding="utf-8"))
+            rows = []
+            for split, label in (("development_folds1to4", "折1–4"), ("historical_test", "历史留出")):
+                block = mean_data["results"][split]
+                for name, label2 in (("v71", "V7.1"), ("mean05", "V7.1-M (mean 0.5)")):
+                    c = block[name]["cumulative"]["72"]
+                    summary = block["v71_summary"] if name == "v71" else block["mean_summary"]
+                    rows.append([label, label2, c["patients"], fmt(c["total_mae"], 1),
+                                 fmt(c["total_bias"], 1), fmt(c["tolerance_200"], 3),
+                                 fmt(c["tolerance_10"], 3), fmt(summary["setting_mae"], 2),
+                                 fmt(summary["change_hour_mae"], 2),
+                                 fmt(summary["strict_action_f1"], 4),
+                                 fmt(summary["zero_flow_accuracy"], 3)])
+            lines += ["完整 5 折 × 3 种子 / 历史留出（`mean_weight=0.5`）：", "",
+                      table(["数据", "方案", "n", "P1 总量 MAE", "偏置", "±200", "±10%",
+                             "设置 MAE", "变化小时 MAE", "严格 F1", "零流"], rows), ""]
+            pair_rows = []
+            for split, label in (("development_folds1to4", "折1–4"), ("historical_test", "历史留出")):
+                block = mean_data["results"][split]
+                p1p = block["paired_p1"]; maep = block["paired_mae"]
+                pair_rows.append([label,
+                                  f"{p1p['difference']:+.1f} [{p1p['ci_low']:+.1f}, {p1p['ci_high']:+.1f}]",
+                                  f"{maep['difference']:+.2f} [{maep['ci_low']:+.2f}, {maep['ci_high']:+.2f}]"])
+            lines += [table(["数据", "P1 差值 V7.1−mean0.5", "设置 MAE 差值 V7.1−mean0.5"], pair_rows), ""]
+            lines += ["另试过逐液体水平偏移（P1 4,381.3、偏置 −4,381.3、MAE 68.72）和逐液体×预测动作类别偏移"
+                      "（P1 3,415.4、MAE 70.08），均因逐小时 MAE 代价过大不采用；脚本与聚合见 "
+                      "`reports/calibrate_old_event_v7_*.py`、`calibration.json`、`class_calibration.json`。", "",
+                      "mean-matching 显著降低 P1 并提高总量容差，代价是设置 MAE 约 +3 mL/h、严格动作 F1 约 −0.01；"
+                      "MAE 仍低于持续性，严格 F1 仍高于 0.30。但 P1 仍高于原 BurnResu 的 2,699.7 和持续性的 164.1；"
+                      "没有找到同时满足“逐小时 MAE 不退化”和“P1 通过”的单一配置；该权衡如实保留。", ""]
+        else:
+            lines += ["完整 5 折结果尚未生成。", ""]
 
     original = REPORT / "original_comparison.json"
     if original.exists():
