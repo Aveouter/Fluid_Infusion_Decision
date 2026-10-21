@@ -19,5 +19,24 @@
     "development",
     "historical_test"
   ],
-  "patient_level_predictions_published": false
+  "patient_level_predictions_published": false,
+  "data_completeness_audit_json_sha256": "34b0e83e9b37a63f22c8c2cccdd0554a0056541b7af4a145b859aeda047aacfc",
+  "data_completeness_audit_md_sha256": "6ebec6c749f19c94eb293b8bd0177f61ee25fdc8d55a389e38aa97709cb63213",
+  "interval_missingness_json_sha256": "1403bd431e8445f5400d4384e43c4bfb6f763354844bdf2c74996d42fc55e912",
+  "interval_missingness_md_sha256": "97f2b09d5ce777f2122063895ce3a0378328ad3ad49dddbe7a5a7fd76e8098e3",
+  "completeness_code_sha256": {
+    "utils/old_fluid_data_v1.py": "b6053a195ecdddd453b07edca9feb1b2bbf8d77939a992c62ffa2db24b73ce3b",
+    "reports/audit_old_data_completeness_20261021.py": "087d9c30208e4603dad3fc92073f754f5ab47b0c3fb820e49c60a0395ab73b16",
+    "reports/evaluate_completeness_missingness_20261021.py": "e95634cab431bb591b2ffdf1400247a752a530406d7902731add40e34a35cb75",
+    "reports/report_completeness_missingness_20261021.py": "15fc942a91b9f47a5fd68fd736a36667f001266a5bfd9da3113898713231d8ef",
+    "reports/train_old_event_physiology_controls_20261021.py": "ab0a51e8a6cd64f8aacec0a9b75776cb9eb847b0ccd41e3a4035b66656897d07",
+    "tests/test_old_data_completeness.py": "7064ed796b7a08b09ee987361d0ff04097fb403895a69a4ac355889d25a3535d"
+  },
+  "completeness_note": "Aggregate-only completeness/interval audit. Raw patient rows and patient-level predictions remain local; no patient identifiers are published.",
+  "replay_verification_json_sha256": "55848a4d821f3153022a6ca327f4639b557391297c0571008252f27db4bb5d82",
+  "control_protocol_sha256": {
+    "docs/old_event_v7_history_protocol_20261021.json": "f6229eee83d55c57a1a5a4bc60d178652af58ec9446d8c8e4f6533a286f8667f",
+    "docs/old_event_v7_missing_protocol_20261021.json": "8f22ab0429c7f7815460bc305013fb1191b0856ccea27a03550e33d2dad28812",
+    "docs/old_event_v7_values_protocol_20261021.json": "49c00c4297662266ea79c7bafe0b8c48c5aea2cf3ad440e6b3c27f43db505161"
+  }
 }

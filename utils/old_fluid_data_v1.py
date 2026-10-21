@@ -86,8 +86,14 @@ def _guarded(values: np.ndarray, low: float, high: float):
     return values, int(bad.sum())
 
 
-def load_series(root: Path):
-    """Return per-patient old-data series keyed by the bare patient id."""
+def load_series(root: Path, expected_patients: int | None = 363):
+    """Return per-patient old-data series keyed by the bare patient id.
+
+    ``时间`` is retained as the only hour anchor.  Empty time rows are dropped
+    as unrecorded (never zero); a non-contiguous or duplicated stamp is kept so
+    that ``build`` can mark the affected actions/intervals ineligible instead
+    of silently treating row position as hour.
+    """
     root = Path(root)
     frame = pd.read_csv(root / "data/all_combined_data.csv")
     frame = frame[np.isfinite(frame["时间"].to_numpy(float))].copy()
@@ -103,6 +109,7 @@ def load_series(root: Path):
     for pid, group in frame.groupby("PID", sort=False):
         group = group.sort_values("时间")
         pid = str(int(pid))
+        time = group["时间"].to_numpy(float)
         rate = group[list(RATE_COLUMNS)].to_numpy(float)
         if not np.isfinite(rate).all() or (rate < 0).any():
             raise ValueError(f"Invalid recorded rate for patient {pid}")
@@ -116,14 +123,35 @@ def load_series(root: Path):
             vitals[:, VITAL_NAMES.index(name)] = values
         values = baseline.reindex([pid]).to_numpy(float)[0]
         series[pid] = dict(rate=rate, added=added, added_signed=added_raw,
-                           vitals=vitals, baseline=values,
+                           time=time, vitals=vitals, baseline=values,
                            length=len(group),
                            split=0 if pid in train_ids else (1 if pid in test_ids else 2))
     if sum(item["split"] == 2 for item in series.values()):
         raise ValueError("A patient is in neither old split file")
-    if len(series) != 363:
-        raise ValueError(f"Expected the old 363-patient cohort, found {len(series)}")
+    if expected_patients is not None and len(series) != expected_patients:
+        raise ValueError(f"Expected the old {expected_patients}-patient cohort, found {len(series)}")
     return series, guards
+
+
+def interval_eligible(time, start: int, end: int, rate=None) -> bool:
+    """True iff every hour in ``[start, end]`` is present exactly once.
+
+    ``rate`` optionally requires all three setting rates to be finite over the
+    interval.  A partial interval never becomes a complete cumulative endpoint.
+    """
+    time = np.asarray(time, float)
+    need = np.arange(int(start), int(end) + 1)
+    if not np.isfinite(time).all():
+        return False
+    selected = np.sort(time[(time >= start) & (time <= end)])
+    if selected.size != need.size or not np.array_equal(selected, need):
+        return False
+    if rate is not None:
+        rate = np.asarray(rate, float)
+        use = np.isin(time, need)
+        if rate.shape[0] != time.shape[0] or not np.isfinite(rate[use]).all():
+            return False
+    return True
 
 
 def _rolling_mean(values: np.ndarray, window: int):
@@ -133,31 +161,35 @@ def _rolling_mean(values: np.ndarray, window: int):
     return out
 
 
-def _time_since_change(rate: np.ndarray):
-    """Hours since the last registered action change at or before each row."""
+def _time_since_change(rate: np.ndarray, time=None):
+    """Hours since the last registered action change at or before each row.
+
+    Uses the raw hour stamp when supplied, so a missing interior hour is not
+    counted as one elapsed hour.
+    """
     age = np.zeros(rate.shape, dtype=float)
-    last = np.zeros(rate.shape[1], dtype=int)
-    for i in range(len(rate)):
-        if i:
-            changed = action_change(rate[i - 1], rate[i])
-            last = np.where(changed, i, last)
-        age[i] = i - last
+    clock = np.arange(1, len(rate) + 1, dtype=float) if time is None else np.asarray(time, float)
+    last = np.full(rate.shape[1], clock[0], dtype=float)
+    for i in range(1, len(rate)):
+        changed = action_change(rate[i - 1], rate[i])
+        last = np.where(changed, clock[i], last)
+        age[i] = clock[i] - last
     return age
 
 
-def _sequence_features(rate, added, added_signed, vitals, valid_rows=None):
+def _sequence_features(rate, added, added_signed, vitals, valid_rows=None, time=None):
     """(T, F) per-hour causal features.  Row j uses rows <= j only."""
     T = len(rate)
     delta = np.zeros_like(rate)
     if T > 1:
         delta[1:] = rate[1:] - rate[:-1]
         delta[0] = rate[0]
-    age = _time_since_change(rate)
+    age = _time_since_change(rate, time)
     mean6 = _rolling_mean(rate, 6)
     mean24 = _rolling_mean(rate, 24)
     correction = (added_signed < 0).astype(float)
     valid = np.ones((T, 1)) if valid_rows is None else valid_rows[:, None].astype(float)
-    hour = (np.arange(T) + 1.0)[:, None] / 72.0
+    hour = (np.arange(T) + 1.0 if time is None else np.asarray(time, float))[:, None] / 72.0
     missing = (~np.isfinite(vitals)).astype(float)
     clean = np.where(np.isfinite(vitals), vitals, np.nan)
     return np.concatenate([rate, (rate > EPS).astype(float), delta, age, mean6, mean24,
@@ -167,21 +199,27 @@ def _sequence_features(rate, added, added_signed, vitals, valid_rows=None):
                            valid, hour], axis=1)
 
 
-def build(root: Path, history: int = 24, horizons=HORIZONS, group: str = "joint"):
+def build(root: Path, history: int = 24, horizons=HORIZONS, group: str = "joint",
+          expected_patients: int | None = 363):
     """Build aligned windows for the old cohort.
 
     Returns ``rows`` (targets, masks, patient/hour indices) and ``windows``
     (unscaled sequence/static arrays).  A target row ``i`` uses history rows
     ``i-history..i-1``; rows before the record start are zero-padded and marked
-    invalid.
+    invalid.  ``hour`` is the raw ``时间`` stamp, not the array position, and an
+    action across a missing/duplicated hour is masked instead of being treated
+    as a one-hour change.
 
-    ``group='history'`` blanks the oral and vital channels (values and their
-    missingness) while keeping the fluid history and the static baseline.  It is
-    the matched information-set control for the reviewer's physiology question.
+    ``group`` selects the information set for the physiology ablation:
+
+    * ``joint``: values and missing indicators.
+    * ``history``: neither values nor indicators (fluid history + static only).
+    * ``missing``: missing indicators only.
+    * ``values``: values only.
     """
-    if group not in ("joint", "history"):
-        raise ValueError("group must be 'joint' or 'history'")
-    series, guards = load_series(root)
+    if group not in ("joint", "history", "missing", "values"):
+        raise ValueError("group must be joint, history, missing or values")
+    series, guards = load_series(root, expected_patients=expected_patients)
     patients = sorted(series)
     folds = np.full(len(patients), -1, dtype=int)
     development = [i for i, pid in enumerate(patients) if series[pid]["split"] == 0]
@@ -193,16 +231,27 @@ def build(root: Path, history: int = 24, horizons=HORIZONS, group: str = "joint"
         folds[index] = rank % 5
 
     sequences, statics, patient_index, hour_index = [], [], [], []
-    target_rate, target_active, previous_rate, actions = [], [], [], []
+    target_rate, target_active, previous_rate, actions, action_masks, contiguous = [], [], [], [], [], []
     cum_targets, cum_masks = [], []
     for index, pid in enumerate(patients):
         item = series[pid]
         rate = item["rate"]
         added = item["added"]
         vitals = item["vitals"]
-        features = _sequence_features(rate, added, item["added_signed"], vitals)
+        time = item["time"]
+        features = _sequence_features(rate, added, item["added_signed"], vitals, time=time)
+        # Raw feature layout (46 columns): rate 0:3, active 3:6, delta 6:9,
+        # age 9:12, mean6 12:15, mean24 15:18, added 18:21, correction 21:24,
+        # oral value 24, oral missing 25, vital values 26:35, vital missing
+        # 35:44, valid 44, hour 45.
         if group == "history":
-            features[:, 24:44] = 0.0  # oral (2) + vitals (9) + vital missingness (9)
+            features[:, 24:44] = 0.0
+        elif group == "missing":
+            features[:, 24] = 0.0
+            features[:, 26:35] = 0.0
+        elif group == "values":
+            features[:, 25] = 0.0
+            features[:, 35:44] = 0.0
         T = len(rate)
         if T < 2:
             continue
@@ -220,17 +269,22 @@ def build(root: Path, history: int = 24, horizons=HORIZONS, group: str = "joint"
                                            (~np.isfinite(item["baseline"])).astype(float),
                                            [item["length"] / 72.0]]))
             patient_index.append(index)
-            hour_index.append(i + 1)
+            hour_index.append(int(round(time[i])))
+            is_contiguous = bool(i == 0 or time[i] - time[i - 1] == 1)
+            contiguous.append(is_contiguous)
             target_rate.append(rate[i])
             target_active.append((rate[i] > EPS).astype(float))
             previous_rate.append(rate[i - 1])
             actions.append(action_classes(rate[i - 1:i], rate[i:i + 1])[0])
+            action_masks.append(np.full(3, is_contiguous, dtype=bool))
             cum = np.full((len(horizons), 3), np.nan)
             mask = np.zeros(len(horizons), dtype=bool)
             for h_index, horizon in enumerate(horizons):
                 if i + horizon <= T:
-                    cum[h_index] = rate[i:i + horizon].sum(0)
-                    mask[h_index] = True
+                    stamps = time[i:i + horizon + 1]
+                    if np.array_equal(np.diff(stamps), np.ones(horizon)):
+                        cum[h_index] = rate[i:i + horizon].sum(0)
+                        mask[h_index] = True
             cum_targets.append(cum)
             cum_masks.append(mask)
     rows = dict(patient=np.asarray(patient_index, int),
@@ -241,7 +295,8 @@ def build(root: Path, history: int = 24, horizons=HORIZONS, group: str = "joint"
                 target_active=np.asarray(target_active, float),
                 previous_rate=np.asarray(previous_rate, float),
                 action=np.asarray(actions, int),
-                action_mask=np.ones((len(patient_index), 3), dtype=bool),
+                action_mask=np.asarray(action_masks, bool),
+                contiguous=np.asarray(contiguous, bool),
                 cum_target=np.asarray(cum_targets, float),
                 cum_mask=np.asarray(cum_masks, bool))
     windows = dict(sequence=np.asarray(sequences, np.float32),

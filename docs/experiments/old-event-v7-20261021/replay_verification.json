@@ -1,0 +1,47 @@
+{
+  "note": "Checkpoint replay after the raw-time loader change; zero means the joint/history training features are unchanged.",
+  "fold": 0,
+  "seed": 20261015,
+  "arms": {
+    "joint": {
+      "available": true,
+      "group": "joint",
+      "max_abs_diff": {
+        "rate_ml_h": 0.0,
+        "event_probability": 0.0,
+        "active_probability": 0.0,
+        "rate_candidates_ml_h": 0.0
+      }
+    },
+    "history": {
+      "available": true,
+      "group": "history",
+      "max_abs_diff": {
+        "rate_ml_h": 0.0,
+        "event_probability": 0.0,
+        "active_probability": 0.0,
+        "rate_candidates_ml_h": 0.0
+      }
+    },
+    "missing": {
+      "available": true,
+      "group": "missing",
+      "max_abs_diff": {
+        "rate_ml_h": 0.0,
+        "event_probability": 0.0,
+        "active_probability": 0.0,
+        "rate_candidates_ml_h": 0.0
+      }
+    },
+    "values": {
+      "available": true,
+      "group": "values",
+      "max_abs_diff": {
+        "rate_ml_h": 0.0,
+        "event_probability": 0.0,
+        "active_probability": 0.0,
+        "rate_candidates_ml_h": 0.0
+      }
+    }
+  }
+}
