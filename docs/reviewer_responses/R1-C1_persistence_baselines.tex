@@ -1,0 +1,58 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage{hyperref}
+
+\title{Response to Reviewer 1, Comment 1\\Persistence and Moving-Average Baselines}
+\author{Manuscript EAAI-26-19194}
+\date{Draft for author review}
+
+\begin{document}
+\maketitle
+
+\paragraph{Scope.}
+This file addresses one reviewer concern only: whether the model's apparent
+predictive performance could be explained by carrying forward the preceding
+hour's infusion rate. It is a draft response, not the complete Response Letter.
+The concern is paraphrased rather than reproduced verbatim.
+
+\paragraph{Response.}
+We agree that comparison with simple temporal baselines is necessary. The
+repository's evaluation record documents last-value persistence and a causal
+moving-average baseline, together with paired patient-level uncertainty
+estimates. The claim-evidence matrix reports no consistent MAE superiority
+over these baselines.
+
+The currently documented patient-level results report the difference in MAE
+(model minus baseline) as $+13.84$ against persistence (95\% CI
+$[-6.05,\;32.02]$) and $-1.44$ against the moving average (95\% CI
+$[-11.88,\;10.80]$); both intervals include zero. For patient-level macro-F1,
+persistence was higher: the difference (model minus persistence) was $-0.0281$
+(95\% CI $[-0.0428,\;-0.0147]$). These values and their definitions must be
+verified against the final analysis output before submission.
+
+\paragraph{Manuscript change.}
+The claim-evidence matrix records removal of the unsupported phrase
+"consistently outperformed" and addition of the baseline comparison and
+patient-level uncertainty analysis. The approved revised manuscript is not
+available in the repository, so these edits cannot yet be verified in the
+final article. After the authors approve the final source, replace this
+paragraph with the exact revised section/table/figure and page/line locations.
+
+\paragraph{Evidence.}
+The aggregate results and claim audit are recorded in
+\href{https://github.com/Aveouter/Fluid_Infusion_Decision/blob/main/docs/claim_evidence.md}{\texttt{docs/claim\_evidence.md}};
+the relevant implementation and acceptance record is
+\href{https://github.com/Aveouter/Fluid_Infusion_Decision/issues/9}{Issue \#9},
+with patient-level inference details tracked in
+\href{https://github.com/Aveouter/Fluid_Infusion_Decision/issues/13}{Issue \#13}.
+No patient-level records or identifying information are included here.
+
+\paragraph{Pending final verification.}
+Before this response is included in the resubmission, the authors must verify
+the metric names, aggregation, units, values, confidence intervals, and
+wording against the final analysis output and revised manuscript; insert the
+final manuscript page and line references; and ensure the same response is
+present in the approved point-by-point Response Letter.
+
+\end{document}
